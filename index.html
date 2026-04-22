@@ -1,0 +1,1014 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#0a0e14" />
+<title>Vitals · Personal Health Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #0a0e14;
+    --surface: #0f141c;
+    --surface-2: #161c26;
+    --border: #1f2733;
+    --border-bright: #2a3444;
+    --text: #e5ecf5;
+    --text-dim: #6b7785;
+    --text-faint: #3d4754;
+    --accent: #00ff9c;
+    --accent-dim: #00ff9c44;
+    --warn: #ff5577;
+    --travel: #5fb3ff;
+    --cheat: #ffaa3d;
+    --period: #ff66aa;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--bg); color: var(--text); font-family: 'Space Grotesk', system-ui, sans-serif; -webkit-font-smoothing: antialiased; min-height: 100vh; }
+  body {
+    background-image:
+      radial-gradient(ellipse at 0% 0%, rgba(0,255,156,0.04) 0%, transparent 40%),
+      radial-gradient(ellipse at 100% 100%, rgba(95,179,255,0.04) 0%, transparent 40%);
+  }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 24px 20px 80px; }
+
+  /* Header */
+  .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+  .brand-mark { display: flex; align-items: center; gap: 12px; }
+  .brand-dot { width: 10px; height: 10px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 12px var(--accent); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+  .brand-text h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 2px; }
+  .brand-text p { font-size: 11px; color: var(--text-dim); letter-spacing: 0.2em; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; }
+  .header-meta { text-align: right; font-size: 11px; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; letter-spacing: 0.05em; }
+  .header-meta .live { color: var(--accent); display: inline-flex; align-items: center; gap: 6px; }
+  .live::before { content: ''; display: inline-block; width: 6px; height: 6px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 6px var(--accent); }
+
+  /* Stats grid */
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 28px; }
+  @media (max-width: 700px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+  .stat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 18px 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .stat::before {
+    content: ''; position: absolute; top: 0; left: 0; width: 30px; height: 1px;
+    background: var(--accent);
+  }
+  .stat-label { font-size: 10px; color: var(--text-dim); letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 8px; font-family: 'JetBrains Mono', monospace; }
+  .stat-value { font-size: 28px; font-weight: 500; letter-spacing: -0.02em; font-family: 'Space Grotesk', sans-serif; line-height: 1; }
+  .stat-value .unit { font-size: 13px; color: var(--text-dim); font-weight: 400; margin-left: 4px; }
+  .stat-sub { font-size: 11px; color: var(--text-dim); margin-top: 8px; font-family: 'JetBrains Mono', monospace; }
+  .stat-sub.up { color: var(--warn); }
+  .stat-sub.down { color: var(--accent); }
+
+  /* Chart card */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    margin-bottom: 24px;
+  }
+  .card-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+  .card-title { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; font-weight: 500; }
+  .card-body { padding: 20px; }
+  .range-tabs { display: flex; gap: 1px; background: var(--border); }
+  .range-tab {
+    padding: 5px 12px; font-size: 11px; background: var(--surface);
+    border: none; color: var(--text-dim); cursor: pointer;
+    font-family: 'JetBrains Mono', monospace; letter-spacing: 0.1em;
+    transition: all 0.15s;
+  }
+  .range-tab:hover { color: var(--text); }
+  .range-tab.active { background: var(--accent); color: var(--bg); font-weight: 700; }
+
+  #weight-chart { width: 100%; height: 260px; }
+  .chart-empty { padding: 60px 20px; text-align: center; color: var(--text-dim); font-style: italic; }
+
+  /* Form */
+  .form-card { background: var(--surface); border: 1px solid var(--border); padding: 20px; margin-bottom: 24px; }
+  .date-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; padding-bottom: 18px; border-bottom: 1px solid var(--border); }
+  .date-input {
+    background: var(--surface-2); border: 1px solid var(--border); color: var(--text);
+    padding: 8px 12px; font-family: 'JetBrains Mono', monospace; font-size: 14px;
+    color-scheme: dark;
+  }
+  .date-input:focus { outline: none; border-color: var(--accent); }
+  .nav-btn {
+    background: var(--surface-2); border: 1px solid var(--border); color: var(--text-dim);
+    width: 32px; height: 32px; cursor: pointer; font-family: 'JetBrains Mono', monospace;
+    transition: all 0.15s; font-size: 14px;
+  }
+  .nav-btn:hover { color: var(--accent); border-color: var(--accent); }
+  .today-badge { font-size: 10px; padding: 4px 8px; background: var(--accent-dim); color: var(--accent); letter-spacing: 0.2em; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; font-weight: 700; }
+
+  .day-tags { display: flex; gap: 8px; }
+  .day-tag {
+    background: transparent; border: 1px solid var(--border); color: var(--text-dim);
+    padding: 6px 14px; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
+    cursor: pointer; font-family: 'JetBrains Mono', monospace; font-weight: 500;
+    transition: all 0.15s;
+  }
+  .day-tag:hover { border-color: var(--text-dim); color: var(--text); }
+  .day-tag.active[data-tag="normal"] { background: var(--text-dim); color: var(--bg); border-color: var(--text-dim); }
+  .day-tag.active[data-tag="cheat"] { background: var(--cheat); color: var(--bg); border-color: var(--cheat); }
+  .day-tag.active[data-tag="travel"] { background: var(--travel); color: var(--bg); border-color: var(--travel); }
+
+  /* Two-col field grid */
+  .field-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; margin-bottom: 22px; }
+  @media (max-width: 600px) { .field-grid { grid-template-columns: 1fr; } }
+  .field-label { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 8px; font-family: 'JetBrains Mono', monospace; font-weight: 500; }
+  .field-input-wrap { display: flex; align-items: baseline; gap: 8px; border-bottom: 1px solid var(--border); padding-bottom: 6px; transition: border-color 0.15s; }
+  .field-input-wrap:focus-within { border-color: var(--accent); }
+  .field-input {
+    flex: 1; background: transparent; border: none; color: var(--text);
+    font-family: 'Space Grotesk', sans-serif; font-size: 26px; font-weight: 500;
+    outline: none; padding: 0; min-width: 0; width: 100%;
+  }
+  .field-suffix { font-size: 11px; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; letter-spacing: 0.1em; }
+
+  /* Toggle row */
+  .toggle-row { display: flex; align-items: center; gap: 22px; margin-bottom: 22px; }
+  .toggle {
+    display: inline-flex; align-items: center; gap: 10px; cursor: pointer; user-select: none;
+  }
+  .toggle-box {
+    width: 36px; height: 20px; background: var(--border); border-radius: 0; position: relative; transition: 0.2s;
+  }
+  .toggle-box::after { content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; background: var(--text-dim); transition: 0.2s; }
+  .toggle input { display: none; }
+  .toggle input:checked + .toggle-box { background: var(--period); }
+  .toggle input:checked + .toggle-box::after { transform: translateX(16px); background: white; }
+  .toggle-label { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; font-weight: 500; }
+  .toggle input:checked ~ .toggle-label { color: var(--period); }
+
+  /* Bowel grid */
+  .bowel-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 8px; }
+  .bowel-btn {
+    background: var(--surface-2); border: 1px solid var(--border); color: var(--text-dim);
+    padding: 12px 6px; cursor: pointer; transition: all 0.15s; font-family: inherit; text-align: center;
+  }
+  .bowel-btn:hover { border-color: var(--text-dim); color: var(--text); }
+  .bowel-btn.active { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+  .bowel-emoji { font-size: 20px; margin-bottom: 4px; display: block; }
+  .bowel-label { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; }
+
+  /* Training */
+  .training-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 10px; }
+  @media (max-width: 600px) { .training-grid { grid-template-columns: 1fr; } }
+  .select, .text-input {
+    width: 100%; background: var(--surface-2); border: 1px solid var(--border);
+    color: var(--text); padding: 10px 12px; font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px; outline: none;
+    color-scheme: dark;
+  }
+  .select { cursor: pointer; }
+  .select:focus, .text-input:focus { border-color: var(--accent); }
+
+  /* Collapsible */
+  .collapsible { border: 1px solid var(--border); margin-bottom: 12px; }
+  .collapsible-head {
+    width: 100%; background: transparent; border: none; padding: 12px 16px;
+    display: flex; justify-content: space-between; align-items: center; cursor: pointer;
+    color: var(--text); text-align: left; font-family: inherit;
+  }
+  .collapsible-head:hover { background: var(--surface-2); }
+  .collapsible-title { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; font-weight: 500; }
+  .collapsible-preview { font-size: 12px; color: var(--text-faint); margin-top: 4px; font-style: italic; }
+  .collapsible-icon { color: var(--text-dim); transition: transform 0.2s; }
+  .collapsible.open .collapsible-icon { transform: rotate(180deg); }
+  .collapsible-body { padding: 16px; border-top: 1px solid var(--border); background: var(--surface-2); display: none; }
+  .collapsible.open .collapsible-body { display: block; }
+  .meal-row { margin-bottom: 12px; }
+  .meal-row:last-child { margin-bottom: 0; }
+  .meal-row label { font-size: 10px; color: var(--text-dim); letter-spacing: 0.15em; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; display: block; margin-bottom: 4px; }
+  .text-area {
+    width: 100%; background: var(--bg); border: 1px solid var(--border);
+    color: var(--text); padding: 10px 12px; font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px; outline: none; resize: vertical; min-height: 60px;
+  }
+  .text-area:focus { border-color: var(--accent); }
+
+  /* Action buttons */
+  .actions { display: flex; gap: 10px; margin-top: 22px; }
+  .btn-primary {
+    flex: 1; background: var(--accent); color: var(--bg); border: none;
+    padding: 14px; font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    letter-spacing: 0.2em; text-transform: uppercase; cursor: pointer; font-weight: 700;
+    transition: 0.15s;
+  }
+  .btn-primary:hover { background: white; box-shadow: 0 0 20px var(--accent-dim); }
+  .btn-danger {
+    background: transparent; color: var(--warn); border: 1px solid var(--warn);
+    padding: 14px 20px; cursor: pointer; font-family: inherit;
+    transition: 0.15s;
+  }
+  .btn-danger:hover { background: var(--warn); color: var(--bg); }
+
+  /* Recent log */
+  .log-table { width: 100%; }
+  .log-row {
+    display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr;
+    gap: 10px; padding: 12px 20px; border-top: 1px solid var(--border);
+    cursor: pointer; transition: background 0.1s; align-items: center;
+  }
+  .log-row:hover { background: var(--surface-2); }
+  .log-date { font-size: 13px; color: var(--text); font-weight: 500; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .log-day { font-size: 11px; color: var(--text-dim); margin-right: 4px; font-family: 'JetBrains Mono', monospace; }
+  .log-tag { font-size: 9px; padding: 2px 6px; letter-spacing: 0.15em; text-transform: uppercase; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+  .log-tag.cheat { background: var(--cheat); color: var(--bg); }
+  .log-tag.travel { background: var(--travel); color: var(--bg); }
+  .log-tag.period { background: var(--period); color: var(--bg); }
+  .log-num { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--text); font-weight: 500; }
+  .log-num.dim { color: var(--text-faint); }
+  .log-icon { font-size: 14px; text-align: center; }
+  .log-strength { font-size: 11px; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
+
+  @media (max-width: 700px) {
+    .log-row { grid-template-columns: 1.5fr 1fr 1fr; }
+    .log-cardio, .log-cal { display: none; }
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
+    background: var(--accent); color: var(--bg); padding: 12px 24px;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.15em;
+    text-transform: uppercase; font-weight: 700; opacity: 0;
+    transition: all 0.3s; box-shadow: 0 4px 30px var(--accent-dim); z-index: 100;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast.warn { background: var(--warn); box-shadow: 0 4px 30px rgba(255,85,119,0.3); }
+
+  /* Footer info */
+  .footer-info {
+    margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border);
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+    font-size: 11px; color: var(--text-faint); font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.1em;
+  }
+  .footer-actions { display: flex; gap: 10px; }
+  .footer-btn {
+    background: transparent; border: 1px solid var(--border); color: var(--text-dim);
+    padding: 6px 12px; cursor: pointer; font-family: inherit; font-size: 10px;
+    letter-spacing: 0.15em; text-transform: uppercase;
+  }
+  .footer-btn:hover { color: var(--accent); border-color: var(--accent); }
+  .footer-btn.danger:hover { color: var(--warn); border-color: var(--warn); }
+
+  /* Detail panel for selected day */
+  .day-detail {
+    background: var(--surface-2); border: 1px solid var(--border);
+    padding: 14px 16px; margin-top: 12px; font-size: 12px; line-height: 1.6;
+    color: var(--text-dim);
+  }
+  .day-detail strong { color: var(--text); font-weight: 500; }
+  .day-detail .row { padding: 4px 0; border-bottom: 1px dashed var(--border); }
+  .day-detail .row:last-child { border-bottom: none; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header class="header">
+    <div class="brand-mark">
+      <div class="brand-dot"></div>
+      <div class="brand-text">
+        <h1>VITALS</h1>
+        <p>Personal Health OS</p>
+      </div>
+    </div>
+    <div class="header-meta">
+      <div class="live">SYSTEM ONLINE</div>
+      <div id="header-date" style="margin-top: 4px;"></div>
+    </div>
+  </header>
+
+  <!-- Stats -->
+  <section class="stats-grid">
+    <div class="stat">
+      <div class="stat-label">Latest Weight</div>
+      <div class="stat-value" id="stat-latest">—</div>
+      <div class="stat-sub" id="stat-latest-sub">—</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">7-Day Avg</div>
+      <div class="stat-value" id="stat-avg">—</div>
+      <div class="stat-sub" id="stat-avg-sub">—</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Total Δ</div>
+      <div class="stat-value" id="stat-change">—</div>
+      <div class="stat-sub" id="stat-change-sub">—</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Streak</div>
+      <div class="stat-value" id="stat-streak">—</div>
+      <div class="stat-sub" id="stat-streak-sub">days logged</div>
+    </div>
+  </section>
+
+  <!-- Chart -->
+  <section class="card">
+    <div class="card-header">
+      <div class="card-title">// Weight Trajectory</div>
+      <div class="range-tabs" id="range-tabs">
+        <button class="range-tab" data-range="7">7D</button>
+        <button class="range-tab active" data-range="30">30D</button>
+        <button class="range-tab" data-range="90">90D</button>
+        <button class="range-tab" data-range="365">1Y</button>
+      </div>
+    </div>
+    <div class="card-body">
+      <div id="chart-wrap"><canvas id="weight-chart"></canvas></div>
+    </div>
+  </section>
+
+  <!-- Entry Form -->
+  <section class="form-card">
+    <div class="date-row">
+      <button class="nav-btn" id="prev-day" title="Previous day">‹</button>
+      <input type="date" class="date-input" id="entry-date" />
+      <button class="nav-btn" id="next-day" title="Next day">›</button>
+      <span id="today-badge" class="today-badge" style="display:none">TODAY</span>
+      <span style="flex:1"></span>
+      <button class="nav-btn" id="unit-toggle" style="width:auto; padding: 0 12px;" title="Toggle unit">KG</button>
+    </div>
+
+    <div style="margin-bottom: 22px;">
+      <div class="field-label">Day Type</div>
+      <div class="day-tags" id="day-tags">
+        <button class="day-tag active" data-tag="normal">Normal</button>
+        <button class="day-tag" data-tag="cheat">Cheat Day</button>
+        <button class="day-tag" data-tag="travel">Travel</button>
+      </div>
+    </div>
+
+    <div class="field-grid">
+      <div>
+        <div class="field-label">Weight (Morning)</div>
+        <div class="field-input-wrap">
+          <input type="number" step="0.1" class="field-input mono" id="weight-input" placeholder="0.0" />
+          <span class="field-suffix" id="weight-unit">KG</span>
+        </div>
+      </div>
+      <div>
+        <div class="field-label">Calories</div>
+        <div class="field-input-wrap">
+          <input type="number" step="1" class="field-input mono" id="calorie-input" placeholder="0" />
+          <span class="field-suffix">KCAL</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="toggle-row">
+      <label class="toggle">
+        <input type="checkbox" id="period-toggle" />
+        <span class="toggle-box"></span>
+        <span class="toggle-label">Period Day</span>
+      </label>
+    </div>
+
+    <div style="margin-bottom: 22px;">
+      <div class="field-label">Bowel</div>
+      <div class="bowel-grid" id="bowel-grid"></div>
+    </div>
+
+    <div style="margin-bottom: 22px;">
+      <div class="field-label">Training</div>
+      <div class="training-grid">
+        <div>
+          <div style="font-size:9px; color:var(--text-faint); letter-spacing:0.1em; margin-bottom:4px; font-family:'JetBrains Mono',monospace;">STRENGTH</div>
+          <select class="select" id="strength-select"></select>
+        </div>
+        <div>
+          <div style="font-size:9px; color:var(--text-faint); letter-spacing:0.1em; margin-bottom:4px; font-family:'JetBrains Mono',monospace;">CARDIO (MIN)</div>
+          <input type="number" class="text-input mono" id="cardio-input" placeholder="0" />
+        </div>
+      </div>
+    </div>
+
+    <div class="collapsible" id="meals-collapsible">
+      <button class="collapsible-head" data-target="meals-collapsible">
+        <div>
+          <div class="collapsible-title">// Diary · Meals & Supplements</div>
+          <div class="collapsible-preview" id="meals-preview">Tap to log meals</div>
+        </div>
+        <span class="collapsible-icon">▾</span>
+      </button>
+      <div class="collapsible-body">
+        <div class="meal-row"><label>Breakfast</label><input type="text" class="text-input" id="meal-breakfast" /></div>
+        <div class="meal-row"><label>Lunch</label><input type="text" class="text-input" id="meal-lunch" /></div>
+        <div class="meal-row"><label>Pre-workout</label><input type="text" class="text-input" id="meal-preworkout" /></div>
+        <div class="meal-row"><label>Dinner</label><input type="text" class="text-input" id="meal-dinner" /></div>
+        <div class="meal-row"><label>Supplements</label><input type="text" class="text-input" id="supplements-input" /></div>
+      </div>
+    </div>
+
+    <div class="collapsible" id="remark-collapsible">
+      <button class="collapsible-head" data-target="remark-collapsible">
+        <div>
+          <div class="collapsible-title">// Remark</div>
+          <div class="collapsible-preview" id="remark-preview">Notes about energy, sleep, steps, etc.</div>
+        </div>
+        <span class="collapsible-icon">▾</span>
+      </button>
+      <div class="collapsible-body">
+        <textarea class="text-area" id="remark-input" rows="4" placeholder="Energy level, sleep quality, steps, mood, anything else worth remembering..."></textarea>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary" id="save-btn">Save Entry</button>
+      <button class="btn-danger" id="delete-btn" title="Delete entry" style="display:none;">DELETE</button>
+    </div>
+  </section>
+
+  <!-- Recent log -->
+  <section class="card">
+    <div class="card-header">
+      <div class="card-title">// Recent Entries</div>
+      <div style="font-size:10px; color:var(--text-dim); font-family:'JetBrains Mono',monospace; letter-spacing:0.1em;" id="entry-count">0 ENTRIES</div>
+    </div>
+    <div class="log-table" id="log-table"></div>
+  </section>
+
+  <div class="footer-info">
+    <div>
+      DATA STORED LOCALLY · NO SERVER · v1.0
+    </div>
+    <div class="footer-actions">
+      <button class="footer-btn" id="export-btn">EXPORT JSON</button>
+      <button class="footer-btn" id="import-btn">IMPORT</button>
+      <button class="footer-btn danger" id="reset-btn">RESET ALL</button>
+      <input type="file" id="import-file" accept="application/json" style="display:none;" />
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============== SEED DATA ==============
+const SEED_DATA = {"2026-02-23":{"weight":70.1,"poop":"none","period":false,"dayTag":"normal","strength":"none","cardio":null,"meals":{"breakfast":"","lunch":"","preworkout":"","dinner":""},"supplements":"","calories":null,"remark":""},"2026-03-01":{"weight":68.7,"poop":"none","period":false,"dayTag":"normal","strength":"break","cardio":20,"meals":{"breakfast":"","lunch":"","preworkout":"赛百味","dinner":"特大份黄焖鸡+单加肉"},"supplements":"","calories":null,"remark":""},"2026-03-02":{"weight":68.4,"poop":"none","period":false,"dayTag":"normal","strength":"break","cardio":40,"meals":{"breakfast":"","lunch":"油梨树：招牌鸡肉+鸡腿肉","preworkout":"赛百味","dinner":"翘脚牛肉+白灼菜心+单加一份肉+米饭"},"supplements":"","calories":null,"remark":""},"2026-03-03":{"weight":68.15,"poop":"none","period":true,"dayTag":"normal","strength":"chest_front","cardio":20,"meals":{"breakfast":"蛋白粉","lunch":"油梨树：招牌鸡肉+鸡腿肉","preworkout":"宝矿力水特","dinner":"翘脚牛肉+白灼菜心+单加一份肉+米饭"},"supplements":"","calories":null,"remark":""},"2026-03-04":{"weight":67.8,"poop":"none","period":true,"dayTag":"normal","strength":"back","cardio":20,"meals":{"breakfast":"蛋白粉","lunch":"油梨树：招牌鸡肉+鸡腿肉","preworkout":"赛百味","dinner":"翘脚牛肉+白灼菜心+单加一份肉+米饭"},"supplements":"","calories":null,"remark":""},"2026-03-05":{"weight":67.55,"poop":"none","period":true,"dayTag":"normal","strength":"shoulders_mid_rear","cardio":20,"meals":{"breakfast":"蛋白粉","lunch":"油梨树：招牌鸡肉+鸡腿肉","preworkout":"赛百味","dinner":"翘脚牛肉+白灼菜心+单加一份肉+米饭"},"supplements":"益生菌","calories":null,"remark":""},"2026-03-06":{"weight":67.55,"poop":"none","period":true,"dayTag":"normal","strength":"legs","cardio":10,"meals":{"breakfast":"蛋白粉","lunch":"油梨树：招牌鸡肉+鸡腿肉","preworkout":"赛百味  + 一片Rachel给的面包","dinner":"翘脚牛肉+白灼菜心+单加一份肉+米饭"},"supplements":"益生菌","calories":null,"remark":""},"2026-03-07":{"weight":67.25,"poop":"none","period":true,"dayTag":"normal","strength":"break","cardio":25,"meals":{"breakfast":"","lunch":"青椒洋葱炒鸡丁 + 炒包菜 + 清炒生菜 + 凉拌花椒芽","preworkout":"","dinner":"萝卜炖肉 + 炒包菜 + 香椿鸡蛋 + 白米饭"},"supplements":"","calories":null,"remark":"早空腹有氧"},"2026-03-08":{"weight":67.3,"poop":"none","period":true,"dayTag":"normal","strength":"chest_front","cardio":20,"meals":{"breakfast":"","lunch":"油梨树：招牌鸡肉+鸡腿肉","preworkout":"赛百味","dinner":"翘脚牛肉+白灼菜心+单加一份肉+米饭"},"supplements":"益生菌","calories":null,"remark":"今天理发了 + 晚饭吃的早"},"2026-03-09":{"weight":66.8,"poop":"none","period":false,"dayTag":"normal","strength":"back","cardio":20,"meals":{"breakfast":"","lunch":"油梨树：招牌鸡肉+鸡腿肉","preworkout":"赛百味","dinner":"翘脚牛肉+白灼菜心+单加一份肉+米饭"},"supplements":"益生菌","calories":null,"remark":"没拉臭"},"2026-03-10":{"weight":67.2,"poop":"none","period":false,"dayTag":"normal","strength":"shoulders_mid_rear","cardio":20,"meals":{"breakfast":"","lunch":"油梨树：招牌鸡肉+鸡腿肉","preworkout":"赛百味","dinner":"翘脚牛肉+白灼菜心+单加一份肉+米饭"},"supplements":"益生菌","calories":null,"remark":"没拉臭"},"2026-03-11":{"weight":67.5,"poop":"ideal","period":false,"dayTag":"cheat","strength":"legs","cardio":20,"meals":{"breakfast":"","lunch":"铁板烧","preworkout":"","dinner":"2裸麦杂粮面包，1烤冷面，1煎饼，1年糕"},"supplements":"益生菌","calories":null,"remark":"早上称完拉了，放纵日"},"2026-03-12":{"weight":67.75,"poop":"none","period":false,"dayTag":"normal","strength":"chest_front","cardio":25,"meals":{"breakfast":"益生菌","lunch":"油梨树：招牌鸡肉+鸡腿肉","preworkout":"赛百味","dinner":"翘脚牛肉+白灼菜心+单加一份肉+米饭"},"supplements":"益生菌","calories":null,"remark":"没拉臭"},"2026-03-13":{"weight":67.5,"poop":"ideal","period":false,"dayTag":"normal","strength":"back","cardio":25,"meals":{"breakfast":"益生菌","lunch":"油梨树：招牌鸡肉+鸡腿肉","preworkout":"赛百味","dinner":"翘脚牛肉+白灼菜心+单加一份肉+米饭"},"supplements":"益生菌","calories":null,"remark":"早上称完拉了"},"2026-03-14":{"weight":67.5,"poop":"none","period":false,"dayTag":"normal","strength":"shoulders_mid_rear","cardio":25,"meals":{"breakfast":"益生菌","lunch":"油梨树：招牌鸡肉+鸡腿肉","preworkout":"赛百味","dinner":"翘脚牛肉+白灼菜心+单加一份肉+米饭"},"supplements":"益生菌","calories":null,"remark":"没拉臭"},"2026-03-15":{"weight":67.4,"poop":"ideal","period":false,"dayTag":"normal","strength":"legs","cardio":25,"meals":{"breakfast":"益生菌","lunch":"油梨树：招牌鸡肉+鸡腿肉","preworkout":"赛百味","dinner":"翘脚牛肉+白灼菜心+单加一份肉+米饭"},"supplements":"益生菌","calories":null,"remark":"称完拉了一点"},"2026-03-16":{"weight":67.3,"poop":"none","period":false,"dayTag":"normal","strength":"shoulders_mid_rear","cardio":0,"meals":{"breakfast":"益生菌","lunch":"油梨树：招牌鸡肉+鸡腿肉","preworkout":"赛百味","dinner":"翘脚牛肉+白灼菜心+米饭"},"supplements":"益生菌，鱼油","calories":null,"remark":"非常累，停有氧"},"2026-03-17":{"weight":67.3,"poop":"ideal","period":false,"dayTag":"normal","strength":"back","cardio":0,"meals":{"breakfast":"益生菌","lunch":"油梨树：招牌鸡肉+鸡腿肉","preworkout":"赛百味","dinner":"翘脚牛肉+白灼菜心+米饭"},"supplements":"益生菌，鱼油","calories":null,"remark":"中午拉了一些，非常累，停有氧"},"2026-03-18":{"weight":67.45,"poop":"ideal","period":false,"dayTag":"normal","strength":"break","cardio":0,"meals":{"breakfast":"益生菌","lunch":"油梨树：招牌鸡肉+鸡腿肉","preworkout":"","dinner":"油梨树：招牌牛肉+牛肉"},"supplements":"益生菌，鱼油","calories":null,"remark":"称完拉了一丢丢，非常累，停有氧"},"2026-03-19":{"weight":67.55,"poop":"ideal","period":false,"dayTag":"normal","strength":"chest_front","cardio":20,"meals":{"breakfast":"益生菌","lunch":"油梨树：招牌鸡肉+鸡腿肉","preworkout":"赛百味","dinner":"翘脚牛肉+白灼菜心+单加一份肉+米饭"},"supplements":"益生菌，鱼油","calories":null,"remark":"中午拉了，身体比较累"},"2026-03-20":{"weight":67.05,"poop":"none","period":false,"dayTag":"normal","strength":"legs","cardio":15,"meals":{"breakfast":"益生菌","lunch":"潮汕牛肉火锅：吊龙+匙仁+匙柄+一碗米饭+一颗熟牛筋丸","preworkout":"赛百味","dinner":"翘脚牛肉+白灼菜心+单加一份肉+米饭"},"supplements":"益生菌，鱼油","calories":null,"remark":"没拉"},"2026-03-21":{"weight":67.45,"poop":"none","period":false,"dayTag":"normal","strength":"back","cardio":15,"meals":{"breakfast":"益生菌","lunch":"油梨树：招牌鸡肉+鸡腿肉","preworkout":"赛百味","dinner":"翘脚牛肉+白灼菜心*2+单加一份肉+米饭"},"supplements":"益生菌，鱼油","calories":null,"remark":""},"2026-03-22":{"weight":66.6,"poop":"none","period":false,"dayTag":"cheat","strength":"shoulders_mid_rear","cardio":0,"meals":{"breakfast":"益生菌","lunch":"2裸麦杂粮面包，1雷神面包，1烤冷面，1煎饼，1油梨树","preworkout":"","dinner":"菜煎饼，炒鸡"},"supplements":"益生菌，鱼油","calories":null,"remark":"散步8,000步；过敏打喷嚏"},"2026-03-23":{"weight":67.55,"poop":"none","period":false,"dayTag":"normal","strength":"chest_front","cardio":45,"meals":{"breakfast":"益生菌","lunch":"油梨树：招牌鸡肉+鸡腿肉","preworkout":"赛百味","dinner":"翘脚牛肉+白灼菜心*2+单加一份肉+米饭"},"supplements":"益生菌，鱼油，南非醉茄，镁","calories":null,"remark":"几乎没拉，精神不错，便秘明显，水重开始回落"},"2026-03-24":{"weight":66.7,"poop":"none","period":false,"dayTag":"normal","strength":"legs","cardio":15,"meals":{"breakfast":"益生菌","lunch":"油梨树：招牌鸡肉+鸡腿肉","preworkout":"赛百味","dinner":"翘脚牛肉+白灼菜心*2+单加一份肉+米饭"},"supplements":"益生菌，鱼油，南非醉茄，镁","calories":null,"remark":"几乎没拉，精神不错，便秘明显"},"2026-03-25":{"weight":66.6,"poop":"ideal","period":false,"dayTag":"normal","strength":"back","cardio":null,"meals":{"breakfast":"益生菌","lunch":"油梨树：招牌鸡肉+鸡腿肉; 食堂两块蒸南瓜","preworkout":"","dinner":""},"supplements":"益生菌，鱼油，南非醉茄，镁","calories":null,"remark":"中午顺利拉臭"},"2026-03-26":{"weight":66.85,"poop":"none","period":false,"dayTag":"normal","strength":"break","cardio":0,"meals":{"breakfast":"益生菌","lunch":"麦当劳双层吉士汉堡（免酱+免芝士）","preworkout":"赛百味","dinner":"翘脚牛肉+白灼菜心+1/2米饭"},"supplements":"益生菌，鱼油，南非醉茄，镁","calories":null,"remark":"早上没拉臭，加班，没练成，直接回家"},"2026-03-27":{"weight":66.35,"poop":"none","period":false,"dayTag":"normal","strength":"shoulders_mid_rear","cardio":20,"meals":{"breakfast":"益生菌","lunch":"油梨树：招牌鸡肉+鸡腿肉","preworkout":"赛百味","dinner":"翘脚牛肉+白灼菜心*2+单加一份肉+3/4米饭"},"supplements":"益生菌，鱼油，南非醉茄，镁","calories":null,"remark":"没拉臭"},"2026-03-28":{"weight":66.55,"poop":"ideal","period":false,"dayTag":"normal","strength":"chest_front","cardio":20,"meals":{"breakfast":"益生菌","lunch":"油梨树：招牌鸡肉+鸡腿肉","preworkout":"","dinner":"翘脚牛肉+白灼菜心*2+单加一份肉+米饭"},"supplements":"益生菌，南非醉茄，镁","calories":null,"remark":"早上拉臭量适中，午饭，下午训练，足疗，晚饭"},"2026-03-29":{"weight":66.0,"poop":"none","period":false,"dayTag":"normal","strength":"legs","cardio":20,"meals":{"breakfast":"益生菌","lunch":"油梨树：招牌鸡肉+鸡腿肉","preworkout":"赛百味","dinner":"翘脚牛肉+白灼菜心*2+单加一份肉+米饭"},"supplements":"益生菌，南非醉茄，镁","calories":null,"remark":"理发→洗浴中心搓澡 + 汗蒸"},"2026-03-30":{"weight":65.9,"poop":"none","period":false,"dayTag":"normal","strength":"back","cardio":20,"meals":{"breakfast":"益生菌","lunch":"油梨树：招牌鸡肉+鸡腿肉","preworkout":"赛百味","dinner":"翘脚牛肉+白灼菜心*2+2/3米饭"},"supplements":"益生菌，鱼油，南非醉茄，镁","calories":null,"remark":"整体疲惫，练不动，10点吃完的饭"},"2026-03-31":{"weight":66.15,"poop":"ideal","period":true,"dayTag":"normal","strength":"shoulders_mid_rear","cardio":20,"meals":{"breakfast":"益生菌","lunch":"油梨树：招牌鸡肉+鸡腿肉","preworkout":"赛百味","dinner":"翘脚牛肉+白灼菜心*2+2/3米饭"},"supplements":"益生菌，鱼油，南非醉茄，镁","calories":null,"remark":"今早未拉臭66.4，喝温水+益生菌排便，66.15"},"2026-04-01":{"weight":66.45,"poop":"none","period":true,"dayTag":"travel","strength":"chest_front","cardio":20,"meals":{"breakfast":"益生菌","lunch":"油梨树：招牌鸡肉+鸡腿肉","preworkout":"赛百味","dinner":"超级碗鸡胸肉+鸡胸肉+溏心蛋"},"supplements":"益生菌，南非醉茄，镁","calories":null,"remark":"下午出差上海，肚疼"},"2026-04-02":{"weight":null,"poop":"none","period":true,"dayTag":"travel","strength":"break","cardio":20,"meals":{"breakfast":"益生菌","lunch":"赛百味","preworkout":"","dinner":"超级碗鸡胸肉+鸡胸肉+溏心蛋+西兰花+烤南瓜"},"supplements":"益生菌，南非醉茄，镁","calories":null,"remark":"出差，AI CAMP颁奖，整体血量较大"},"2026-04-03":{"weight":null,"poop":"ideal","period":true,"dayTag":"travel","strength":"back","cardio":20,"meals":{"breakfast":"益生菌","lunch":"赛百味","preworkout":"赛百味","dinner":"翘脚牛肉+白灼菜心*2+单加一份肉+米饭"},"supplements":"益生菌，南非醉茄，镁","calories":null,"remark":"早上拉臭，量适中，下午返回北京"},"2026-04-04":{"weight":66.0,"poop":"none","period":true,"dayTag":"cheat","strength":"chest_front","cardio":20,"meals":{"breakfast":"益生菌","lunch":"脆肉脘鱼火锅：鱼腩+鱼丸+鱼肉面+一碗焗饭","preworkout":"","dinner":"1裸麦杂粮面包，1雷神面包，1烤冷面，1煎饼"},"supplements":"益生菌，南非醉茄，镁","calories":null,"remark":"早上空腹练的胸肩+20分钟有氧，开启放纵日，没拉臭"},"2026-04-05":{"weight":66.86,"poop":"none","period":false,"dayTag":"normal","strength":"shoulders_mid_rear","cardio":0,"meals":{"breakfast":"","lunch":"萝卜炖肉 + 炒青菜 + 香椿鸡蛋 +凉拌黄瓜+1碗白米饭","preworkout":"","dinner":"青椒洋葱炒鸡丁 + 炒包菜 + 炒青菜 + 西芹炒肉丝+1碗米饭"},"supplements":"","calories":null,"remark":"例假结束，没拉臭，非常非常疲惫一直在睡觉"},"2026-04-06":{"weight":65.75,"poop":"none","period":false,"dayTag":"normal","strength":"legs","cardio":20,"meals":{"breakfast":"益生菌","lunch":"","preworkout":"","dinner":""},"supplements":"","calories":null,"remark":"没拉臭，微微疲惫，午睡1H"},"2026-04-07":{"weight":65.85,"poop":"ideal","period":false,"dayTag":"travel","strength":"break","cardio":25,"meals":{"breakfast":"益生菌","lunch":"油梨树：招牌鸡肉+鸡腿肉","preworkout":"","dinner":"油梨树：羽衣甘蓝鸡肉碗 + 额外鸡肉"},"supplements":"无糖电解质粉，姜黄素，益生菌，南非醉茄，镁","calories":null,"remark":"早上称完体重拉臭，量适中，下午1点出差上海。高铁出差，20:30 到酒店爬坡 30min，步数 4826。00:00-01:00 睡。"},"2026-04-08":{"weight":null,"poop":"none","period":false,"dayTag":"travel","strength":"break","cardio":55,"meals":{"breakfast":"蛋白粉","lunch":"啫啫鸡腿肉小半碗，蒸鲈鱼 4 勺，芦笋木耳/青菜约 3 碗","preworkout":"","dinner":"油梨树：羽衣甘蓝鸡肉碗 + 额外鸡肉"},"supplements":"无糖电解质粉，姜黄素，益生菌，南非醉茄，镁","calories":null,"remark":"7 点起空腹爬坡 30min，21:30 爬坡 25min，步数 6136。无排便。00:00-01:00 睡。"},"2026-04-09":{"weight":null,"poop":"none","period":false,"dayTag":"travel","strength":"break","cardio":0,"meals":{"breakfast":"蛋白粉","lunch":"酱牛肉 8 片，烤牛肉 2 块，螺片 5 片，蔬菜半盘","preworkout":"","dinner":"油梨树：羽衣甘蓝鸡肉碗 + 额外鸡肉"},"supplements":"无糖电解质粉，姜黄素，益生菌，南非醉茄，镁","calories":null,"remark":"6 点起，无额外运动，步数 4837。无排便。00:00-01:00 睡。"},"2026-04-10":{"weight":null,"poop":"ideal","period":false,"dayTag":"travel","strength":"break","cardio":0,"meals":{"breakfast":"蛋白粉","lunch":"油梨树：羽衣甘蓝鸡肉碗 + 额外鸡肉","preworkout":"","dinner":"油梨树：羽衣甘蓝鸡肉碗 + 额外鸡肉"},"supplements":"无糖电解质粉，姜黄素，益生菌，南非醉茄，镁","calories":null,"remark":"6 点起，无额外运动，步数 5008。凌晨排便，量偏少。00:00-01:00 睡。"},"2026-04-11":{"weight":null,"poop":"none","period":false,"dayTag":"travel","strength":"break","cardio":0,"meals":{"breakfast":"蛋白粉","lunch":"油梨树：羽衣甘蓝鸡肉碗 + 额外鸡肉","preworkout":"赛百味","dinner":"翘脚牛肉+白灼菜心*2+单加一份肉+1/2米饭"},"supplements":"无糖电解质粉，姜黄素，益生菌，南非醉茄，镁","calories":null,"remark":"6 点起，高铁回京，步数 7219。睡前服用半片佐匹克隆。无排便。00:00-01:00 睡。"},"2026-04-12":{"weight":65.35,"poop":"none","period":false,"dayTag":"normal","strength":"back","cardio":0,"meals":{"breakfast":"蛋白粉","lunch":"油梨树：羽衣甘蓝鸡肉碗 + 额外鸡肉","preworkout":"250g 土豆","dinner":"翘脚牛肉+白灼菜心*2+单加一份肉+1/2米饭"},"supplements":"无糖电解质粉，姜黄素，益生菌，南非醉茄，镁","calories":null,"remark":"6点自然醒..出差停练后首次恢复训练，小重量控制，感到疲惫，练后泰式精油按摩。"},"2026-04-13":{"weight":64.4,"poop":"none","period":false,"dayTag":"cheat","strength":"chest_front","cardio":30,"meals":{"breakfast":"益生菌","lunch":"阳坊涮肉巨肉桶捞捞杯 + 虎头军杂粮煎饼 + 麦库裸麦杂粮面包 + 红豆碱水面包 +  列巴 + 1刀切馒头 + 250g 土豆 + 1盒蓝莓","preworkout":"","dinner":""},"supplements":"无糖电解质粉，姜黄素，益生菌，南非醉茄，镁","calories":3825,"remark":"空腹爬坡 25 分钟，安定医院取药，步行回家 6900 步，中午放纵，楼上电钻声中强制午睡约 2 小时, 全天摄入估算约 3825 kcal。睡前胃撑、出汗 很难受"},"2026-04-14":{"weight":65.6,"poop":"none","period":false,"dayTag":"normal","strength":"shoulders_mid_rear","cardio":null,"meals":{"breakfast":"益生菌","lunch":"油梨树：羽衣甘蓝鸡肉碗 + 额外鸡肉","preworkout":"200g土豆+1keep 去皮鸡腿","dinner":""},"supplements":"无糖电解质粉，姜黄素，益生菌，南非醉茄，镁，鱼油","calories":null,"remark":"Phase 2 启动，练前服用土豆"}};
+
+// ============== CONSTANTS ==============
+const STORAGE_KEY = 'vitals-entries-v1';
+const UNIT_KEY = 'vitals-unit';
+
+const POOP_TYPES = [
+  { id: 'none', label: 'None', emoji: '—' },
+  { id: 'hard', label: 'Hard', emoji: '🥜' },
+  { id: 'ideal', label: 'Ideal', emoji: '🌱' },
+  { id: 'soft', label: 'Soft', emoji: '💧' },
+];
+
+const STRENGTH_OPTIONS = [
+  { id: 'none', label: '— None / Rest —' },
+  { id: 'chest_front', label: 'Chest + Front Delt' },
+  { id: 'back', label: 'Back' },
+  { id: 'legs', label: 'Legs' },
+  { id: 'shoulders_mid_rear', label: 'Shoulders Mid+Rear' },
+  { id: 'arms', label: 'Arms' },
+  { id: 'core', label: 'Core' },
+  { id: 'full_body', label: 'Full Body' },
+  { id: 'break', label: 'Break (rest day)' },
+];
+
+// ============== STATE ==============
+let entries = {};
+let unit = 'kg';
+let selectedDate = todayISO();
+let chartRange = 30;
+let chart = null;
+
+// ============== UTILS ==============
+function todayISO() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function formatDate(iso) {
+  const [y,m,d] = iso.split('-');
+  return new Date(+y, +m-1, +d).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+}
+function formatShort(iso) {
+  const [,m,d] = iso.split('-');
+  return parseInt(m) + '/' + parseInt(d);
+}
+function shiftDate(iso, days) {
+  const [y,m,d] = iso.split('-');
+  const dt = new Date(+y, +m-1, +d);
+  dt.setDate(dt.getDate() + days);
+  return dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0') + '-' + String(dt.getDate()).padStart(2,'0');
+}
+function blankEntry() {
+  return {
+    weight: null, poop: 'none', period: false, dayTag: 'normal',
+    strength: 'none', cardio: null,
+    meals: { breakfast:'', lunch:'', preworkout:'', dinner:'' },
+    supplements: '', calories: null, remark: '',
+  };
+}
+function displayWeight(kg) { return kg == null ? null : (unit === 'kg' ? kg : kg * 2.20462); }
+
+// ============== STORAGE ==============
+function loadAll() {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      entries = JSON.parse(stored);
+    } else {
+      // First load: seed with the user's spreadsheet data
+      entries = JSON.parse(JSON.stringify(SEED_DATA));
+      saveAll();
+    }
+    unit = localStorage.getItem(UNIT_KEY) || 'kg';
+  } catch (e) {
+    entries = {};
+  }
+}
+function saveAll() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(entries)); }
+  catch (e) { showToast('Storage failed', true); }
+}
+
+// ============== TOAST ==============
+let toastTimer;
+function showToast(msg, isWarn) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.toggle('warn', !!isWarn);
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ============== STATS ==============
+function computeStats() {
+  const weighted = Object.entries(entries)
+    .filter(([,e]) => e.weight != null)
+    .sort(([a],[b]) => a.localeCompare(b));
+  if (weighted.length === 0) return null;
+
+  const latest = weighted[weighted.length-1][1].weight;
+  const first = weighted[0][1].weight;
+  const change = latest - first;
+
+  const last7 = weighted.slice(-7);
+  const avg = last7.reduce((s,[,e]) => s+e.weight, 0) / last7.length;
+
+  let prevDelta = null;
+  if (weighted.length >= 2) {
+    const prev = weighted[weighted.length-2][1].weight;
+    prevDelta = ((latest - prev) / prev) * 100;
+  }
+
+  return {
+    latest: displayWeight(latest), avg: displayWeight(avg),
+    change: displayWeight(change), prevDelta,
+    count: Object.keys(entries).length,
+    weightCount: weighted.length,
+  };
+}
+
+function renderStats() {
+  const s = computeStats();
+  if (!s) {
+    ['stat-latest','stat-avg','stat-change','stat-streak'].forEach(id => document.getElementById(id).textContent = '—');
+    document.getElementById('stat-streak-sub').textContent = 'no entries yet';
+    return;
+  }
+  document.getElementById('stat-latest').innerHTML = s.latest.toFixed(1) + '<span class="unit">' + unit + '</span>';
+  document.getElementById('stat-avg').innerHTML = s.avg.toFixed(1) + '<span class="unit">' + unit + '</span>';
+
+  const changeStr = (s.change >= 0 ? '+' : '') + s.change.toFixed(1);
+  document.getElementById('stat-change').innerHTML = changeStr + '<span class="unit">' + unit + '</span>';
+
+  const sub = document.getElementById('stat-latest-sub');
+  if (s.prevDelta != null) {
+    const sign = s.prevDelta >= 0 ? '+' : '';
+    sub.textContent = sign + s.prevDelta.toFixed(2) + '% vs prev';
+    sub.className = 'stat-sub ' + (s.prevDelta > 0.05 ? 'up' : s.prevDelta < -0.05 ? 'down' : '');
+  } else {
+    sub.textContent = '—';
+  }
+
+  const changeSub = document.getElementById('stat-change-sub');
+  changeSub.textContent = 'since first log';
+  changeSub.className = 'stat-sub ' + (s.change > 0.1 ? 'up' : s.change < -0.1 ? 'down' : '');
+
+  document.getElementById('stat-avg-sub').textContent = 'last 7 weighed';
+  document.getElementById('stat-streak').textContent = s.count;
+  document.getElementById('stat-streak-sub').textContent = s.weightCount + ' with weight';
+}
+
+// ============== CHART ==============
+function renderChart() {
+  const sorted = Object.entries(entries)
+    .filter(([,e]) => e.weight != null)
+    .sort(([a],[b]) => a.localeCompare(b));
+
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - chartRange);
+
+  const filtered = sorted.filter(([d]) => new Date(d) >= cutoff);
+
+  const wrap = document.getElementById('chart-wrap');
+  if (filtered.length === 0) {
+    wrap.innerHTML = '<div class="chart-empty">// no data in range // log a weight to begin</div>';
+    chart = null;
+    return;
+  }
+
+  if (!document.getElementById('weight-chart')) {
+    wrap.innerHTML = '<canvas id="weight-chart" style="width:100%;height:260px;"></canvas>';
+  }
+
+  const labels = filtered.map(([d]) => formatShort(d));
+  const data = filtered.map(([,e]) => +displayWeight(e.weight).toFixed(2));
+  const avg = data.reduce((a,b)=>a+b,0) / data.length;
+
+  // Color points by day tag for visual richness
+  const pointColors = filtered.map(([,e]) => {
+    if (e.dayTag === 'cheat') return '#ffaa3d';
+    if (e.dayTag === 'travel') return '#5fb3ff';
+    if (e.period) return '#ff66aa';
+    return '#00ff9c';
+  });
+
+  const ctx = document.getElementById('weight-chart').getContext('2d');
+  if (chart) chart.destroy();
+
+  chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Weight',
+          data,
+          borderColor: '#00ff9c',
+          borderWidth: 2,
+          tension: 0.25,
+          pointBackgroundColor: pointColors,
+          pointBorderColor: pointColors,
+          pointRadius: 4,
+          pointHoverRadius: 7,
+          fill: true,
+          backgroundColor: (ctx) => {
+            const c = ctx.chart.ctx;
+            const g = c.createLinearGradient(0, 0, 0, 240);
+            g.addColorStop(0, 'rgba(0,255,156,0.18)');
+            g.addColorStop(1, 'rgba(0,255,156,0)');
+            return g;
+          },
+        },
+      ],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { intersect: false, mode: 'index' },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#161c26',
+          borderColor: '#00ff9c',
+          borderWidth: 1,
+          titleColor: '#e5ecf5',
+          bodyColor: '#00ff9c',
+          padding: 10,
+          titleFont: { family: 'JetBrains Mono', size: 11, weight: '500' },
+          bodyFont: { family: 'JetBrains Mono', size: 13, weight: '700' },
+          callbacks: {
+            label: (ctx) => '  ' + ctx.parsed.y.toFixed(2) + ' ' + unit,
+            afterLabel: (ctx) => {
+              const date = filtered[ctx.dataIndex][0];
+              const e = filtered[ctx.dataIndex][1];
+              const tags = [];
+              if (e.dayTag === 'cheat') tags.push('CHEAT');
+              if (e.dayTag === 'travel') tags.push('TRAVEL');
+              if (e.period) tags.push('PERIOD');
+              return tags.length ? '  ' + tags.join(' · ') : '';
+            },
+          },
+        },
+        annotation: {},
+      },
+      scales: {
+        x: {
+          grid: { color: '#1f2733', drawTicks: false },
+          ticks: { color: '#6b7785', font: { family: 'JetBrains Mono', size: 10 }, maxRotation: 0, autoSkipPadding: 20 },
+          border: { color: '#1f2733' },
+        },
+        y: {
+          grid: { color: '#1f2733', drawTicks: false },
+          ticks: { color: '#6b7785', font: { family: 'JetBrains Mono', size: 10 } },
+          border: { color: '#1f2733' },
+        },
+      },
+    },
+  });
+}
+
+// ============== FORM RENDERING ==============
+function renderForm() {
+  const e = entries[selectedDate] || blankEntry();
+
+  document.getElementById('entry-date').value = selectedDate;
+  document.getElementById('today-badge').style.display = (selectedDate === todayISO()) ? 'inline-block' : 'none';
+
+  // Day tag
+  document.querySelectorAll('.day-tag').forEach(b => b.classList.toggle('active', b.dataset.tag === e.dayTag));
+
+  // Weight
+  const w = document.getElementById('weight-input');
+  w.value = e.weight != null ? (unit === 'kg' ? e.weight : e.weight * 2.20462).toFixed(1) : '';
+  document.getElementById('weight-unit').textContent = unit.toUpperCase();
+  document.getElementById('unit-toggle').textContent = unit.toUpperCase();
+
+  // Calories
+  document.getElementById('calorie-input').value = e.calories ?? '';
+
+  // Period
+  document.getElementById('period-toggle').checked = e.period;
+
+  // Bowel
+  document.querySelectorAll('.bowel-btn').forEach(b => b.classList.toggle('active', b.dataset.poop === e.poop));
+
+  // Strength + cardio
+  document.getElementById('strength-select').value = e.strength;
+  document.getElementById('cardio-input').value = e.cardio ?? '';
+
+  // Meals
+  document.getElementById('meal-breakfast').value = e.meals.breakfast;
+  document.getElementById('meal-lunch').value = e.meals.lunch;
+  document.getElementById('meal-preworkout').value = e.meals.preworkout;
+  document.getElementById('meal-dinner').value = e.meals.dinner;
+  document.getElementById('supplements-input').value = e.supplements;
+
+  // Remark
+  document.getElementById('remark-input').value = e.remark;
+
+  // Previews
+  const mealCount = ['breakfast','lunch','preworkout','dinner'].filter(k => e.meals[k]).length;
+  document.getElementById('meals-preview').textContent =
+    mealCount > 0 ? mealCount + ' meal(s) logged' + (e.supplements ? ' + supplements' : '') : 'Tap to log meals';
+  document.getElementById('remark-preview').textContent =
+    e.remark ? (e.remark.length > 60 ? e.remark.slice(0,60) + '…' : e.remark) : 'Notes about energy, sleep, steps, etc.';
+
+  // Show delete only if entry exists
+  document.getElementById('delete-btn').style.display = entries[selectedDate] ? 'inline-block' : 'none';
+  document.getElementById('save-btn').textContent = entries[selectedDate] ? 'Update Entry' : 'Save Entry';
+}
+
+// ============== LOG TABLE ==============
+function renderLog() {
+  const recent = Object.entries(entries)
+    .sort(([a],[b]) => b.localeCompare(a))
+    .slice(0, 30);
+
+  document.getElementById('entry-count').textContent = Object.keys(entries).length + ' ENTRIES';
+
+  const html = recent.map(([date, e]) => {
+    const poop = POOP_TYPES.find(p => p.id === e.poop);
+    const strength = STRENGTH_OPTIONS.find(s => s.id === e.strength);
+    const tags = [];
+    if (e.dayTag === 'cheat') tags.push('<span class="log-tag cheat">CHEAT</span>');
+    if (e.dayTag === 'travel') tags.push('<span class="log-tag travel">TRAVEL</span>');
+    if (e.period) tags.push('<span class="log-tag period">P</span>');
+
+    const [y,m,d] = date.split('-');
+    const dt = new Date(+y, +m-1, +d);
+    const dayShort = dt.toLocaleDateString('en-US', { weekday: 'short' });
+    const monthDay = dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+    const wStr = e.weight != null
+      ? '<span class="log-num">' + displayWeight(e.weight).toFixed(1) + ' ' + unit + '</span>'
+      : '<span class="log-num dim">—</span>';
+    const cardioStr = e.cardio != null
+      ? '<span class="log-num log-cardio">' + e.cardio + 'm</span>'
+      : '<span class="log-num dim log-cardio">—</span>';
+    const calStr = e.calories != null
+      ? '<span class="log-num log-cal">' + e.calories + '</span>'
+      : '<span class="log-num dim log-cal">—</span>';
+    const poopStr = e.poop !== 'none'
+      ? '<span class="log-icon" title="' + poop.label + '">' + poop.emoji + '</span>'
+      : '<span class="log-icon" style="color:var(--text-faint)">—</span>';
+
+    return '<div class="log-row" data-date="' + date + '">' +
+      '<div class="log-date"><span class="log-day">' + dayShort + '</span>' + monthDay + ' ' + tags.join(' ') + '</div>' +
+      wStr + cardioStr + calStr + poopStr +
+      '</div>';
+  }).join('');
+
+  document.getElementById('log-table').innerHTML = html || '<div class="chart-empty">// no entries yet</div>';
+
+  // Wire row clicks
+  document.querySelectorAll('.log-row').forEach(row => {
+    row.addEventListener('click', () => {
+      selectedDate = row.dataset.date;
+      renderForm();
+      window.scrollTo({ top: document.querySelector('.form-card').offsetTop - 20, behavior: 'smooth' });
+    });
+  });
+}
+
+// ============== ACTIONS ==============
+function readDraft() {
+  const w = document.getElementById('weight-input').value;
+  let weight = null;
+  if (w) {
+    const v = parseFloat(w);
+    if (!isNaN(v)) weight = unit === 'kg' ? v : v / 2.20462;
+  }
+  const cardio = document.getElementById('cardio-input').value;
+  const calories = document.getElementById('calorie-input').value;
+  const activeBowel = document.querySelector('.bowel-btn.active');
+  const activeTag = document.querySelector('.day-tag.active');
+
+  return {
+    weight,
+    poop: activeBowel ? activeBowel.dataset.poop : 'none',
+    period: document.getElementById('period-toggle').checked,
+    dayTag: activeTag ? activeTag.dataset.tag : 'normal',
+    strength: document.getElementById('strength-select').value,
+    cardio: cardio ? parseInt(cardio) : null,
+    meals: {
+      breakfast: document.getElementById('meal-breakfast').value,
+      lunch: document.getElementById('meal-lunch').value,
+      preworkout: document.getElementById('meal-preworkout').value,
+      dinner: document.getElementById('meal-dinner').value,
+    },
+    supplements: document.getElementById('supplements-input').value,
+    calories: calories ? parseInt(calories) : null,
+    remark: document.getElementById('remark-input').value,
+  };
+}
+
+function isEmptyEntry(e) {
+  return !e.weight && !e.calories && !e.cardio &&
+    e.poop === 'none' && !e.period &&
+    e.strength === 'none' && e.dayTag === 'normal' &&
+    !e.meals.breakfast && !e.meals.lunch && !e.meals.preworkout && !e.meals.dinner &&
+    !e.supplements && !e.remark;
+}
+
+function handleSave() {
+  const draft = readDraft();
+  if (isEmptyEntry(draft)) {
+    showToast('Add at least one thing', true);
+    return;
+  }
+  entries[selectedDate] = draft;
+  saveAll();
+  showToast('Saved');
+  renderAll();
+}
+
+function handleDelete() {
+  if (!entries[selectedDate]) return;
+  if (!confirm('Delete entry for ' + formatDate(selectedDate) + '?')) return;
+  delete entries[selectedDate];
+  saveAll();
+  showToast('Deleted');
+  renderAll();
+}
+
+function handleUnit() {
+  unit = unit === 'kg' ? 'lb' : 'kg';
+  localStorage.setItem(UNIT_KEY, unit);
+  renderAll();
+}
+
+function renderAll() {
+  renderStats();
+  renderChart();
+  renderForm();
+  renderLog();
+}
+
+// ============== INIT ==============
+function init() {
+  loadAll();
+
+  // Header date
+  document.getElementById('header-date').textContent =
+    new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }).toUpperCase();
+
+  // Build bowel grid
+  document.getElementById('bowel-grid').innerHTML = POOP_TYPES.map(p =>
+    '<button class="bowel-btn" data-poop="' + p.id + '"><span class="bowel-emoji">' + p.emoji + '</span><span class="bowel-label">' + p.label + '</span></button>'
+  ).join('');
+
+  // Build strength select
+  document.getElementById('strength-select').innerHTML = STRENGTH_OPTIONS.map(o =>
+    '<option value="' + o.id + '">' + o.label + '</option>'
+  ).join('');
+
+  // Wire events
+  document.getElementById('entry-date').addEventListener('change', (e) => {
+    selectedDate = e.target.value;
+    renderForm();
+  });
+  document.getElementById('prev-day').addEventListener('click', () => {
+    selectedDate = shiftDate(selectedDate, -1);
+    renderForm();
+  });
+  document.getElementById('next-day').addEventListener('click', () => {
+    if (selectedDate < todayISO()) {
+      selectedDate = shiftDate(selectedDate, 1);
+      renderForm();
+    }
+  });
+
+  document.querySelectorAll('.day-tag').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.day-tag').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+    });
+  });
+  document.getElementById('bowel-grid').addEventListener('click', (e) => {
+    const btn = e.target.closest('.bowel-btn');
+    if (!btn) return;
+    document.querySelectorAll('.bowel-btn').forEach(x => x.classList.remove('active'));
+    btn.classList.add('active');
+  });
+
+  document.querySelectorAll('.range-tab').forEach(t => {
+    t.addEventListener('click', () => {
+      document.querySelectorAll('.range-tab').forEach(x => x.classList.remove('active'));
+      t.classList.add('active');
+      chartRange = parseInt(t.dataset.range);
+      renderChart();
+    });
+  });
+
+  document.querySelectorAll('.collapsible-head').forEach(h => {
+    h.addEventListener('click', () => {
+      document.getElementById(h.dataset.target).classList.toggle('open');
+    });
+  });
+
+  document.getElementById('save-btn').addEventListener('click', handleSave);
+  document.getElementById('delete-btn').addEventListener('click', handleDelete);
+  document.getElementById('unit-toggle').addEventListener('click', handleUnit);
+
+  // Export
+  document.getElementById('export-btn').addEventListener('click', () => {
+    const blob = new Blob([JSON.stringify(entries, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'vitals-export-' + todayISO() + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('Exported');
+  });
+
+  // Import
+  document.getElementById('import-btn').addEventListener('click', () => {
+    document.getElementById('import-file').click();
+  });
+  document.getElementById('import-file').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const imported = JSON.parse(ev.target.result);
+        if (typeof imported !== 'object') throw new Error('not object');
+        if (!confirm('Import will MERGE with existing entries (existing dates get overwritten). Continue?')) return;
+        entries = { ...entries, ...imported };
+        saveAll();
+        showToast('Imported ' + Object.keys(imported).length + ' entries');
+        renderAll();
+      } catch (err) {
+        showToast('Invalid JSON file', true);
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  });
+
+  // Reset
+  document.getElementById('reset-btn').addEventListener('click', () => {
+    if (!confirm('Delete ALL entries? This cannot be undone.')) return;
+    if (!confirm('Are you absolutely sure?')) return;
+    entries = {};
+    localStorage.removeItem(STORAGE_KEY);
+    showToast('All data cleared');
+    renderAll();
+  });
+
+  renderAll();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
