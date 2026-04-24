@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="猪咪's Tracker">
@@ -79,6 +79,7 @@
   }
   .tabs::-webkit-scrollbar { display:none; }
   .tab {
+    display:flex; align-items:center; gap:5px;
     padding:9px 18px; border-radius:10px; border:1px solid transparent;
     background:transparent; color:var(--muted); font-family:var(--font);
     font-size:13px; font-weight:600; cursor:pointer; transition:all .2s;
@@ -91,6 +92,59 @@
     text-shadow: 0 0 12px rgba(124,106,247,.8);
   }
   .tab:hover:not(.active) { color:var(--text); background:rgba(255,255,255,.03); }
+  .tab-icon { font-size:14px; }
+  .tab-label { font-size:13px; }
+
+  /* ── Mobile: fixed bottom navigation ── */
+  @media (max-width: 640px) {
+    .app { padding: 18px 14px; padding-bottom: calc(72px + env(safe-area-inset-bottom)); }
+    .header { margin-bottom: 18px; padding-bottom: 14px; }
+    .header h1 { font-size: 18px; }
+
+    .tabs {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      z-index: 999;
+      margin-bottom: 0; gap: 0; padding: 0;
+      padding-bottom: env(safe-area-inset-bottom);
+      border-radius: 0; border: none;
+      border-top: 1px solid var(--border);
+      background: rgba(6,6,16,.92);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      box-shadow: 0 -1px 0 rgba(124,106,247,.15), 0 -8px 32px rgba(0,0,0,.6);
+      justify-content: space-around;
+      overflow: visible;
+    }
+
+    .tab {
+      flex: 1; flex-direction: column; gap: 3px;
+      padding: 10px 4px 8px;
+      border-radius: 0; border: none;
+      font-size: 10px;
+      justify-content: center;
+    }
+
+    .tab-icon { font-size: 22px; line-height: 1; transition: transform .2s; }
+    .tab-label { font-size: 10px; line-height: 1; letter-spacing: .3px; }
+
+    .tab.active { background: transparent; border: none; box-shadow: none; text-shadow: none; }
+    .tab.active .tab-icon { transform: scale(1.15); filter: drop-shadow(0 0 6px var(--accent)); }
+    .tab.active .tab-label { color: var(--accent); font-weight: 700; }
+
+    /* Active indicator dot above icon */
+    .tab.active::before {
+      content: '';
+      position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+      width: 28px; height: 2px; border-radius: 0 0 3px 3px;
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent);
+    }
+    .tab { position: relative; }
+
+    /* Ripple on tap (visual feedback) */
+    .tab:active { background: rgba(124,106,247,.08); }
+    .tab.active:active { background: transparent; }
+  }
 
   /* Cards — neon-bordered */
   .card {
@@ -282,12 +336,12 @@
   </div>
 
   <div class="tabs">
-    <button class="tab active" onclick="switchTab('log')">📝 今日打卡</button>
-    <button class="tab" onclick="switchTab('chart')">📈 趋势图表</button>
-    <button class="tab" onclick="switchTab('rewards')">🏆 成就荣誉</button>
-    <button class="tab" onclick="switchTab('profile')">👤 我的档案</button>
-    <button class="tab" onclick="switchTab('history')">📖 历史记录</button>
-    <button class="tab" onclick="switchTab('settings')">⚙️ 设置</button>
+    <button class="tab active" onclick="switchTab('log')"><span class="tab-icon">📝</span><span class="tab-label">打卡</span></button>
+    <button class="tab" onclick="switchTab('chart')"><span class="tab-icon">📈</span><span class="tab-label">图表</span></button>
+    <button class="tab" onclick="switchTab('rewards')"><span class="tab-icon">🏆</span><span class="tab-label">成就</span></button>
+    <button class="tab" onclick="switchTab('profile')"><span class="tab-icon">👤</span><span class="tab-label">档案</span></button>
+    <button class="tab" onclick="switchTab('history')"><span class="tab-icon">📖</span><span class="tab-label">历史</span></button>
+    <button class="tab" onclick="switchTab('settings')"><span class="tab-icon">⚙️</span><span class="tab-label">设置</span></button>
   </div>
 
   <div id="tab-log">
