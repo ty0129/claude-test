@@ -658,9 +658,18 @@ function loadEntryIntoForm(dateStr) {
   if (entry) {
     fillForm(entry);
   } else {
-    // New entry with defaults
     const isWeekend = ['Saturday','Sunday'].includes(dayOfWeek(dateStr));
-    fillForm({ date: dateStr, isWorkday: !isWeekend });
+    // Carry yesterday's meals as defaults for a new entry
+    const d = new Date(dateStr + 'T00:00:00');
+    d.setDate(d.getDate() - 1);
+    const yStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    const prev = all[yStr] || {};
+    fillForm({
+      date: dateStr, isWorkday: !isWeekend,
+      breakfast: prev.breakfast || '',
+      lunch: prev.lunch || '',
+      dinner: prev.dinner || '',
+    });
   }
 }
 
