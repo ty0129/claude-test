@@ -174,7 +174,7 @@
     border-color:var(--accent);
     box-shadow: 0 0 0 2px rgba(124,106,247,.2), var(--glow-purple);
   }
-  textarea { resize:vertical; min-height:72px; line-height:1.5; }
+  textarea { resize:vertical; min-height:52px; line-height:1.5; }
   select option { background:var(--surface2); }
 
   /* Toggle */
@@ -247,7 +247,7 @@
 
   /* Charts */
   .chart-wrap { position:relative; height:280px; }
-  .mini-chart-wrap { position:relative; height:150px; }
+  .mini-chart-wrap { position:relative; height:90px; }
 
   #editingBanner { display:none; align-items:center; gap:8px; background:rgba(255,214,10,.07); border:1px solid rgba(255,214,10,.3); border-radius:10px; padding:10px 16px; margin-bottom:14px; font-size:13px; font-weight:600; color:var(--yellow); box-shadow:0 0 15px rgba(255,214,10,.1); }
 
@@ -309,8 +309,45 @@
   .date-nav button { background:var(--surface2); border:1px solid var(--border); color:var(--text); padding:8px 14px; border-radius:50px; cursor:pointer; font-size:16px; transition:all .2s; font-family:var(--font); }
   .date-nav button:hover { border-color:var(--accent); box-shadow:0 0 12px rgba(124,106,247,.3); }
   .date-nav .date-display { font-weight:700; font-size:15px; min-width:140px; text-align:center; letter-spacing:-.3px; }
+  .cal-pick-wrap {
+    position:relative; display:flex; align-items:center;
+    background:var(--surface2); border:1px solid var(--border);
+    border-radius:50px; padding:8px 14px; cursor:pointer;
+    transition:all .2s;
+  }
+  .cal-pick-wrap:hover { border-color:var(--accent); box-shadow:0 0 12px rgba(124,106,247,.3); }
+  .cal-pick-icon { font-size:16px; pointer-events:none; }
+  .cal-pick-input {
+    position:absolute; inset:0; opacity:0; cursor:pointer;
+    width:100%; height:100%; border:none; padding:0; margin:0;
+    border-radius:50px;
+  }
 
   .section-gap { margin-top:6px; }
+
+  /* Day-info pill buttons */
+  .di-group { margin-bottom:12px; }
+  .di-group:last-child { margin-bottom:0; }
+  .di-group-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.8px; color:var(--muted); margin-bottom:8px; }
+  .di-btns { display:flex; gap:8px; flex-wrap:wrap; }
+  .di-btn {
+    display:flex; align-items:center; gap:6px;
+    padding:10px 18px; border-radius:50px;
+    border:1px solid var(--border); background:var(--surface2);
+    color:var(--muted); font-family:var(--font); font-size:13px; font-weight:600;
+    cursor:pointer; transition:all .2s; white-space:nowrap;
+  }
+  .di-btn:hover { border-color:rgba(255,255,255,.2); color:var(--text); }
+  .di-btn.period.active  { border-color:var(--accent2); background:rgba(224,107,180,.12); color:var(--accent2); box-shadow:0 0 12px rgba(224,107,180,.25); }
+  .di-btn.restday.active { border-color:var(--green);   background:rgba(0,255,179,.08);   color:var(--green);   box-shadow:0 0 12px rgba(0,255,179,.2); }
+  .di-btn.poop.active    { border-color:var(--yellow);  background:rgba(255,214,10,.08);  color:var(--yellow);  box-shadow:0 0 12px rgba(255,214,10,.2); }
+  /* Poop yes/no segmented control */
+  .poop-seg { display:inline-flex; border-radius:50px; border:1px solid var(--border); overflow:hidden; }
+  .poop-seg button { padding:10px 18px; border:none; background:var(--surface2); color:var(--muted); font-family:var(--font); font-size:13px; font-weight:600; cursor:pointer; transition:all .2s; }
+  .poop-seg button:first-child { border-right:1px solid var(--border); }
+  .poop-seg button:hover { color:var(--text); }
+  .poop-seg button.seg-active-yes { background:rgba(255,214,10,.12); color:var(--yellow); }
+  .poop-seg button.seg-active-no  { background:rgba(124,106,247,.10); color:var(--accent); }
   .calorie-row { display:flex; align-items:center; gap:10px; }
   .calorie-input { width:130px !important; }
   .grid { display:grid; gap:10px; }
@@ -346,79 +383,88 @@
   <div id="tab-log">
     <div class="card" style="margin-bottom:12px;padding:14px 18px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-        <div class="card-title" style="margin-bottom:0">Weight Trend · 30d</div>
-        <button class="btn-ghost" onclick="switchTab('chart')">Full chart →</button>
+        <div class="card-title" style="margin-bottom:0">体重趋势 · 近30天</div>
+        <button class="btn-ghost" onclick="switchTab('chart')">完整图表 →</button>
       </div>
       <div class="mini-chart-wrap"><canvas id="miniWeightChart"></canvas></div>
     </div>
-    <div id="editingBanner">✏️ Editing — <span id="editingBannerDate"></span></div>
+    <div id="editingBanner">✏️ 编辑中 — <span id="editingBannerDate"></span></div>
     <div class="date-nav" style="margin-bottom:16px">
       <button onclick="navigateDay(-1)">‹</button>
       <div class="date-display" id="navDateDisplay"></div>
       <button onclick="navigateDay(1)">›</button>
-      <button class="btn btn-sm" style="margin-left:6px;border-color:var(--border);color:var(--muted)" onclick="goToday()">Today</button>
-    </div>
-    <div class="card">
-      <div class="card-title">Day Info</div>
-      <div class="grid grid-2" style="margin-bottom:14px">
-        <div><label>Date</label><input type="date" id="entryDate" onchange="onDateChange()"></div>
-        <div><label>Day of Week</label><input type="text" id="entryDow" readonly style="color:var(--muted);cursor:default"></div>
-      </div>
-      <div class="grid grid-3">
-        <div class="toggle-row"><label class="toggle"><input type="checkbox" id="isWorkday"><span class="slider"></span></label><span class="toggle-label">Work Day</span></div>
-        <div class="toggle-row"><label class="toggle"><input type="checkbox" id="isPeriod"><span class="slider"></span></label><span class="toggle-label" style="color:var(--accent2)">Period 🌸</span></div>
-        <div class="toggle-row"><label class="toggle"><input type="checkbox" id="isCheatDay"><span class="slider"></span></label><span class="toggle-label" style="color:var(--yellow)">放纵日</span></div>
-      </div>
-      <div class="grid grid-3 section-gap" style="margin-top:12px">
-        <div class="toggle-row"><label class="toggle"><input type="checkbox" id="isBusinessTrip"><span class="slider"></span></label><span class="toggle-label" style="color:var(--green)">出差</span></div>
-        <div class="toggle-row"><label class="toggle"><input type="checkbox" id="hasPoop"><span class="slider"></span></label><span class="toggle-label">💩 Poop</span></div>
+      <div class="cal-pick-wrap">
+        <span class="cal-pick-icon">📅</span>
+        <input type="date" id="entryDate" onchange="onDateChange()" class="cal-pick-input">
       </div>
     </div>
+    <input type="hidden" id="entryDow">
     <div class="card">
-      <div class="card-title">Weight</div>
-      <div class="grid grid-2">
-        <div><label>Morning Weight (kg)</label><input type="number" id="weight" step="0.05" placeholder="e.g. 65.5" oninput="updateWeightChange()"></div>
-        <div><label>vs Yesterday</label><div style="padding-top:10px"><span id="weightChangeBadge" class="weight-change flat">— no prev data</span></div></div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-title">Calories</div>
-      <div class="calorie-row"><input type="number" id="calories" class="calorie-input" placeholder="kcal" min="0" step="50"><span style="color:var(--muted);font-size:13px">kcal total for the day</span></div>
-    </div>
-    <div class="card">
-      <div class="card-title">Training</div>
-      <div style="margin-bottom:14px"><label style="margin-bottom:8px">Strength Split</label>
-        <div class="chips" id="splitChips">
-          <span class="chip" data-val="chest" onclick="selectSplit(this)">Chest + Front Delt</span>
-          <span class="chip" data-val="back" onclick="selectSplit(this)">Back</span>
-          <span class="chip" data-val="legs" onclick="selectSplit(this)">Legs</span>
-          <span class="chip" data-val="shoulders" onclick="selectSplit(this)">Shoulders Mid+Rear</span>
-          <span class="chip" data-val="break" onclick="selectSplit(this)">Break</span>
+      <div class="card-title">今日状态</div>
+      <div class="di-group">
+        <div class="di-group-label">身体状态</div>
+        <div class="di-btns">
+          <button class="di-btn period" id="btn-period" onclick="toggleDIBtn('period')">🌸 例假中</button>
+          <button class="di-btn restday" id="btn-restday" onclick="toggleDIBtn('restday')">🏖️ 休息日</button>
         </div>
       </div>
-      <div><label>Cardio (minutes)</label><input type="number" id="cardioMins" min="0" max="300" placeholder="0" style="max-width:140px"></div>
+      <div class="di-group">
+        <div class="di-group-label">今日排便</div>
+        <div class="poop-seg">
+          <button id="btn-poop-yes" onclick="setPoopState(true)">💩 今天有</button>
+          <button id="btn-poop-no" onclick="setPoopState(false)">今天没</button>
+        </div>
+      </div>
+      <input type="checkbox" id="isPeriod" style="display:none">
+      <input type="checkbox" id="hasPoop" style="display:none">
     </div>
     <div class="card">
-      <div class="card-title">Food Diary</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+        <div style="flex:1;min-width:130px">
+          <label>体重 (kg)</label>
+          <input type="number" id="weight" step="0.05" placeholder="例：65.5" oninput="updateWeightChange()">
+        </div>
+        <div style="flex:1;min-width:130px">
+          <label>热量 (kcal)</label>
+          <div class="calorie-row" style="margin:0"><input type="number" id="calories" class="calorie-input" placeholder="kcal" min="0" step="50"></div>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--muted)">昨日对比：<span id="weightChangeBadge" class="weight-change flat">— 暂无数据</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">训练</div>
+      <div style="margin-bottom:14px"><label style="margin-bottom:8px">训练部位</label>
+        <div class="chips" id="splitChips">
+          <span class="chip" data-val="chest" onclick="selectSplit(this)">胸 + 前束</span>
+          <span class="chip" data-val="back" onclick="selectSplit(this)">背</span>
+          <span class="chip" data-val="legs" onclick="selectSplit(this)">腿</span>
+          <span class="chip" data-val="shoulders" onclick="selectSplit(this)">肩中 + 肩后</span>
+          <span class="chip" data-val="break" onclick="selectSplit(this)">休息</span>
+        </div>
+      </div>
+      <div><label>有氧时长 (分钟)</label><input type="number" id="cardioMins" min="0" max="300" placeholder="0" style="max-width:140px"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">饮食记录</div>
       <div class="grid" style="gap:10px">
-        <div><label>Breakfast</label><textarea id="breakfast" placeholder="What did you have?"></textarea></div>
-        <div><label>Lunch</label><textarea id="lunch" placeholder="What did you have?"></textarea></div>
-        <div><label>Pre-workout</label><textarea id="preWorkout" placeholder="Pre-workout snack / shake..."></textarea></div>
-        <div><label>Dinner</label><textarea id="dinner" placeholder="What did you have?"></textarea></div>
-        <div><label>Supplements</label><textarea id="supplements" placeholder="Protein, creatine, vitamins..."></textarea></div>
+        <div><label>早餐</label><textarea id="breakfast" placeholder="吃了什么？"></textarea></div>
+        <div><label>午餐</label><textarea id="lunch" placeholder="吃了什么？"></textarea></div>
+        <div><label>晚餐</label><textarea id="dinner" placeholder="吃了什么？"></textarea></div>
+        <div><label>训练餐</label><input type="text" id="preWorkout" placeholder="训练前补剂 / 碳水..."></div>
+        <div><label>补剂</label><input type="text" id="supplements" placeholder="蛋白粉、维生素..."></div>
+        <div><label>备注</label><textarea id="remark" style="min-height:52px" placeholder="精力、睡眠、步数、心情..."></textarea></div>
       </div>
     </div>
-    <div class="card"><div class="card-title">Remark / Notes</div><textarea id="remark" style="min-height:100px" placeholder="Energy, sleep, steps, mood, anything..."></textarea></div>
     <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:4px">
-      <button class="btn btn-danger btn-sm" onclick="clearCurrentEntry()">Clear</button>
-      <button class="btn btn-primary" onclick="saveEntry()">Save Day</button>
+      <button class="btn btn-danger btn-sm" onclick="clearCurrentEntry()">清除</button>
+      <button class="btn btn-primary" onclick="saveEntry()">保存</button>
     </div>
-    <div id="saveMsg" style="text-align:right;margin-top:8px;font-size:13px;color:var(--green);font-weight:700;display:none;text-shadow:0 0 10px rgba(0,255,179,.6)">✓ Saved!</div>
+    <div id="saveMsg" style="text-align:right;margin-top:8px;font-size:13px;color:var(--green);font-weight:700;display:none;text-shadow:0 0 10px rgba(0,255,179,.6)">✓ 已保存！</div>
   </div>
 
   <div id="tab-history" style="display:none">
     <div style="margin-bottom:14px;display:flex;gap:10px;align-items:center">
-      <input type="text" id="historySearch" placeholder="Search entries..." oninput="renderHistory()" style="max-width:300px">
+      <input type="text" id="historySearch" placeholder="搜索记录..." oninput="renderHistory()" style="max-width:300px">
       <span style="font-size:12px;color:var(--muted);font-weight:600" id="historyCount"></span>
     </div>
     <div id="historyList"></div>
@@ -428,12 +474,12 @@
     <div class="stat-row" id="statsRow"></div>
     <div class="card">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-        <div class="card-title" style="margin-bottom:0">Weight Trend</div>
+        <div class="card-title" style="margin-bottom:0">体重趋势</div>
         <div style="display:flex;gap:5px">
-          <button class="chip" id="range7" onclick="setRange(7)">7d</button>
-          <button class="chip" id="range30" onclick="setRange(30)">30d</button>
-          <button class="chip" id="range90" onclick="setRange(90)">90d</button>
-          <button class="chip selected" id="rangeAll" onclick="setRange(0)">All</button>
+          <button class="chip" id="range7" onclick="setRange(7)">7天</button>
+          <button class="chip" id="range30" onclick="setRange(30)">30天</button>
+          <button class="chip" id="range90" onclick="setRange(90)">90天</button>
+          <button class="chip selected" id="rangeAll" onclick="setRange(0)">全部</button>
         </div>
       </div>
       <div class="chart-wrap"><canvas id="weightChart"></canvas></div>
@@ -452,7 +498,7 @@
     <div class="card">
       <div class="card-title">目标设定</div>
       <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:14px">
-        <div><label>目标体重 (kg)</label><input type="number" id="goalInput" step="0.1" placeholder="e.g. 60.0" style="max-width:130px"></div>
+        <div><label>目标体重 (kg)</label><input type="number" id="goalInput" step="0.1" placeholder="例：60.0" style="max-width:130px"></div>
         <button class="btn btn-primary btn-sm" onclick="saveGoalAndRender()">保存目标</button>
         <button class="btn btn-sm" id="clearGoalBtn" onclick="clearGoalAndRender()" style="display:none;border-color:var(--border);color:var(--muted)">清除目标</button>
       </div>
@@ -475,12 +521,19 @@
       <div class="card-title">基础代谢设置</div>
       <p style="font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.6">使用 Mifflin-St Jeor 公式计算基础代谢率（BMR）和每日总消耗（TDEE）。体重自动取最近记录值。</p>
       <div class="grid grid-2" style="margin-bottom:12px">
-        <div><label>身高 (cm)</label><input type="number" id="profileHeight" placeholder="e.g. 165" min="100" max="220"></div>
-        <div><label>年龄</label><input type="number" id="profileAge" placeholder="e.g. 25" min="10" max="100"></div>
+        <div><label>身高 (cm)</label><input type="number" id="profileHeight" placeholder="例：165" min="100" max="220"></div>
+        <div><label>年龄</label><input type="number" id="profileAge" placeholder="例：25" min="10" max="100"></div>
       </div>
       <div class="grid grid-2" style="margin-bottom:16px">
         <div><label>性别</label><select id="profileGender"><option value="female">女</option><option value="male">男</option></select></div>
-        <div><label>活动水平</label><select id="profileActivity"><option value="1.2">久坐</option><option value="1.375">轻度活动</option><option value="1.55" selected>中度活动</option><option value="1.725">高度活动</option><option value="1.9">极度活动</option></select></div>
+        <div><label>活动水平</label><select id="profileActivity" onchange="updateActivityDesc()">
+          <option value="1.2">久坐 · 几乎不运动</option>
+          <option value="1.375">轻度活动 · 每周1-3次</option>
+          <option value="1.55" selected>中度活动 · 每周3-5次</option>
+          <option value="1.725">高强度 · 每周6-7次</option>
+          <option value="1.9">极高强度 · 每天运动或体力劳动</option>
+        </select>
+        <div id="activityDesc" style="margin-top:6px;font-size:11px;color:var(--muted);line-height:1.5"></div></div>
       </div>
       <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
         <button class="btn btn-primary btn-sm" onclick="saveProfileAndRender()">保存档案</button>
@@ -581,8 +634,8 @@ function goToday() {
 
 function updateNavDisplay() {
   const isToday = currentDate === todayStr();
-  document.getElementById('navDateDisplay').textContent = currentDate + (isToday ? ' (Today)' : '');
-  document.getElementById('todayBadge').textContent = isToday ? '' : 'Editing: ' + currentDate;
+  document.getElementById('navDateDisplay').textContent = currentDate + ' · ' + dayOfWeek(currentDate) + (isToday ? ' · 今天' : '');
+  document.getElementById('todayBadge').textContent = isToday ? '' : '编辑：' + currentDate;
   const banner = document.getElementById('editingBanner');
   banner.style.display = isToday ? 'none' : 'flex';
   document.getElementById('editingBannerDate').textContent = currentDate + ' (' + dayOfWeek(currentDate) + ')';
@@ -597,13 +650,14 @@ function onDateChange() {
 
 // ── Form → entry object ──────────────────────────────────────────────────────
 function readForm() {
+  const _existing = loadAll()[currentDate] || {};
   return {
     date: currentDate,
     dow: dayOfWeek(currentDate),
-    isWorkday: document.getElementById('isWorkday').checked,
+    isWorkday: _existing.isWorkday ?? false,
     isPeriod: document.getElementById('isPeriod').checked,
-    isCheatDay: document.getElementById('isCheatDay').checked,
-    isBusinessTrip: document.getElementById('isBusinessTrip').checked,
+    isCheatDay: _existing.isCheatDay ?? false,
+    isBusinessTrip: _existing.isBusinessTrip ?? false,
     hasPoop: document.getElementById('hasPoop').checked,
     weight: parseFloat(document.getElementById('weight').value) || null,
     calories: parseInt(document.getElementById('calories').value) || null,
@@ -622,11 +676,11 @@ function readForm() {
 function fillForm(entry) {
   document.getElementById('entryDate').value = entry.date || currentDate;
   document.getElementById('entryDow').value = entry.dow || dayOfWeek(currentDate);
-  document.getElementById('isWorkday').checked = !!entry.isWorkday;
   document.getElementById('isPeriod').checked = !!entry.isPeriod;
-  document.getElementById('isCheatDay').checked = !!entry.isCheatDay;
-  document.getElementById('isBusinessTrip').checked = !!entry.isBusinessTrip;
   document.getElementById('hasPoop').checked = !!entry.hasPoop;
+  document.getElementById('btn-period').classList.toggle('active', !!entry.isPeriod);
+  setPoopState(entry.hasPoop ? true : false);
+  document.getElementById('btn-restday').classList.toggle('active', entry.split === 'break');
   document.getElementById('weight').value = entry.weight != null ? entry.weight : '';
   document.getElementById('calories').value = entry.calories != null ? entry.calories : '';
   document.getElementById('cardioMins').value = entry.cardioMins || '';
@@ -658,14 +712,13 @@ function loadEntryIntoForm(dateStr) {
   if (entry) {
     fillForm(entry);
   } else {
-    const isWeekend = ['Saturday','Sunday'].includes(dayOfWeek(dateStr));
     // Carry yesterday's meals as defaults for a new entry
     const d = new Date(dateStr + 'T00:00:00');
     d.setDate(d.getDate() - 1);
     const yStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
     const prev = all[yStr] || {};
     fillForm({
-      date: dateStr, isWorkday: !isWeekend,
+      date: dateStr,
       breakfast: prev.breakfast || '',
       lunch: prev.lunch || '',
       dinner: prev.dinner || '',
@@ -686,7 +739,7 @@ function updateWeightChange() {
     if (d < currentDate && all[d].weight != null) prevWeight = all[d].weight;
   }
 
-  if (prevWeight == null) { badge.textContent = '— no prev data'; badge.className = 'weight-change flat'; return; }
+  if (prevWeight == null) { badge.textContent = '— 暂无数据'; badge.className = 'weight-change flat'; return; }
   const pct = ((w - prevWeight) / prevWeight) * 100;
   const sign = pct > 0 ? '+' : '';
   badge.textContent = `${sign}${pct.toFixed(2)}% (${sign}${(w - prevWeight).toFixed(2)} kg)`;
@@ -694,12 +747,33 @@ function updateWeightChange() {
 }
 
 // ── Split selection ──────────────────────────────────────────────────────────
+function setPoopState(val) {
+  document.getElementById('hasPoop').checked = val;
+  document.getElementById('btn-poop-yes').classList.toggle('seg-active-yes', val === true);
+  document.getElementById('btn-poop-no').classList.toggle('seg-active-no', val === false);
+}
+
+function toggleDIBtn(type) {
+  const btn = document.getElementById('btn-' + type);
+  const active = btn.classList.toggle('active');
+  if (type === 'period') document.getElementById('isPeriod').checked = active;
+  if (type === 'restday') {
+    selectedSplit = active ? 'break' : null;
+    document.querySelectorAll('#splitChips .chip').forEach(c =>
+      c.classList.toggle('selected', c.dataset.val === selectedSplit));
+  }
+}
+
 function selectSplit(el) {
   const val = el.dataset.val;
-  if (selectedSplit === val) { selectedSplit = null; el.classList.remove('selected'); return; }
-  selectedSplit = val;
-  document.querySelectorAll('#splitChips .chip').forEach(c => c.classList.remove('selected'));
-  el.classList.add('selected');
+  if (selectedSplit === val) { selectedSplit = null; el.classList.remove('selected'); }
+  else {
+    selectedSplit = val;
+    document.querySelectorAll('#splitChips .chip').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+  // Sync rest-day button
+  document.getElementById('btn-restday').classList.toggle('active', selectedSplit === 'break');
 }
 
 // ── Save ─────────────────────────────────────────────────────────────────────
@@ -716,7 +790,7 @@ function saveEntry() {
 }
 
 // ── History ──────────────────────────────────────────────────────────────────
-const SPLIT_LABELS = { chest: 'Chest+FD', back: 'Back', legs: 'Legs', shoulders: 'Shoulders', break: 'Break' };
+const SPLIT_LABELS = { chest: '胸+前束', back: '背', legs: '腿', shoulders: '肩中+肩后', break: '休息' };
 
 function renderHistory() {
   const all = loadAll();
@@ -731,26 +805,26 @@ function renderHistory() {
     });
   }
 
-  document.getElementById('historyCount').textContent = dates.length + ' entries';
+  document.getElementById('historyCount').textContent = dates.length + ' 条记录';
 
   const list = document.getElementById('historyList');
   if (!dates.length) {
-    list.innerHTML = '<div class="empty"><div class="icon">📭</div>No entries yet</div>';
+    list.innerHTML = '<div class="empty"><div class="icon">📭</div>暂无记录</div>';
     return;
   }
 
   list.innerHTML = dates.map(d => {
     const e = all[d];
     const badges = [];
-    if (e.isWorkday) badges.push('<span class="badge work">Work</span>');
+    if (e.isWorkday) badges.push('<span class="badge work">上班</span>');
     if (e.isCheatDay) badges.push('<span class="badge cheat">放纵日</span>');
     if (e.isBusinessTrip) badges.push('<span class="badge trip">出差</span>');
-    if (e.isPeriod) badges.push('<span class="badge period">Period 🌸</span>');
+    if (e.isPeriod) badges.push('<span class="badge period">例假 🌸</span>');
     if (e.hasPoop) badges.push('<span class="badge poop">💩</span>');
 
     const wStr = e.weight != null ? e.weight + ' kg' : '—';
     const cStr = e.calories != null ? e.calories + ' kcal' : '—';
-    const tStr = e.split ? SPLIT_LABELS[e.split] : (e.cardioMins ? '' : 'Rest');
+    const tStr = e.split ? SPLIT_LABELS[e.split] : (e.cardioMins ? '' : '休息');
     const cardio = e.cardioMins ? e.cardioMins + ' min cardio' : '';
 
     return `<div class="history-item">
@@ -830,13 +904,13 @@ function renderCharts() {
     const avg = validW.reduce((s,d) => s + d.weight, 0) / validW.length;
     const change = last - first;
     document.getElementById('statsRow').innerHTML = `
-      <div class="stat-card"><div class="lbl">Current</div><div class="val">${last} kg</div></div>
-      <div class="stat-card"><div class="lbl">Change</div><div class="val" style="color:${change <= 0 ? 'var(--green)' : 'var(--red)'}">${change >= 0 ? '+' : ''}${change.toFixed(2)} kg</div></div>
-      <div class="stat-card"><div class="lbl">Average</div><div class="val">${avg.toFixed(1)} kg</div></div>
-      <div class="stat-card"><div class="lbl">Min / Max</div><div class="val" style="font-size:16px">${min} / ${max}</div></div>
+      <div class="stat-card"><div class="lbl">当前</div><div class="val">${last} kg</div></div>
+      <div class="stat-card"><div class="lbl">变化</div><div class="val" style="color:${change <= 0 ? 'var(--green)' : 'var(--red)'}">${change >= 0 ? '+' : ''}${change.toFixed(2)} kg</div></div>
+      <div class="stat-card"><div class="lbl">均值</div><div class="val">${avg.toFixed(1)} kg</div></div>
+      <div class="stat-card"><div class="lbl">最低 / 最高</div><div class="val" style="font-size:16px">${min} / ${max}</div></div>
     `;
   } else {
-    document.getElementById('statsRow').innerHTML = '<div style="color:var(--muted);font-size:13px">Not enough data yet</div>';
+    document.getElementById('statsRow').innerHTML = '<div style="color:var(--muted);font-size:13px">数据不足，继续记录吧</div>';
   }
 
   const chartDefaults = {
@@ -883,7 +957,7 @@ function renderCharts() {
       labels,
       datasets: [
         {
-          label: 'Weight (kg)',
+          label: '体重 (kg)',
           data: weights,
           borderColor: '#7c6af7',
           backgroundColor: grad1,
@@ -898,7 +972,7 @@ function renderCharts() {
           spanGaps: true,
         },
         {
-          label: 'Trend',
+          label: '趋势',
           data: trendData,
           borderColor: 'rgba(224,107,180,0.5)',
           borderDash: [5,4],
@@ -923,7 +997,7 @@ function renderCharts() {
               const d = data[ctx.dataIndex];
               const tags = [];
               if (d.isCheatDay) tags.push('放纵日');
-              if (d.isPeriod) tags.push('Period');
+              if (d.isPeriod) tags.push('例假');
               if (d.isBusinessTrip) tags.push('出差');
               return tags.join(' · ');
             }
@@ -1161,6 +1235,19 @@ function calcBMR(weight, height, age, gender, activityFactor) {
   return { bmr: Math.round(bmr), tdee: Math.round(bmr * activityFactor) };
 }
 
+
+const ACTIVITY_DESC = {
+  '1.2':   '久坐为主，几乎无额外运动（文职工作、学生）',
+  '1.375': '每周进行1-3次轻量有氧或力量训练',
+  '1.55':  '每周进行3-5次中等强度训练（当前默认）',
+  '1.725': '每周进行6-7次高强度训练',
+  '1.9':   '每天高强度训练，或以体力劳动为主的工作',
+};
+function updateActivityDesc() {
+  const sel = document.getElementById('profileActivity');
+  const desc = document.getElementById('activityDesc');
+  if (sel && desc) desc.textContent = ACTIVITY_DESC[sel.value] || '';
+}
 function saveProfileAndRender() {
   const height = parseFloat(document.getElementById('profileHeight').value);
   const age = parseInt(document.getElementById('profileAge').value);
@@ -1182,6 +1269,7 @@ function renderProfile() {
     if (!aEl.value) aEl.value = profile.age;
     document.getElementById('profileGender').value = profile.gender || 'female';
     document.getElementById('profileActivity').value = profile.activityFactor || '1.55';
+    updateActivityDesc();
   }
 
   // BMR / TDEE display
@@ -1394,7 +1482,7 @@ function renderRewards() {
 
 }
 function renderMiniChart() {
-  const data = getChartData(30); // last 30 days
+  const data = getChartData(30);
   const today = todayStr();
   const labels = data.map(d => d.date.slice(5));
   const weights = data.map(d => d.weight ?? null);
