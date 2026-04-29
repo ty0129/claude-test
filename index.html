@@ -601,14 +601,17 @@
       </div>
       <div class="grid grid-2" style="margin-bottom:16px">
         <div><label>性别</label><select id="profileGender"><option value="female">女</option><option value="male">男</option></select></div>
-        <div><label>活动水平</label><select id="profileActivity" onchange="updateActivityDesc()">
-          <option value="1.2">久坐 · 几乎不运动</option>
-          <option value="1.375">轻度活动 · 每周1-3次</option>
-          <option value="1.55" selected>中度活动 · 每周3-5次</option>
-          <option value="1.725">高强度 · 每周6-7次</option>
-          <option value="1.9">极高强度 · 每天运动或体力劳动</option>
-        </select>
-        <div id="activityDesc" style="margin-top:6px;font-size:11px;color:var(--muted);line-height:1.5"></div></div>
+        <div>
+          <label>运动强度系数</label>
+          <select id="profileTraining" onchange="updateActivityDesc('profileTraining','trainingDesc')">
+            <option value="1.2">久坐 · 几乎不运动</option>
+            <option value="1.375">轻度活动 · 每周1-3次</option>
+            <option value="1.55">中度活动 · 每周3-5次</option>
+            <option value="1.725">高强度 · 每周6-7次</option>
+            <option value="1.9">极高强度 · 每天运动或体力劳动</option>
+          </select>
+          <div id="trainingDesc" style="margin-top:5px;font-size:11px;color:var(--muted);line-height:1.5"></div>
+        </div>
       </div>
       <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
         <button class="btn btn-primary btn-sm" onclick="saveProfileAndRender()">保存档案</button>
@@ -1107,7 +1110,11 @@ function renderCharts() {
     const w = d.weight ?? lastKnownW;
     if (d.weight != null) lastKnownW = d.weight;
     if (d.calories == null || !profile || !w) return null;
-    const result = calcBMR(w, profile.height, profile.age, profile.gender, profile.activityFactor);
+    const isTraining = d.split && d.split !== 'break';
+    const factor = isTraining
+      ? (profile.trainingFactor || profile.activityFactor || 1.55)
+      : 1.2;
+    const result = calcBMR(w, profile.height, profile.age, profile.gender, factor);
     return result ? result.tdee - d.calories : null;
   });
 
@@ -1326,18 +1333,20 @@ const ACTIVITY_DESC = {
   '1.725': '每周进行6-7次高强度训练',
   '1.9':   '每天高强度训练，或以体力劳动为主的工作',
 };
-function updateActivityDesc() {
-  const sel = document.getElementById('profileActivity');
-  const desc = document.getElementById('activityDesc');
+function updateActivityDesc(selId, descId) {
+  selId  = selId  || 'profileTraining';
+  descId = descId || 'trainingDesc';  // rest day hardcoded 1.2, no dropdown needed
+  const sel  = document.getElementById(selId);
+  const desc = document.getElementById(descId);
   if (sel && desc) desc.textContent = ACTIVITY_DESC[sel.value] || '';
 }
 function saveProfileAndRender() {
   const height = parseFloat(document.getElementById('profileHeight').value);
   const age = parseInt(document.getElementById('profileAge').value);
   const gender = document.getElementById('profileGender').value;
-  const activityFactor = parseFloat(document.getElementById('profileActivity').value);
+  const trainingFactor = parseFloat(document.getElementById('profileTraining').value) || 1.55;
   if (!height || !age) { alert('请填写身高和年龄'); return; }
-  saveProfile({ height, age, gender, activityFactor });
+  saveProfile({ height, age, gender, trainingFactor });
   renderProfile();
 }
 
@@ -1351,8 +1360,8 @@ function renderProfile() {
     if (!hEl.value) hEl.value = profile.height;
     if (!aEl.value) aEl.value = profile.age;
     document.getElementById('profileGender').value = profile.gender || 'female';
-    document.getElementById('profileActivity').value = profile.activityFactor || '1.55';
-    updateActivityDesc();
+    document.getElementById('profileTraining').value = profile.trainingFactor || profile.activityFactor || '1.55';
+    updateActivityDesc('profileTraining', 'trainingDesc');
   }
 
   // BMR / TDEE display
@@ -1361,9 +1370,14 @@ function renderProfile() {
     const all = loadAll();
     const withWeight = Object.values(all).filter(e => e.weight != null).sort((a,b) => a.date.localeCompare(b.date));
     const curWeight = withWeight.length ? withWeight[withWeight.length - 1].weight : null;
-    const result = curWeight ? calcBMR(curWeight, profile.height, profile.age, profile.gender, profile.activityFactor) : null;
-    if (result) {
-      bmrEl.innerHTML = `<span style="color:var(--text);font-weight:700">BMR: ${result.bmr} kcal</span> &nbsp;·&nbsp; <span style="color:var(--accent);font-weight:700">TDEE: ${result.tdee} kcal</span> <span style="color:var(--muted);font-size:11px">（基于体重 ${curWeight} kg）</span>`;
+    const tf2 = parseFloat(profile.trainingFactor || profile.activityFactor || 1.55);
+    const rT = curWeight ? calcBMR(curWeight, profile.height, profile.age, profile.gender, tf2) : null;
+    const rR = curWeight ? calcBMR(curWeight, profile.height, profile.age, profile.gender, 1.2) : null;
+    if (rT && rR) {
+      bmrEl.innerHTML = `<span style="color:var(--text);font-weight:700">BMR ${rT.bmr} kcal</span>`
+        + ` &nbsp;·&nbsp; <span style="color:var(--accent);font-weight:700">训练日 TDEE ${rT.tdee} kcal</span>`
+        + ` &nbsp;·&nbsp; <span style="color:var(--green);font-weight:700">休息日 TDEE ${rR.tdee} kcal</span>`
+        + ` <span style="color:var(--muted);font-size:11px">（体重 ${curWeight} kg）</span>`;
     } else {
       bmrEl.textContent = '请先记录体重数据以计算 BMR';
     }
