@@ -54,7 +54,7 @@
       radial-gradient(ellipse 400px 300px at 80% 70%, rgba(224,107,180,.07) 0%, transparent 70%),
       radial-gradient(ellipse 300px 300px at 60% 10%, rgba(0,255,179,.05) 0%, transparent 70%);
   }
-  .app { max-width: 960px; margin:0 auto; padding:28px 18px 80px; position:relative; z-index:1; }
+  .app { max-width: 960px; margin:0 auto; padding:calc(28px + env(safe-area-inset-top)) 18px 80px; position:relative; z-index:1; }
 
   /* Header */
   .header {
@@ -97,7 +97,7 @@
 
   /* ── Mobile: fixed bottom navigation ── */
   @media (max-width: 640px) {
-    .app { padding: 18px 14px; padding-bottom: calc(72px + env(safe-area-inset-bottom)); }
+    .app { padding: 18px 14px; padding-top: calc(18px + env(safe-area-inset-top)); padding-bottom: calc(72px + env(safe-area-inset-bottom)); }
     .header { margin-bottom: 18px; padding-bottom: 14px; }
     .header h1 { font-size: 18px; }
 
@@ -308,7 +308,7 @@
   .date-nav { display:flex; align-items:center; gap:10px; }
   .date-nav button { background:var(--surface2); border:1px solid var(--border); color:var(--text); padding:8px 14px; border-radius:50px; cursor:pointer; font-size:16px; transition:all .2s; font-family:var(--font); }
   .date-nav button:hover { border-color:var(--accent); box-shadow:0 0 12px rgba(124,106,247,.3); }
-  .date-nav .date-display { font-weight:700; font-size:15px; min-width:140px; text-align:center; letter-spacing:-.3px; }
+  .date-nav .date-display { font-weight:700; font-size:15px; min-width:0; text-align:center; letter-spacing:-.3px; white-space:nowrap; }
   .cal-pick-wrap {
     position:relative; display:flex; align-items:center;
     background:var(--surface2); border:1px solid var(--border);
@@ -602,6 +602,10 @@ function dayOfWeek(dateStr) {
   const d = new Date(dateStr + 'T00:00:00');
   return days[d.getDay()];
 }
+function shortDow(dateStr) {
+  const days = ['周日','周一','周二','周三','周四','周五','周六'];
+  return days[new Date(dateStr + 'T00:00:00').getDay()];
+}
 
 // ── Tab switching ────────────────────────────────────────────────────────────
 const ALL_TABS = ['log','chart','rewards','profile','history'];
@@ -634,7 +638,8 @@ function goToday() {
 
 function updateNavDisplay() {
   const isToday = currentDate === todayStr();
-  document.getElementById('navDateDisplay').textContent = currentDate + ' · ' + dayOfWeek(currentDate) + (isToday ? ' · 今天' : '');
+  const mmdd = currentDate.slice(5); // MM-DD
+  document.getElementById('navDateDisplay').textContent = mmdd + ' ' + shortDow(currentDate) + (isToday ? ' · 今天' : '');
   document.getElementById('todayBadge').textContent = isToday ? '' : '编辑：' + currentDate;
   const banner = document.getElementById('editingBanner');
   banner.style.display = isToday ? 'none' : 'flex';
