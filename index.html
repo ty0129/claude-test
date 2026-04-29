@@ -247,7 +247,7 @@
 
   /* Charts */
   .chart-wrap { position:relative; height:280px; }
-  .mini-chart-wrap { position:relative; height:90px; }
+  .mini-chart-wrap { position:relative; height:130px; }
 
   #editingBanner { display:none; align-items:center; gap:8px; background:rgba(255,214,10,.07); border:1px solid rgba(255,214,10,.3); border-radius:10px; padding:10px 16px; margin-bottom:14px; font-size:13px; font-weight:600; color:var(--yellow); box-shadow:0 0 15px rgba(255,214,10,.1); }
 
@@ -341,6 +341,7 @@
   .di-btn.period.active  { border-color:var(--accent2); background:rgba(224,107,180,.12); color:var(--accent2); box-shadow:0 0 12px rgba(224,107,180,.25); }
   .di-btn.restday.active { border-color:var(--green);   background:rgba(0,255,179,.08);   color:var(--green);   box-shadow:0 0 12px rgba(0,255,179,.2); }
   .di-btn.poop.active    { border-color:var(--yellow);  background:rgba(255,214,10,.08);  color:var(--yellow);  box-shadow:0 0 12px rgba(255,214,10,.2); }
+  .di-btn.cheatday.active{ border-color:#e0b44a; background:rgba(224,180,74,.1); color:#e0b44a; box-shadow:0 0 12px rgba(224,180,74,.25); }
   /* Poop yes/no segmented control */
   .poop-seg { display:inline-flex; border-radius:50px; border:1px solid var(--border); overflow:hidden; }
   .poop-seg button { padding:10px 18px; border:none; background:var(--surface2); color:var(--muted); font-family:var(--font); font-size:13px; font-weight:600; cursor:pointer; transition:all .2s; }
@@ -401,22 +402,19 @@
     <input type="hidden" id="entryDow">
     <div class="card">
       <div class="card-title">今日状态</div>
-      <div class="di-group">
-        <div class="di-group-label">身体状态</div>
-        <div class="di-btns">
-          <button class="di-btn period" id="btn-period" onclick="toggleDIBtn('period')">🌸 例假中</button>
-          <button class="di-btn restday" id="btn-restday" onclick="toggleDIBtn('restday')">🏖️ 休息日</button>
-        </div>
+      <div class="di-btns" style="margin-bottom:14px">
+        <button class="di-btn period"   id="btn-period"   onclick="toggleDIBtn('period')">🌸 例假中</button>
+        <button class="di-btn restday"  id="btn-restday"  onclick="toggleDIBtn('restday')">🏖️ 休息日</button>
+        <button class="di-btn cheatday" id="btn-cheatday" onclick="toggleDIBtn('cheatday')">🍔 放纵日</button>
       </div>
-      <div class="di-group">
-        <div class="di-group-label">今日排便</div>
-        <div class="poop-seg">
-          <button id="btn-poop-yes" onclick="setPoopState(true)">💩 今天有</button>
-          <button id="btn-poop-no" onclick="setPoopState(false)">今天没</button>
-        </div>
+      <div class="di-group-label">今日排便</div>
+      <div class="poop-seg">
+        <button id="btn-poop-yes" onclick="setPoopState(true)">💩 今天有</button>
+        <button id="btn-poop-no" onclick="setPoopState(false)">今天没</button>
       </div>
-      <input type="checkbox" id="isPeriod" style="display:none">
-      <input type="checkbox" id="hasPoop" style="display:none">
+      <input type="checkbox" id="isPeriod"   style="display:none">
+      <input type="checkbox" id="isCheatDay" style="display:none">
+      <input type="checkbox" id="hasPoop"    style="display:none">
     </div>
     <div class="card">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
@@ -661,7 +659,7 @@ function readForm() {
     dow: dayOfWeek(currentDate),
     isWorkday: _existing.isWorkday ?? false,
     isPeriod: document.getElementById('isPeriod').checked,
-    isCheatDay: _existing.isCheatDay ?? false,
+    isCheatDay: document.getElementById('isCheatDay').checked,
     isBusinessTrip: _existing.isBusinessTrip ?? false,
     hasPoop: document.getElementById('hasPoop').checked,
     weight: parseFloat(document.getElementById('weight').value) || null,
@@ -684,6 +682,8 @@ function fillForm(entry) {
   document.getElementById('isPeriod').checked = !!entry.isPeriod;
   document.getElementById('hasPoop').checked = !!entry.hasPoop;
   document.getElementById('btn-period').classList.toggle('active', !!entry.isPeriod);
+  document.getElementById('btn-cheatday').classList.toggle('active', !!entry.isCheatDay);
+  document.getElementById('isCheatDay').checked = !!entry.isCheatDay;
   setPoopState(entry.hasPoop ? true : false);
   document.getElementById('btn-restday').classList.toggle('active', entry.split === 'break');
   document.getElementById('weight').value = entry.weight != null ? entry.weight : '';
@@ -761,7 +761,8 @@ function setPoopState(val) {
 function toggleDIBtn(type) {
   const btn = document.getElementById('btn-' + type);
   const active = btn.classList.toggle('active');
-  if (type === 'period') document.getElementById('isPeriod').checked = active;
+  if (type === 'period')   document.getElementById('isPeriod').checked = active;
+  if (type === 'cheatday') document.getElementById('isCheatDay').checked = active;
   if (type === 'restday') {
     selectedSplit = active ? 'break' : null;
     document.querySelectorAll('#splitChips .chip').forEach(c =>
