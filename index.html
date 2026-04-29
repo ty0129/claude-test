@@ -252,14 +252,15 @@
   #editingBanner { display:none; align-items:center; gap:8px; background:rgba(255,214,10,.07); border:1px solid rgba(255,214,10,.3); border-radius:10px; padding:10px 16px; margin-bottom:14px; font-size:13px; font-weight:600; color:var(--yellow); box-shadow:0 0 15px rgba(255,214,10,.1); }
 
   /* Title card */
-  .title-card-wrap { text-align:center; padding:36px 20px; border-radius:var(--radius); border:1px solid var(--border); margin-bottom:14px; background:var(--surface); position:relative; overflow:hidden; }
+  .title-card-wrap { text-align:center; padding:28px 20px 24px; border-radius:var(--radius); border:1px solid var(--border); margin-bottom:14px; background:var(--surface); position:relative; overflow:hidden; }
   .title-card-wrap::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,var(--accent),var(--accent2),transparent); }
   .title-card-wrap.gold { border-color:rgba(255,214,10,.4); box-shadow:0 0 30px rgba(255,214,10,.1); }
   .title-card-wrap.green { border-color:rgba(0,255,179,.4); box-shadow:0 0 30px rgba(0,255,179,.1); }
   .title-card-wrap.red { border-color:rgba(255,77,109,.35); box-shadow:0 0 30px rgba(255,77,109,.1); }
   .title-icon-big { font-size:56px; margin-bottom:12px; filter:drop-shadow(0 0 12px rgba(124,106,247,.5)); }
   .title-text-big { font-size:26px; font-weight:700; letter-spacing:-.5px; margin-bottom:8px; background:linear-gradient(90deg,#fff,var(--accent),var(--accent2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
-  .title-desc-text { font-size:13px; color:var(--muted); }
+  .title-label { font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); margin-bottom:14px; }
+  .title-desc-text { font-size:13px; color:rgba(255,255,255,.55); line-height:1.6; margin-top:10px; }
 
   /* Achievements */
   .achievements-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:14px; }
@@ -364,6 +365,57 @@
   ::-webkit-scrollbar-thumb{background:rgba(124,106,247,.3);border-radius:3px;}
   ::-webkit-scrollbar-thumb:hover{background:rgba(124,106,247,.5);}
   code{background:var(--surface2);padding:2px 6px;border-radius:4px;font-size:12px;border:1px solid var(--border);}
+
+  /* Title info modal */
+  .modal-backdrop {
+    display:none; position:fixed; inset:0; z-index:2000;
+    background:rgba(0,0,0,.6); backdrop-filter:blur(4px);
+    -webkit-backdrop-filter:blur(4px);
+    align-items:center; justify-content:center; padding:20px;
+  }
+  .modal-backdrop.open { display:flex; }
+  .modal-box {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:var(--radius); width:100%; max-width:420px;
+    max-height:80vh; overflow-y:auto;
+    box-shadow:0 0 40px rgba(124,106,247,.25);
+  }
+  .modal-head {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 18px 12px; border-bottom:1px solid var(--border);
+    position:sticky; top:0; background:var(--surface); z-index:1;
+  }
+  .modal-head-title { font-size:14px; font-weight:700; color:var(--text); }
+  .modal-close {
+    width:28px; height:28px; border-radius:50%; border:1px solid var(--border);
+    background:var(--surface2); color:var(--muted); cursor:pointer;
+    font-size:14px; display:flex; align-items:center; justify-content:center;
+    transition:all .2s; font-family:var(--font);
+  }
+  .modal-close:hover { border-color:var(--accent); color:var(--text); }
+  .title-table { width:100%; border-collapse:collapse; font-size:12px; }
+  .title-table th {
+    text-align:left; padding:8px 12px; font-size:10px; font-weight:700;
+    text-transform:uppercase; letter-spacing:.8px; color:var(--muted);
+    border-bottom:1px solid var(--border);
+  }
+  .title-table td { padding:9px 12px; border-bottom:1px solid rgba(255,255,255,.04); vertical-align:top; }
+  .title-table tr:last-child td { border-bottom:none; }
+  .title-table tr:hover td { background:rgba(255,255,255,.03); }
+  .title-table .t-icon { font-size:18px; text-align:center; width:32px; }
+  .title-table .t-name { font-weight:700; color:var(--text); white-space:nowrap; padding-right:6px; }
+  .title-table .t-cond { color:var(--muted); line-height:1.5; }
+  .title-note { font-size:11px; color:var(--muted); padding:10px 12px 14px; line-height:1.6; }
+  /* ? button on title card */
+  .title-info-btn {
+    position:absolute; top:12px; right:12px;
+    width:22px; height:22px; border-radius:50%;
+    border:1px solid rgba(255,255,255,.2); background:rgba(255,255,255,.07);
+    color:rgba(255,255,255,.45); font-size:12px; font-weight:700;
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
+    transition:all .2s; font-family:var(--font); line-height:1;
+  }
+  .title-info-btn:hover { border-color:var(--accent); color:var(--accent); background:rgba(124,106,247,.15); }
 </style>
 </head>
 <body>
@@ -510,8 +562,33 @@
         <div style="text-align:center;margin-top:8px;font-size:14px;font-weight:700" id="goalProgressPct"></div>
       </div>
     </div>
-    <div class="card-title" style="margin-bottom:12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--muted)">成就与称号</div>
+    <div class="card-title" style="margin-bottom:12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--muted)">🎖️ 勋章收集</div>
     <div class="achievements-grid" id="achievementsGrid"></div>
+  </div>
+  <!-- Title info modal -->
+  <div class="modal-backdrop" id="titleInfoModal" onclick="closeTitleInfo(event)">
+    <div class="modal-box">
+      <div class="modal-head">
+        <span class="modal-head-title">称号一览 · 触发条件</span>
+        <button class="modal-close" onclick="closeTitleInfo()">✕</button>
+      </div>
+      <table class="title-table">
+        <thead><tr><th></th><th>称号</th><th>触发条件</th></tr></thead>
+        <tbody>
+          <tr><td class="t-icon">👑</td><td class="t-name">猪咪王</td><td class="t-cond">体重已达到目标值</td></tr>
+          <tr><td class="t-icon">🌟</td><td class="t-name">飞翔的猪咪</td><td class="t-cond">近 7 天减重 ≥ 1.0 kg</td></tr>
+          <tr><td class="t-icon">🚀</td><td class="t-name">奋进的猪咪</td><td class="t-cond">近 7 天减重 ≥ 0.5 kg</td></tr>
+          <tr><td class="t-icon">💪</td><td class="t-name">最佳毅力</td><td class="t-cond">连续 3 天体重波动 ≤ ±0.15 kg（稳住平台期）</td></tr>
+          <tr><td class="t-icon">🔥</td><td class="t-name">燃烧的猪咪</td><td class="t-cond">连续打卡 ≥ 7 天且已完成 ≥ 5 次力量训练</td></tr>
+          <tr><td class="t-icon">😤</td><td class="t-name">不服输的猪咪</td><td class="t-cond">近 3 天体重微涨 0.1 ~ 0.5 kg，但仍在记录</td></tr>
+          <tr><td class="t-icon">⚠️</td><td class="t-name">猪咪要加油了</td><td class="t-cond">近 3 天体重上涨 > 0.5 kg</td></tr>
+          <tr><td class="t-icon">🌱</td><td class="t-name">追梦中的猪咪</td><td class="t-cond">已设定目标体重，正在努力中</td></tr>
+          <tr><td class="t-icon">🐾</td><td class="t-name">刚刚起步的猪咪</td><td class="t-cond">总记录天数不足 7 天</td></tr>
+          <tr><td class="t-icon">🐷</td><td class="t-name">快乐的猪咪</td><td class="t-cond">默认状态（以上条件均不满足）</td></tr>
+        </tbody>
+      </table>
+      <div class="title-note">📌 称号按优先级从上到下匹配，满足最高优先级的条件即显示对应称号。</div>
+    </div>
   </div>
 
   <div id="tab-profile" style="display:none">
@@ -1435,6 +1512,8 @@ function renderRewards() {
   const tc = document.getElementById('titleCard');
   tc.className = 'title-card-wrap ' + (t.color || '');
   tc.innerHTML = `
+    <button class="title-info-btn" onclick="showTitleInfo()">?</button>
+    <div class="title-label">✦ 今日状态 ✦</div>
     <div class="title-icon-big">${t.icon}</div>
     <div class="title-text-big">${t.title}</div>
     <div class="title-desc-text">${t.desc}</div>
@@ -1639,6 +1718,15 @@ function init() {
 }
 
 init();
+
+function showTitleInfo() {
+  document.getElementById('titleInfoModal').classList.add('open');
+}
+function closeTitleInfo(e) {
+  // close when clicking backdrop or X button
+  if (!e || e.target.id === 'titleInfoModal')
+    document.getElementById('titleInfoModal').classList.remove('open');
+}
 </script>
 </body>
 </html>
