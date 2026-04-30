@@ -1878,7 +1878,7 @@ function renderMonthly() {
   if (monthPageIdx < 0 || monthPageIdx >= months.length) monthPageIdx = months.length - 1;
   const ym = months[monthPageIdx];
   const [y, m] = ym.split('-');
-  label.textContent = \`\${y}年\${parseInt(m)}月\`;
+  label.textContent = `${y}年${parseInt(m)}月`;
   prevBtn.disabled = monthPageIdx === 0;
   nextBtn.disabled = monthPageIdx === months.length - 1;
   const s = calcMonthlyStats(ym);
