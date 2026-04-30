@@ -417,6 +417,27 @@
     transition:all .2s; font-family:var(--font); line-height:1;
   }
   .title-info-btn:hover { border-color:var(--accent); color:var(--accent); background:rgba(124,106,247,.15); }
+
+  /* Monthly achievements */
+  .monthly-nav { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+  .monthly-nav button { background:var(--surface2); border:1px solid var(--border); color:var(--text); padding:8px 14px; border-radius:50px; cursor:pointer; font-size:16px; transition:all .2s; font-family:var(--font); }
+  .monthly-nav button:hover { border-color:var(--accent); box-shadow:0 0 12px rgba(124,106,247,.3); }
+  .monthly-nav-label { font-weight:700; font-size:14px; }
+  .monthly-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
+  @media(min-width:480px){.monthly-grid{grid-template-columns:repeat(4,1fr);}}
+  .mo-badge { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px 12px; text-align:center; transition:all .2s; opacity:.45; filter:grayscale(.7); }
+  .mo-badge.earned { opacity:1; filter:none; border-color:rgba(0,255,179,.45); box-shadow:0 0 18px rgba(0,255,179,.15); }
+  .mo-icon { font-size:28px; margin-bottom:7px; }
+  .mo-title { font-size:12px; font-weight:700; margin-bottom:3px; }
+  .mo-desc { font-size:10px; color:var(--muted); margin-bottom:6px; line-height:1.4; }
+  .mo-stat { font-size:11px; font-weight:600; color:var(--muted); }
+  .mo-badge.earned .mo-stat { color:var(--green); }
+
+  /* Rewards sub-tabs */
+  .reward-subtabs { display:flex; gap:6px; margin-bottom:16px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:5px; }
+  .reward-subtab { flex:1; padding:8px 12px; border-radius:10px; border:1px solid transparent; background:transparent; color:var(--muted); font-family:var(--font); font-size:13px; font-weight:600; cursor:pointer; transition:all .2s; }
+  .reward-subtab.active { background:var(--surface2); color:#fff; border-color:var(--border-glow); box-shadow:var(--glow-purple), inset 0 0 20px rgba(124,106,247,.08); }
+  .reward-subtab:hover:not(.active) { color:var(--text); background:rgba(255,255,255,.03); }
 </style>
 </head>
 <body>
@@ -563,8 +584,27 @@
         <div style="text-align:center;margin-top:8px;font-size:14px;font-weight:700" id="goalProgressPct"></div>
       </div>
     </div>
-    <div class="card-title" style="margin-bottom:12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--muted)">🎖️ 勋章收集</div>
-    <div class="achievements-grid" id="achievementsGrid"></div>
+
+    <!-- Sub-tab switcher -->
+    <div class="reward-subtabs">
+      <button class="reward-subtab active" id="rst-milestone" onclick="switchRewardSubtab('milestone')">🎖️ 里程碑</button>
+      <button class="reward-subtab" id="rst-monthly" onclick="switchRewardSubtab('monthly')">🗓️ 月度荣誉</button>
+    </div>
+
+    <!-- Milestone sub-tab -->
+    <div id="subtab-milestone">
+      <div class="achievements-grid" id="achievementsGrid"></div>
+    </div>
+
+    <!-- Monthly sub-tab -->
+    <div id="subtab-monthly" style="display:none">
+      <div class="monthly-nav" id="monthlyNav">
+        <button id="monthPrev" onclick="shiftMonth(-1)">‹</button>
+        <span class="monthly-nav-label" id="monthPageLabel"></span>
+        <button id="monthNext" onclick="shiftMonth(1)">›</button>
+      </div>
+      <div class="monthly-grid" id="monthlyCard"></div>
+    </div>
   </div>
   <!-- Title info modal -->
   <div class="modal-backdrop" id="titleInfoModal" onclick="closeTitleInfo(event)">
@@ -1185,23 +1225,32 @@ const ACHIEVEMENTS = [
   { id:'s7',  icon:'🔥', title:'习惯养成', desc:'连续打卡 7 天',  color:'gold',  type:'streak', threshold:7 },
   { id:'s14', icon:'💪', title:'坚持不懈', desc:'连续打卡 14 天', color:'',      type:'streak', threshold:14 },
   { id:'s30', icon:'🏆', title:'月度毅力', desc:'连续打卡 30 天', color:'gold',  type:'streak', threshold:30 },
-  // Total days
-  { id:'d10', icon:'📝', title:'记录成癖', desc:'累计记录 10 天', color:'green', type:'days',   threshold:10 },
-  { id:'d30', icon:'📅', title:'月度达人', desc:'累计记录 30 天', color:'',      type:'days',   threshold:30 },
-  { id:'d60', icon:'👑', title:'铁血战士', desc:'累计记录 60 天', color:'gold',  type:'days',   threshold:60 },
-  // Training
-  { id:'t10', icon:'🏋️', title:'训练新手', desc:'完成 10 次力量训练', color:'green', type:'strength', threshold:10 },
-  { id:'t30', icon:'⚡', title:'训练达人', desc:'完成 30 次力量训练', color:'',      type:'strength', threshold:30 },
-  { id:'c10', icon:'🏃', title:'有氧新手', desc:'完成 10 次有氧运动', color:'green', type:'cardio', threshold:10 },
-  { id:'c30', icon:'🌊', title:'有氧达人', desc:'完成 30 次有氧运动', color:'',      type:'cardio', threshold:30 },
   // Clean streak
   { id:'cl7', icon:'🥗', title:'清淡一周', desc:'连续 7 天无放纵日', color:'green', type:'clean', threshold:7 },
-  { id:'cl14',icon:'✨', title:'自律典范', desc:'连续 14 天无放纵日', color:'pink',  type:'clean', threshold:14 },
+  { id:'cl14',icon:'✨', title:'自律典范', desc:'最近 10 次打卡无放纵日', color:'pink', type:'cleanRecent', threshold:1 },
   // Goal progress
   { id:'g25', icon:'🎯', title:'目标四分之一', desc:'完成目标进度 25%', color:'green', type:'goal', threshold:25 },
   { id:'g50', icon:'🚀', title:'目标一半达成', desc:'完成目标进度 50%', color:'',      type:'goal', threshold:50 },
   { id:'g75', icon:'🔥', title:'冲刺阶段',     desc:'完成目标进度 75%', color:'gold',  type:'goal', threshold:75 },
   { id:'g100',icon:'🏁', title:'猪咪王降临',   desc:'100% 达成目标！', color:'gold',  type:'goal', threshold:100 },
+  // Cardio volume milestones
+  { id:'cm100',  icon:'🔥', title:'有氧百分钟', desc:'累计有氧 ≥ 100 分钟',  color:'green', type:'cardioMins', threshold:100 },
+  { id:'cm500',  icon:'🌊', title:'有氧五百钟', desc:'累计有氧 ≥ 500 分钟',  color:'',      type:'cardioMins', threshold:500 },
+  { id:'cm1000', icon:'⚡', title:'有氧千分钟', desc:'累计有氧 ≥ 1000 分钟', color:'gold',  type:'cardioMins', threshold:1000 },
+  // Combo days
+  { id:'combo10',icon:'🎽', title:'双料达人', desc:'同天力量+有氧 10 次', color:'green', type:'combo', threshold:10 },
+  { id:'combo30',icon:'🏅', title:'铁人三十', desc:'同天力量+有氧 30 次', color:'gold',  type:'combo', threshold:30 },
+  // Weight milestones
+  { id:'newLow', icon:'📉', title:'历史新低', desc:'体重创历史最低值',          color:'gold',  type:'newLow',     threshold:1 },
+  { id:'stable7',icon:'⚖️', title:'体重稳定', desc:'连续7天体重波动 ≤ ±0.3 kg', color:'green', type:'weightStable',threshold:1 },
+  // Legs day
+  { id:'legs10', icon:'🦵', title:'腿日勇士', desc:'完成 10 次腿日训练', color:'green', type:'legsDay', threshold:10 },
+  { id:'legs20', icon:'🦾', title:'腿日英雄', desc:'完成 20 次腿日训练', color:'gold',  type:'legsDay', threshold:20 },
+  // All body parts
+  { id:'all5',   icon:'🏋️', title:'全能战士', desc:'五个部位全部练过',   color:'gold',  type:'allParts', threshold:5 },
+  // Food logging
+  { id:'food14', icon:'🥢', title:'饮食记录达人', desc:'连续记录饮食 14 天', color:'green', type:'foodLog', threshold:14 },
+  { id:'food30', icon:'🍱', title:'饮食记录大师', desc:'连续记录饮食 30 天', color:'gold',  type:'foodLog', threshold:30 },
 ];
 
 function calcStats() {
@@ -1243,8 +1292,31 @@ function calcStats() {
       Math.round(((firstWeight - curWeight) / (firstWeight - goal.targetWeight)) * 100)));
   }
 
-  return { totalLoss, totalDays, maxStreak, strengthSessions, cardioSessions, maxClean,
-           firstWeight, curWeight, goalProgress };
+  // New milestone stats
+  const totalCardioMins = entries.reduce((s, e) => s + (e.cardioMins || 0), 0);
+  const comboDays = entries.filter(e => {
+    const hasStrength = Array.isArray(e.split) ? e.split.length > 0 : (e.split && e.split !== 'break');
+    return hasStrength && e.cardioMins > 0;
+  }).length;
+  const minWeight = withWeight.length ? Math.min(...withWeight.map(e => e.weight)) : null;
+  const isNewLow = curWeight != null && minWeight != null && curWeight <= minWeight;
+  const legsDays = entries.filter(e => Array.isArray(e.split) ? e.split.includes('legs') : e.split === 'legs').length;
+  const allParts = new Set();
+  entries.forEach(e => { if (Array.isArray(e.split)) e.split.forEach(s => allParts.add(s)); else if (e.split && e.split !== 'break') allParts.add(e.split); });
+  const allPartCount = ['shoulders','chest','back','glutes','legs'].filter(p => allParts.has(p)).length;
+  let foodLogStreak = 0, curFood = 0;
+  entries.forEach(e => {
+    curFood = (e.breakfast || e.lunch || e.dinner) ? curFood + 1 : 0;
+    if (curFood > foodLogStreak) foodLogStreak = curFood;
+  });
+  const last7w = withWeight.slice(-7);
+  const weightStable7 = last7w.length >= 7 && last7w.every(e => Math.abs(e.weight - last7w[0].weight) <= 0.3);
+
+  const recentClean10 = entries.slice(-10).length >= 1 && entries.slice(-10).every(e => !e.isCheatDay);
+
+  return { totalLoss, totalDays, maxStreak, strengthSessions, cardioSessions, maxClean, recentClean10,
+           firstWeight, curWeight, goalProgress,
+           totalCardioMins, comboDays, isNewLow, legsDays, allPartCount, foodLogStreak, weightStable7 };
 }
 
 function analyzePeriodCycle() {
@@ -1569,7 +1641,14 @@ function renderRewards() {
   const valueFor = a => ({
     weight: stats.totalLoss, streak: stats.maxStreak, days: stats.totalDays,
     strength: stats.strengthSessions, cardio: stats.cardioSessions,
-    clean: stats.maxClean, goal: stats.goalProgress
+    clean: stats.maxClean, cleanRecent: stats.recentClean10 ? 1 : 0, goal: stats.goalProgress,
+    cardioMins:   stats.totalCardioMins,
+    combo:        stats.comboDays,
+    newLow:       stats.isNewLow ? 1 : 0,
+    weightStable: stats.weightStable7 ? 1 : 0,
+    legsDay:      stats.legsDays,
+    allParts:     stats.allPartCount,
+    foodLog:      stats.foodLogStreak,
   })[a.type] ?? 0;
 
   grid.innerHTML = ACHIEVEMENTS.map(a => {
@@ -1751,8 +1830,77 @@ function closeTitleInfo(e) {
   if (!e || e.target.id === 'titleInfoModal')
     document.getElementById('titleInfoModal').classList.remove('open');
 }
+
+// Monthly badge definitions: count-based, evaluated per calendar month
+const MONTHLY_BADGES = [
+  { id:'mo_checkin',  icon:'📅', title:'打卡达人',  desc:'本月打卡 ≥ 20 天',     check: s => s.checkDays    >= 20, stat: s => `${s.checkDays} / 20 天` },
+  { id:'mo_strength', icon:'💪', title:'力量勇士',  desc:'本月力量训练 ≥ 10 次',  check: s => s.strengthCnt  >= 10, stat: s => `${s.strengthCnt} / 10 次` },
+  { id:'mo_cardio',   icon:'🏃', title:'有氧达人',  desc:'本月有氧运动 ≥ 10 次',  check: s => s.cardioCnt    >= 10, stat: s => `${s.cardioCnt} / 10 次` },
+  { id:'mo_loss',     icon:'📉', title:'减重成功',  desc:'本月净减重 ≥ 0.5 kg',   check: s => s.weightLoss   >= 0.5,stat: s => `${s.weightLoss > 0 ? '+' : ''}${(-s.weightLoss).toFixed(1)} kg` },
+];
+
+let monthPageIdx = -1;
+
+function getDataMonths() {
+  const months = [...new Set(Object.keys(loadAll()).map(d => d.slice(0,7)))].sort();
+  return months;
+}
+
+function calcMonthlyStats(ym) {
+  const all = loadAll();
+  const entries = Object.values(all).filter(e => e.date.startsWith(ym)).sort((a,b) => a.date.localeCompare(b.date));
+  const checkDays   = entries.length;
+  const strengthCnt = entries.filter(e => Array.isArray(e.split) ? e.split.length > 0 : (e.split && e.split !== 'break')).length;
+  const cardioCnt   = entries.filter(e => e.cardioMins > 0).length;
+  const wEntries    = entries.filter(e => e.weight != null);
+  const weightLoss  = wEntries.length >= 2 ? wEntries[0].weight - wEntries[wEntries.length-1].weight : 0;
+  return { checkDays, strengthCnt, cardioCnt, weightLoss };
+}
+
+function shiftMonth(d) {
+  const months = getDataMonths();
+  monthPageIdx = Math.max(0, Math.min(months.length - 1, monthPageIdx + d));
+  renderMonthly();
+}
+
+function renderMonthly() {
+  const months = getDataMonths();
+  const card = document.getElementById('monthlyCard');
+  const prevBtn = document.getElementById('monthPrev');
+  const nextBtn = document.getElementById('monthNext');
+  const label   = document.getElementById('monthPageLabel');
+  if (!months.length) {
+    card.innerHTML = '<div style="color:var(--muted);font-size:13px;text-align:center;padding:20px">暂无数据</div>';
+    label.textContent = '无记录';
+    prevBtn.disabled = nextBtn.disabled = true;
+    return;
+  }
+  if (monthPageIdx < 0 || monthPageIdx >= months.length) monthPageIdx = months.length - 1;
+  const ym = months[monthPageIdx];
+  const [y, m] = ym.split('-');
+  label.textContent = \`\${y}年\${parseInt(m)}月\`;
+  prevBtn.disabled = monthPageIdx === 0;
+  nextBtn.disabled = monthPageIdx === months.length - 1;
+  const s = calcMonthlyStats(ym);
+  card.innerHTML = MONTHLY_BADGES.map(b => {
+    const earned = b.check(s);
+    return `<div class="mo-badge${earned ? ' earned' : ''}">
+      <div class="mo-icon">${b.icon}</div>
+      <div class="mo-title">${b.title}</div>
+      <div class="mo-desc">${b.desc}</div>
+      <div class="mo-stat">${earned ? '✓ 已达成' : b.stat(s)}</div>
+    </div>`;
+  }).join('');
+}
+
+function switchRewardSubtab(tab) {
+  document.getElementById('subtab-milestone').style.display = tab === 'milestone' ? '' : 'none';
+  document.getElementById('subtab-monthly').style.display   = tab === 'monthly'   ? '' : 'none';
+  document.getElementById('rst-milestone').classList.toggle('active', tab === 'milestone');
+  document.getElementById('rst-monthly').classList.toggle('active',   tab === 'monthly');
+  if (tab === 'monthly') renderMonthly();
+}
 </script>
 </body>
 </html>
-
 </body></html>
