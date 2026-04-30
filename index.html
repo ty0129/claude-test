@@ -195,6 +195,7 @@
     cursor:pointer; transition:all .2s; user-select:none; font-family:var(--font);
   }
   .chip:hover { border-color:var(--accent); color:var(--text); box-shadow:0 0 10px rgba(124,106,247,.2); }
+  .chips.disabled .chip { opacity:.35; pointer-events:none; }
   .chip.selected { border-color:var(--accent); color:#fff; background:rgba(124,106,247,.2); box-shadow:var(--glow-purple); text-shadow:0 0 8px rgba(124,106,247,.8); }
   .chip.green.selected { border-color:var(--green); color:#fff; background:rgba(0,255,179,.15); box-shadow:var(--glow-green); text-shadow:0 0 8px rgba(0,255,179,.8); }
   .chip.red.selected { border-color:var(--red); color:#fff; background:rgba(255,77,109,.15); }
@@ -485,11 +486,11 @@
       <div class="card-title">训练</div>
       <div style="margin-bottom:14px"><label style="margin-bottom:8px">训练部位</label>
         <div class="chips" id="splitChips">
-          <span class="chip" data-val="chest" onclick="selectSplit(this)">胸 + 前束</span>
-          <span class="chip" data-val="back" onclick="selectSplit(this)">背</span>
-          <span class="chip" data-val="legs" onclick="selectSplit(this)">腿</span>
-          <span class="chip" data-val="shoulders" onclick="selectSplit(this)">肩中 + 肩后</span>
-          <span class="chip" data-val="break" onclick="selectSplit(this)">休息</span>
+          <span class="chip" data-val="shoulders" onclick="toggleSplit(this)">肩</span>
+          <span class="chip" data-val="chest" onclick="toggleSplit(this)">胸</span>
+          <span class="chip" data-val="back" onclick="toggleSplit(this)">背</span>
+          <span class="chip" data-val="glutes" onclick="toggleSplit(this)">臀</span>
+          <span class="chip" data-val="legs" onclick="toggleSplit(this)">腿</span>
         </div>
       </div>
       <div><label>有氧时长 (分钟)</label><input type="number" id="cardioMins" min="0" max="300" placeholder="0" style="max-width:140px"></div>
@@ -668,7 +669,7 @@ let chartRange = 0;
 let weightChartInst = null;
 let calorieChartInst = null;
 let miniWeightChartInst = null;
-let selectedSplit = null;
+let selectedSplits = new Set();
 
 function todayStr() {
   const d = new Date();
@@ -744,7 +745,7 @@ function readForm() {
     hasPoop: document.getElementById('hasPoop').checked,
     weight: parseFloat(document.getElementById('weight').value) || null,
     calories: parseInt(document.getElementById('calories').value) || null,
-    split: selectedSplit,
+    split: Array.from(selectedSplits),
     cardioMins: parseInt(document.getElementById('cardioMins').value) || 0,
     breakfast: document.getElementById('breakfast').value.trim(),
     lunch: document.getElementById('lunch').value.trim(),
@@ -765,7 +766,7 @@ function fillForm(entry) {
   document.getElementById('btn-cheatday').classList.toggle('active', !!entry.isCheatDay);
   document.getElementById('isCheatDay').checked = !!entry.isCheatDay;
   setPoopState(entry.hasPoop ? true : false);
-  document.getElementById('btn-restday').classList.toggle('active', entry.split === 'break');
+  document.getElementById('btn-restday').classList.toggle('active', !!entry.isRestDay || (!Array.isArray(entry.split) && entry.split === 'break'));
   document.getElementById('weight').value = entry.weight != null ? entry.weight : '';
   document.getElementById('calories').value = entry.calories != null ? entry.calories : '';
   document.getElementById('cardioMins').value = entry.cardioMins || '';
@@ -777,17 +778,23 @@ function fillForm(entry) {
   document.getElementById('remark').value = entry.remark || '';
 
   // Split chips
-  selectedSplit = entry.split || null;
-  document.querySelectorAll('#splitChips .chip').forEach(c => {
-    c.classList.toggle('selected', c.dataset.val === selectedSplit);
-  });
+  selectedSplits = new Set();
+  if (entry.split) {
+    const arr = Array.isArray(entry.split) ? entry.split : (entry.split !== 'break' ? [entry.split] : []);
+    arr.forEach(s => selectedSplits.add(s));
+  }
+  const isRestDay = !Array.isArray(entry.split) && entry.split === 'break';
+  document.querySelectorAll('#splitChips .chip').forEach(c =>
+    c.classList.toggle('selected', selectedSplits.has(c.dataset.val)));
+  document.getElementById('splitChips').classList.toggle('disabled', !!entry.isRestDay || isRestDay);
 
   updateWeightChange();
 }
 
 function clearCurrentEntry() {
-  selectedSplit = null;
+  selectedSplits = new Set();
   document.querySelectorAll('#splitChips .chip').forEach(c => c.classList.remove('selected'));
+  document.getElementById('splitChips').classList.remove('disabled');
   fillForm({ date: currentDate });
 }
 
@@ -844,22 +851,27 @@ function toggleDIBtn(type) {
   if (type === 'period')   document.getElementById('isPeriod').checked = active;
   if (type === 'cheatday') document.getElementById('isCheatDay').checked = active;
   if (type === 'restday') {
-    selectedSplit = active ? 'break' : null;
-    document.querySelectorAll('#splitChips .chip').forEach(c =>
-      c.classList.toggle('selected', c.dataset.val === selectedSplit));
+    const chips = document.getElementById('splitChips');
+    if (active) {
+      selectedSplits = new Set();
+      document.querySelectorAll('#splitChips .chip').forEach(c => c.classList.remove('selected'));
+      chips.classList.add('disabled');
+    } else {
+      chips.classList.remove('disabled');
+    }
   }
 }
 
-function selectSplit(el) {
+function toggleSplit(el) {
   const val = el.dataset.val;
-  if (selectedSplit === val) { selectedSplit = null; el.classList.remove('selected'); }
-  else {
-    selectedSplit = val;
-    document.querySelectorAll('#splitChips .chip').forEach(c => c.classList.remove('selected'));
-    el.classList.add('selected');
+  if (selectedSplits.has(val)) { selectedSplits.delete(val); el.classList.remove('selected'); }
+  else { selectedSplits.add(val); el.classList.add('selected'); }
+  // Any chip selected → deactivate rest day
+  if (selectedSplits.size > 0) {
+    document.getElementById('btn-restday').classList.remove('active');
+    document.getElementById('isRestDay') && (document.getElementById('isRestDay').checked = false);
+    document.getElementById('splitChips').classList.remove('disabled');
   }
-  // Sync rest-day button
-  document.getElementById('btn-restday').classList.toggle('active', selectedSplit === 'break');
 }
 
 // ── Save ─────────────────────────────────────────────────────────────────────
@@ -876,7 +888,7 @@ function saveEntry() {
 }
 
 // ── History ──────────────────────────────────────────────────────────────────
-const SPLIT_LABELS = { chest: '胸+前束', back: '背', legs: '腿', shoulders: '肩中+肩后', break: '休息' };
+const SPLIT_LABELS = { shoulders: '肩', chest: '胸', back: '背', glutes: '臀', legs: '腿', break: '休息' };
 
 function renderHistory() {
   const all = loadAll();
@@ -910,7 +922,7 @@ function renderHistory() {
 
     const wStr = e.weight != null ? e.weight + ' kg' : '—';
     const cStr = e.calories != null ? e.calories + ' kcal' : '—';
-    const tStr = e.split ? SPLIT_LABELS[e.split] : (e.cardioMins ? '' : '休息');
+    const tStr = e.split && (Array.isArray(e.split) ? e.split.length > 0 : e.split !== 'break') ? (Array.isArray(e.split) ? e.split.map(s => SPLIT_LABELS[s]||s).join('+') : (SPLIT_LABELS[e.split]||e.split)) : (e.cardioMins ? '' : '休息');
     const cardio = e.cardioMins ? e.cardioMins + ' min cardio' : '';
 
     return `<div class="history-item">
@@ -1110,7 +1122,7 @@ function renderCharts() {
     const w = d.weight ?? lastKnownW;
     if (d.weight != null) lastKnownW = d.weight;
     if (d.calories == null || !profile || !w) return null;
-    const isTraining = d.split && d.split !== 'break';
+    const isTraining = Array.isArray(d.split) ? d.split.length > 0 : (d.split && d.split !== 'break');
     const factor = isTraining
       ? (profile.trainingFactor || profile.activityFactor || 1.55)
       : 1.2;
@@ -1214,7 +1226,7 @@ function calcStats() {
     if (cur > maxStreak) maxStreak = cur;
   }
 
-  const strengthSessions = entries.filter(e => e.split && e.split !== 'break').length;
+  const strengthSessions = entries.filter(e => Array.isArray(e.split) ? e.split.length > 0 : (e.split && e.split !== 'break')).length;
   const cardioSessions   = entries.filter(e => e.cardioMins > 0).length;
 
   let maxClean = 0, curClean = 0;
@@ -1374,10 +1386,8 @@ function renderProfile() {
     const rT = curWeight ? calcBMR(curWeight, profile.height, profile.age, profile.gender, tf2) : null;
     const rR = curWeight ? calcBMR(curWeight, profile.height, profile.age, profile.gender, 1.2) : null;
     if (rT && rR) {
-      bmrEl.innerHTML = `<span style="color:var(--text);font-weight:700">BMR ${rT.bmr} kcal</span>`
-        + ` &nbsp;·&nbsp; <span style="color:var(--accent);font-weight:700">训练日 TDEE ${rT.tdee} kcal</span>`
-        + ` &nbsp;·&nbsp; <span style="color:var(--green);font-weight:700">休息日 TDEE ${rR.tdee} kcal</span>`
-        + ` <span style="color:var(--muted);font-size:11px">（体重 ${curWeight} kg）</span>`;
+      bmrEl.innerHTML = `<div style="margin-bottom:4px"><span style="color:var(--text);font-weight:700">BMR ${rT.bmr} kcal</span> &nbsp;·&nbsp; <span style="color:var(--muted);font-size:11px">体重 ${curWeight} kg</span></div>`
+        + `<div><span style="color:var(--accent);font-weight:700">训练日 TDEE ${rT.tdee} kcal</span> &nbsp;·&nbsp; <span style="color:var(--green);font-weight:700">休息日 TDEE ${rR.tdee} kcal</span></div>`;
     } else {
       bmrEl.textContent = '请先记录体重数据以计算 BMR';
     }
