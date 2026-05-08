@@ -474,6 +474,16 @@
   .period-detail-back { background:none; border:none; color:var(--accent); font-size:16px; font-weight:600; cursor:pointer; padding:4px 0; }
   .period-detail-title { font-size:15px; font-weight:700; }
   .period-detail-body { padding:16px 16px calc(env(safe-area-inset-bottom, 0px) + 24px); }
+  .period-cal-nav { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+  .period-cal-dow-row { display:grid; grid-template-columns:repeat(7,1fr); text-align:center; font-size:10px; font-weight:700; color:var(--muted); padding-bottom:6px; border-bottom:1px solid var(--border); margin-bottom:4px; }
+  .period-cal-dow-row span:first-child { color:var(--red); }
+  .period-cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:3px; margin-bottom:10px; }
+  .period-cal-day { height:34px; display:flex; align-items:center; justify-content:center; font-size:13px; border-radius:8px; color:var(--muted); }
+  .period-cal-empty { height:34px; }
+  .period-cal-day.is-period { background:rgba(224,107,180,.18); color:#e06bb4; font-weight:700; border:1px solid rgba(224,107,180,.35); box-shadow:0 0 6px rgba(224,107,180,.15); }
+  .period-cal-day.is-today { border:1.5px solid var(--accent); color:var(--text); font-weight:700; }
+  .period-cal-day.is-period.is-today { border-color:#e06bb4; }
+  .period-cal-summary { text-align:center; font-size:12px; color:var(--muted); padding:8px 0 4px; border-top:1px solid var(--border); }
 </style>
 </head>
 <body>
@@ -1940,15 +1950,21 @@ function renderPeriodCard() {
   const cycle = analyzePeriodCycle();
   const card = document.getElementById('periodForecastCard');
   if (!card) return;
-  if (!cycle) { card.style.display = 'none'; return; }
-  card.style.display = '';
+  card.style.display = '';  // always visible
+  if (!cycle) {
+    // Not enough data yet — show placeholder
+    document.getElementById('periodFcIcon').textContent = '🌸';
+    document.getElementById('periodFcPhase').textContent = '例假追踪';
+    document.getElementById('periodFcSub').textContent = '点击查看记录 · 积累2个周期后自动分析';
+    return;
+  }
   const icon = cycle.currentPhase ? PHASE_ICONS[cycle.currentPhase] : '🌸';
   const phaseLabel = cycle.currentPhase ? PHASE_LABELS[cycle.currentPhase] : '—';
   let sub;
   if (cycle.currentPhase === 'menstrual') {
-    sub = `经期第 ${Math.max(1, cycle.cycleDay)} 天 · 周期第 ${Math.max(1, cycle.cycleDay)} 天`;
+    sub = `经期第 ${Math.max(1, cycle.cycleDay)} 天 · 共 ${cycle.periodLen} 天`;
   } else if (cycle.daysUntilNext > 0) {
-    sub = `距下次经期还有 ${cycle.daysUntilNext} 天 · ${phaseLabel === '排卵期' ? '🌸 排卵期' : '周期第 ' + Math.max(1, cycle.cycleDay) + ' 天'}`;
+    sub = `距下次经期 ${cycle.daysUntilNext} 天 · 周期第 ${Math.max(1, cycle.cycleDay)} 天`;
   } else if (cycle.daysUntilNext === 0) {
     sub = '⚠️ 今天是预测经期开始日';
   } else {
@@ -2020,16 +2036,81 @@ function buildCycleHTML(cycle) {
   `;
 }
 
+let periodDetailYear = 0, periodDetailMonth = 0;
+
 function openPeriodDetail() {
   const page = document.getElementById('periodDetailPage');
   page.classList.add('open');
+  const today = todayStr();
+  periodDetailYear = parseInt(today.slice(0,4));
+  periodDetailMonth = parseInt(today.slice(5,7));
+
   const body = document.getElementById('periodDetailBody');
   const cycle = analyzePeriodCycle();
-  if (!cycle) {
-    body.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:20px 0">记录至少两个周期的例假数据后自动计算。</div>';
-    return;
+
+  let html = '';
+  if (cycle) {
+    html += buildCycleHTML(cycle);
+  } else {
+    html += `<div style="text-align:center;padding:24px 0 20px">
+      <div style="font-size:44px;margin-bottom:12px">🌸</div>
+      <div style="font-size:15px;font-weight:700;margin-bottom:8px">暂无周期预测</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.8">在打卡页勾选「🌸 例假中」记录经期日期<br>积累 2 个完整周期后自动分析预测</div>
+    </div>`;
   }
-  body.innerHTML = buildCycleHTML(cycle);
+
+  html += `<div class="section-label" style="margin:18px 0 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted)">🩸 经期记录</div>
+  <div class="period-cal-nav">
+    <button class="cal-nav-btn" onclick="shiftPeriodMonth(-1)">‹</button>
+    <span class="cal-pop-label" id="periodCalLabel"></span>
+    <button class="cal-nav-btn" onclick="shiftPeriodMonth(1)">›</button>
+  </div>
+  <div class="period-cal-dow-row">
+    <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
+  </div>
+  <div class="period-cal-grid" id="periodCalGrid"></div>
+  <div class="period-cal-summary" id="periodCalSummary"></div>`;
+
+  body.innerHTML = html;
+  renderPeriodDetailCalendar();
+}
+
+function shiftPeriodMonth(d) {
+  periodDetailMonth += d;
+  if (periodDetailMonth > 12) { periodDetailMonth = 1; periodDetailYear++; }
+  if (periodDetailMonth < 1)  { periodDetailMonth = 12; periodDetailYear--; }
+  renderPeriodDetailCalendar();
+}
+
+function renderPeriodDetailCalendar() {
+  const label = document.getElementById('periodCalLabel');
+  if (!label) return;
+  label.textContent = `${periodDetailYear}年${periodDetailMonth}月`;
+  const all = loadAll();
+  const today = todayStr();
+  const y = periodDetailYear, m = periodDetailMonth;
+  const firstDow = new Date(y, m - 1, 1).getDay();
+  const daysInMonth = new Date(y, m, 0).getDate();
+
+  const cells = [];
+  for (let i = 0; i < firstDow; i++) cells.push(null);
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const entry = all[dateStr];
+    cells.push({ day: d, dateStr, isPeriod: !!(entry && entry.isPeriod), isToday: dateStr === today });
+  }
+
+  const periodDays = cells.filter(c => c && c.isPeriod).length;
+  document.getElementById('periodCalGrid').innerHTML = cells.map(cell => {
+    if (!cell) return '<div class="period-cal-empty"></div>';
+    let cls = 'period-cal-day';
+    if (cell.isPeriod) cls += ' is-period';
+    if (cell.isToday) cls += ' is-today';
+    return `<div class="${cls}">${cell.day}</div>`;
+  }).join('');
+
+  document.getElementById('periodCalSummary').textContent =
+    periodDays > 0 ? `本月记录了 ${periodDays} 天例假` : '本月无例假记录';
 }
 
 function closePeriodDetail() {
