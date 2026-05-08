@@ -319,11 +319,34 @@
   }
   .cal-pick-wrap:hover { border-color:var(--accent); box-shadow:0 0 12px rgba(124,106,247,.3); }
   .cal-pick-icon { font-size:16px; pointer-events:none; }
-  .cal-pick-input {
-    position:absolute; inset:0; opacity:0; cursor:pointer;
-    width:100%; height:100%; border:none; padding:0; margin:0;
-    border-radius:50px;
+  .cal-backdrop { position:fixed; inset:0; z-index:298; }
+  .cal-popup {
+    position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:16px; box-shadow:0 16px 48px rgba(0,0,0,.6);
+    z-index:299; width:min(320px, 94vw); padding:14px;
   }
+  .cal-pop-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+  .cal-nav-btn { background:none; border:1px solid var(--border); color:var(--text); font-size:18px; cursor:pointer; padding:2px 12px; border-radius:8px; line-height:1.6; }
+  .cal-nav-btn:hover { background:var(--surface2); }
+  .cal-pop-label { font-size:15px; font-weight:700; }
+  .cal-dow-row { display:grid; grid-template-columns:repeat(7,1fr); text-align:center; font-size:10px; font-weight:700; color:var(--muted); padding-bottom:6px; border-bottom:1px solid var(--border); margin-bottom:6px; }
+  .cal-dow-row span:first-child { color:var(--red); }
+  .cal-dow-row span:last-child { color:var(--accent2); }
+  .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; }
+  .cal-cell { display:flex; flex-direction:column; align-items:center; padding:3px 0 2px; border-radius:8px; cursor:pointer; min-height:38px; }
+  .cal-cell:hover { background:var(--surface2); }
+  .cal-cell.other-month { opacity:.28; }
+  .cal-cell.today .cal-num { border:1.5px solid var(--accent); }
+  .cal-cell.selected .cal-num { background:var(--accent); color:#fff !important; }
+  .cal-num { font-size:12px; font-weight:600; width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; }
+  .cal-cell.cal-sun .cal-num { color:var(--red); }
+  .cal-cell.cal-sat .cal-num { color:var(--accent2); }
+  .cal-holiday-name { font-size:8px; color:var(--red); line-height:1.1; text-align:center; width:100%; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; padding:0 2px; }
+  .cal-cell.holiday .cal-num { color:var(--red) !important; }
+  .cal-cell.selected .cal-holiday-name { color:rgba(255,255,255,.8); }
+  .cal-dot { width:4px; height:4px; border-radius:50%; background:var(--green); margin-top:1px; }
+  .cal-cell.selected .cal-dot { background:rgba(255,255,255,.75); }
 
   .section-gap { margin-top:6px; }
 
@@ -438,6 +461,19 @@
   .reward-subtab { flex:1; padding:8px 12px; border-radius:10px; border:1px solid transparent; background:transparent; color:var(--muted); font-family:var(--font); font-size:13px; font-weight:600; cursor:pointer; transition:all .2s; }
   .reward-subtab.active { background:var(--surface2); color:#fff; border-color:var(--border-glow); box-shadow:var(--glow-purple), inset 0 0 20px rgba(124,106,247,.08); }
   .reward-subtab:hover:not(.active) { color:var(--text); background:rgba(255,255,255,.03); }
+  .period-forecast-card { display:flex; align-items:center; gap:14px; padding:14px 16px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); margin-bottom:12px; cursor:pointer; transition:border-color .2s, box-shadow .2s; }
+  .period-forecast-card:hover { border-color:var(--accent2); box-shadow:0 0 14px rgba(224,107,180,.15); }
+  .period-fc-icon { font-size:26px; width:36px; text-align:center; flex-shrink:0; }
+  .period-fc-info { flex:1; min-width:0; }
+  .period-fc-phase { font-size:13px; font-weight:700; margin-bottom:3px; }
+  .period-fc-sub { font-size:11px; color:var(--muted); }
+  .period-fc-arrow { font-size:18px; color:var(--muted); flex-shrink:0; }
+  .period-detail-page { position:fixed; inset:0; background:var(--bg); z-index:200; overflow-y:auto; display:none; }
+  .period-detail-page.open { display:block; }
+  .period-detail-header { display:flex; align-items:center; justify-content:space-between; padding:calc(env(safe-area-inset-top, 0px) + 16px) 16px 16px; border-bottom:1px solid var(--border); position:sticky; top:0; background:var(--bg); z-index:1; backdrop-filter:blur(12px); }
+  .period-detail-back { background:none; border:none; color:var(--accent); font-size:16px; font-weight:600; cursor:pointer; padding:4px 0; }
+  .period-detail-title { font-size:15px; font-weight:700; }
+  .period-detail-body { padding:16px 16px calc(env(safe-area-inset-bottom, 0px) + 24px); }
 </style>
 </head>
 <body>
@@ -449,31 +485,32 @@
 
   <div class="tabs">
     <button class="tab active" onclick="switchTab('log')"><span class="tab-icon">📝</span><span class="tab-label">打卡</span></button>
-    <button class="tab" onclick="switchTab('chart')"><span class="tab-icon">📈</span><span class="tab-label">图表</span></button>
+    <button class="tab" onclick="switchTab('chart')"><span class="tab-icon">📈</span><span class="tab-label">趋势</span></button>
     <button class="tab" onclick="switchTab('rewards')"><span class="tab-icon">🏆</span><span class="tab-label">成就</span></button>
     <button class="tab" onclick="switchTab('profile')"><span class="tab-icon">👤</span><span class="tab-label">档案</span></button>
     <button class="tab" onclick="switchTab('history')"><span class="tab-icon">📖</span><span class="tab-label">历史</span></button>
   </div>
 
   <div id="tab-log">
-    <div class="card" style="margin-bottom:12px;padding:14px 18px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-        <div class="card-title" style="margin-bottom:0">体重趋势 · 近30天</div>
-        <button class="btn-ghost" onclick="switchTab('chart')">完整图表 →</button>
-      </div>
-      <div class="mini-chart-wrap"><canvas id="miniWeightChart"></canvas></div>
-    </div>
     <div id="editingBanner">✏️ 编辑中 — <span id="editingBannerDate"></span></div>
     <div class="date-nav" style="margin-bottom:16px">
       <button onclick="navigateDay(-1)">‹</button>
       <div class="date-display" id="navDateDisplay"></div>
       <button onclick="navigateDay(1)">›</button>
-      <div class="cal-pick-wrap">
+      <div class="cal-pick-wrap" onclick="toggleCalendar()" style="user-select:none">
         <span class="cal-pick-icon">📅</span>
-        <input type="date" id="entryDate" onchange="onDateChange()" class="cal-pick-input">
+        <input type="hidden" id="entryDate">
       </div>
     </div>
     <input type="hidden" id="entryDow">
+    <div id="periodForecastCard" class="period-forecast-card" style="display:none" onclick="openPeriodDetail()">
+      <div class="period-fc-icon" id="periodFcIcon">🌸</div>
+      <div class="period-fc-info">
+        <div class="period-fc-phase" id="periodFcPhase">加载中…</div>
+        <div class="period-fc-sub" id="periodFcSub"></div>
+      </div>
+      <div class="period-fc-arrow">›</div>
+    </div>
     <div class="card">
       <div class="card-title">今日状态</div>
       <div class="di-btns" style="margin-bottom:14px">
@@ -659,7 +696,7 @@
         <div id="bmrDisplay" style="font-size:13px;color:var(--muted)"></div>
       </div>
     </div>
-    <div class="card"><div class="card-title">月经周期分析</div><div id="cycleContent"><div style="color:var(--muted);font-size:13px">记录至少两次例假数据后自动计算。</div></div></div>
+
     <div class="card" style="margin-top:4px">
       <div class="card-title">数据管理</div>
       <div style="margin-bottom:16px">
@@ -734,6 +771,7 @@ function switchTab(tab) {
     document.getElementById('tab-'+t).style.display = t === tab ? '' : 'none';
     document.querySelectorAll('.tab')[i].classList.toggle('active', t === tab);
   });
+  if (tab === 'log') renderPeriodCard();
   if (tab === 'history') renderHistory();
   if (tab === 'chart') renderCharts();
   if (tab === 'rewards') renderRewards();
@@ -923,7 +961,7 @@ function saveEntry() {
   msg.style.display = 'block';
   setTimeout(() => msg.style.display = 'none', 2000);
   updateWeightChange();
-  renderMiniChart();
+  renderPeriodCard();
   if (currentTab === 'rewards') renderRewards();
 }
 
@@ -1287,9 +1325,9 @@ function calcStats() {
   const firstWeight = withWeight.length ? withWeight[0].weight : 0;
   const goal = loadGoal();
   let goalProgress = 0;
-  if (goal && firstWeight > goal.targetWeight && curWeight != null) {
-    goalProgress = Math.min(100, Math.max(0,
-      Math.round(((firstWeight - curWeight) / (firstWeight - goal.targetWeight)) * 100)));
+  if (goal && firstWeight !== goal.targetWeight && curWeight != null) {
+    goalProgress = Math.min(100,
+      Math.round(((firstWeight - curWeight) / (firstWeight - goal.targetWeight)) * 100));
   }
 
   // New milestone stats
@@ -1467,77 +1505,6 @@ function renderProfile() {
     bmrEl.textContent = '填写上方信息后点击「保存档案」';
   }
 
-  // Period cycle
-  const cycle = analyzePeriodCycle();
-  const content = document.getElementById('cycleContent');
-  if (!cycle) {
-    content.innerHTML = '<div style="color:var(--muted);font-size:13px">记录至少两个周期的例假数据后自动计算。</div>';
-    return;
-  }
-
-  const phaseTag = cycle.currentPhase
-    ? `<span class="cycle-phase-tag ${PHASE_COLORS[cycle.currentPhase]}">${PHASE_LABELS[cycle.currentPhase]}</span>` : '';
-
-  const c = cycle.avgCycle;
-  const menLen = cycle.periodLen;
-  const folLen = Math.max(1, Math.round((new Date(cycle.ovWinStart+'T00:00:00') - new Date(cycle.follicularStart+'T00:00:00')) / 864e5));
-  const ovLen  = 5;
-  const lutLen = Math.max(1, c - menLen - folLen - ovLen);
-  const dayInCycle = Math.min(Math.max(cycle.cycleDay, 1), c);
-  const markerPct  = ((dayInCycle - 1) / c) * 100;
-
-  content.innerHTML = `
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-      <div>
-        <span style="font-size:22px;font-weight:700">第 ${Math.max(1, cycle.cycleDay)} 天</span>
-        <span style="font-size:13px;color:var(--muted);margin-left:6px">（周期 ${cycle.avgCycle} 天）</span>
-        ${phaseTag}
-      </div>
-    </div>
-
-    <div class="cycle-legend">
-      <div class="cycle-legend-item"><div class="cycle-legend-dot" style="background:#e06bb4"></div>月经期 ${menLen}天</div>
-      <div class="cycle-legend-item"><div class="cycle-legend-dot" style="background:#4caf87"></div>卵泡期 ${folLen}天</div>
-      <div class="cycle-legend-item"><div class="cycle-legend-dot" style="background:#e0b44a"></div>排卵期 5天</div>
-      <div class="cycle-legend-item"><div class="cycle-legend-dot" style="background:#7c6af7"></div>黄体期 ${lutLen}天</div>
-    </div>
-
-    <div class="cycle-timeline">
-      <div class="cycle-phase-bar menstrual" style="flex:${menLen}">${menLen > 2 ? '月经期' : ''}</div>
-      <div class="cycle-phase-bar follicular" style="flex:${folLen}">${folLen > 3 ? '卵泡期' : ''}</div>
-      <div class="cycle-phase-bar ovulation" style="flex:${ovLen}">排卵期</div>
-      <div class="cycle-phase-bar luteal" style="flex:${lutLen}">${lutLen > 3 ? '黄体期' : ''}</div>
-      <div class="cycle-today-marker" style="left:${markerPct}%"></div>
-    </div>
-
-    <div class="cycle-dates">
-      <div class="cycle-date-row">
-        <div class="cycle-date-label">🩸 上次例假</div>
-        <div class="cycle-date-val">${cycle.lastStart}</div>
-        <div style="font-size:11px;color:var(--muted)">持续 ${cycle.periodLen} 天</div>
-      </div>
-      <div class="cycle-date-row">
-        <div class="cycle-date-label">📅 预测下次例假</div>
-        <div class="cycle-date-val">${cycle.nextPeriod}</div>
-        <div style="font-size:11px;color:${cycle.daysUntilNext >= 0 ? 'var(--muted)' : 'var(--red)'}">
-          ${cycle.daysUntilNext >= 0 ? '还有 ' + cycle.daysUntilNext + ' 天' : '已逾期 ' + Math.abs(cycle.daysUntilNext) + ' 天'}
-        </div>
-      </div>
-      <div class="cycle-date-row">
-        <div class="cycle-date-label">🌸 排卵期</div>
-        <div class="cycle-date-val" style="font-size:12px">${cycle.ovWinStart} ~ ${cycle.ovWinEnd}</div>
-        <div style="font-size:11px;color:var(--muted)">排卵日 ${cycle.ovulation}</div>
-      </div>
-      <div class="cycle-date-row">
-        <div class="cycle-date-label">🌙 黄体期</div>
-        <div class="cycle-date-val" style="font-size:12px">${cycle.lutealStart} ~ ${cycle.nextPeriod}</div>
-        <div style="font-size:11px;color:var(--muted)">约 14 天</div>
-      </div>
-    </div>
-    <div style="margin-top:12px;font-size:11px;color:var(--muted)">
-      基于 ${cycle.totalPeriods} 次例假记录 · 平均周期 ${cycle.avgCycle} 天 · 仅供参考，非医疗建议
-    </div>
-  `;
 }
 
 // ── Dynamic title ─────────────────────────────────────────────────────────────
@@ -1624,13 +1591,20 @@ function renderRewards() {
     clearBtn.style.display = '';
     wrap.style.display = '';
     const pct = stats.goalProgress;
-    const barColor = pct >= 100 ? 'var(--accent)' : pct >= 75 ? 'var(--yellow)' : 'var(--green)';
-    document.getElementById('goalProgressBar').style.cssText = `height:100%;border-radius:6px;background:${barColor};width:${pct}%;transition:width .5s`;
     document.getElementById('goalStartLabel').textContent = `起始 ${stats.firstWeight.toFixed(1)} kg`;
     document.getElementById('goalCurLabel').textContent = `当前 ${stats.curWeight ? stats.curWeight.toFixed(1) : '—'} kg`;
     document.getElementById('goalTargetLabel').textContent = `目标 ${goal.targetWeight} kg`;
-    document.getElementById('goalProgressPct').textContent = `${pct}% 完成`;
-    document.getElementById('goalProgressPct').style.color = pct >= 100 ? 'var(--green)' : 'var(--text)';
+    if (pct < 0) {
+      const absPct = Math.min(100, Math.abs(pct));
+      document.getElementById('goalProgressBar').style.cssText = `height:100%;border-radius:6px;background:var(--red);width:${absPct}%;transition:width .5s`;
+      document.getElementById('goalProgressPct').textContent = `▲ 倒退 ${Math.abs(pct)}%`;
+      document.getElementById('goalProgressPct').style.color = 'var(--red)';
+    } else {
+      const barColor = pct >= 100 ? 'var(--accent)' : pct >= 75 ? 'var(--yellow)' : 'var(--green)';
+      document.getElementById('goalProgressBar').style.cssText = `height:100%;border-radius:6px;background:${barColor};width:${pct}%;transition:width .5s`;
+      document.getElementById('goalProgressPct').textContent = `${pct}% 完成`;
+      document.getElementById('goalProgressPct').style.color = pct >= 100 ? 'var(--green)' : 'var(--text)';
+    }
   } else {
     clearBtn.style.display = 'none';
     wrap.style.display = 'none';
@@ -1809,13 +1783,141 @@ function clearAllData() {
   switchTab('log');
 }
 
+// ── Custom calendar with Chinese holidays ────────────────────────────────────
+const CN_HOLIDAYS = {
+  // 2024
+  '2024-01-01':'元旦',
+  '2024-02-10':'春节','2024-02-11':'春节','2024-02-12':'春节','2024-02-13':'春节',
+  '2024-02-14':'春节','2024-02-15':'春节','2024-02-16':'春节','2024-02-17':'春节',
+  '2024-04-04':'清明','2024-04-05':'清明','2024-04-06':'清明',
+  '2024-05-01':'劳动','2024-05-02':'劳动','2024-05-03':'劳动','2024-05-04':'劳动','2024-05-05':'劳动',
+  '2024-06-10':'端午',
+  '2024-09-17':'中秋',
+  '2024-10-01':'国庆','2024-10-02':'国庆','2024-10-03':'国庆','2024-10-04':'国庆',
+  '2024-10-05':'国庆','2024-10-06':'国庆','2024-10-07':'国庆',
+  // 2025
+  '2025-01-01':'元旦',
+  '2025-01-28':'春节','2025-01-29':'春节','2025-01-30':'春节','2025-01-31':'春节',
+  '2025-02-01':'春节','2025-02-02':'春节','2025-02-03':'春节','2025-02-04':'春节',
+  '2025-04-04':'清明','2025-04-05':'清明','2025-04-06':'清明',
+  '2025-05-01':'劳动','2025-05-02':'劳动','2025-05-03':'劳动','2025-05-04':'劳动','2025-05-05':'劳动',
+  '2025-05-31':'端午','2025-06-01':'端午','2025-06-02':'端午',
+  '2025-09-06':'中秋','2025-09-07':'中秋','2025-09-08':'中秋',
+  '2025-10-01':'国庆','2025-10-02':'国庆','2025-10-03':'国庆','2025-10-04':'国庆',
+  '2025-10-05':'国庆','2025-10-06':'国庆','2025-10-07':'国庆',
+  // 2026 (based on official schedule)
+  '2026-01-01':'元旦','2026-01-02':'元旦','2026-01-03':'元旦',
+  '2026-02-15':'春节','2026-02-16':'春节','2026-02-17':'春节','2026-02-18':'春节',
+  '2026-02-19':'春节','2026-02-20':'春节','2026-02-21':'春节','2026-02-22':'春节',
+  '2026-04-04':'清明','2026-04-05':'清明','2026-04-06':'清明',
+  '2026-05-01':'劳动','2026-05-02':'劳动','2026-05-03':'劳动','2026-05-04':'劳动','2026-05-05':'劳动',
+  '2026-06-19':'端午','2026-06-20':'端午','2026-06-21':'端午',
+  '2026-09-25':'中秋','2026-09-26':'中秋','2026-09-27':'中秋',
+  '2026-10-01':'国庆','2026-10-02':'国庆','2026-10-03':'国庆','2026-10-04':'国庆',
+  '2026-10-05':'国庆','2026-10-06':'国庆','2026-10-07':'国庆',
+  // 2027 (approximate)
+  '2027-01-01':'元旦',
+  '2027-02-06':'春节','2027-02-07':'春节','2027-02-08':'春节','2027-02-09':'春节',
+  '2027-02-10':'春节','2027-02-11':'春节','2027-02-12':'春节','2027-02-13':'春节',
+  '2027-04-05':'清明','2027-04-06':'清明',
+  '2027-05-01':'劳动','2027-05-02':'劳动','2027-05-03':'劳动','2027-05-04':'劳动','2027-05-05':'劳动',
+  '2027-05-20':'端午','2027-05-21':'端午','2027-05-22':'端午',
+  '2027-09-15':'中秋','2027-09-16':'中秋','2027-09-17':'中秋',
+  '2027-10-01':'国庆','2027-10-02':'国庆','2027-10-03':'国庆','2027-10-04':'国庆',
+  '2027-10-05':'国庆','2027-10-06':'国庆','2027-10-07':'国庆',
+};
+
+let calYear = 0, calMonth = 0;
+
+function toggleCalendar() {
+  const popup = document.getElementById('calPopup');
+  if (popup.style.display !== 'none') { closeCalendar(); return; }
+  const parts = currentDate.split('-');
+  calYear = parseInt(parts[0]); calMonth = parseInt(parts[1]);
+  renderCalendar();
+  popup.style.display = '';
+  document.getElementById('calBackdrop').style.display = '';
+}
+
+function closeCalendar() {
+  document.getElementById('calPopup').style.display = 'none';
+  document.getElementById('calBackdrop').style.display = 'none';
+}
+
+function calShift(d) {
+  calMonth += d;
+  if (calMonth > 12) { calMonth = 1; calYear++; }
+  if (calMonth < 1)  { calMonth = 12; calYear--; }
+  renderCalendar();
+}
+
+function calPickDay(dateStr) {
+  currentDate = dateStr;
+  document.getElementById('entryDate').value = dateStr;
+  document.getElementById('entryDow').value = dayOfWeek(dateStr);
+  updateNavDisplay();
+  updateWeightChange();
+  loadEntryIntoForm(dateStr);
+  renderPeriodCard();
+  closeCalendar();
+}
+
+function renderCalendar() {
+  document.getElementById('calPopLabel').textContent = `${calYear}年${calMonth}月`;
+  const all = loadAll();
+  const today = todayStr();
+  const firstDow = new Date(calYear, calMonth - 1, 1).getDay();
+  const daysInMonth = new Date(calYear, calMonth, 0).getDate();
+
+  const cells = [];
+  // Leading cells (prev month)
+  if (firstDow > 0) {
+    const prevDays = new Date(calYear, calMonth - 1, 0).getDate();
+    for (let i = firstDow - 1; i >= 0; i--) {
+      const d = prevDays - i;
+      const pm = calMonth === 1 ? 12 : calMonth - 1;
+      const py = calMonth === 1 ? calYear - 1 : calYear;
+      cells.push({ day: d, dateStr: `${py}-${String(pm).padStart(2,'0')}-${String(d).padStart(2,'0')}`, other: true });
+    }
+  }
+  // Current month
+  for (let d = 1; d <= daysInMonth; d++) {
+    cells.push({ day: d, dateStr: `${calYear}-${String(calMonth).padStart(2,'0')}-${String(d).padStart(2,'0')}`, other: false });
+  }
+  // Trailing cells
+  const trailing = (7 - (cells.length % 7)) % 7;
+  for (let d = 1; d <= trailing; d++) {
+    const nm = calMonth === 12 ? 1 : calMonth + 1;
+    const ny = calMonth === 12 ? calYear + 1 : calYear;
+    cells.push({ day: d, dateStr: `${ny}-${String(nm).padStart(2,'0')}-${String(d).padStart(2,'0')}`, other: true });
+  }
+
+  document.getElementById('calGrid').innerHTML = cells.map(({ day, dateStr, other }) => {
+    const dow = new Date(dateStr + 'T00:00:00').getDay();
+    const holiday = CN_HOLIDAYS[dateStr];
+    let cls = 'cal-cell';
+    if (other) cls += ' other-month';
+    if (dateStr === today) cls += ' today';
+    if (dateStr === currentDate) cls += ' selected';
+    if (holiday) cls += ' holiday';
+    if (dow === 0) cls += ' cal-sun';
+    if (dow === 6) cls += ' cal-sat';
+    const hasLog = !!all[dateStr];
+    return `<div class="${cls}" onclick="calPickDay('${dateStr}')">
+      <div class="cal-num">${day}</div>
+      ${holiday ? `<div class="cal-holiday-name">${holiday}</div>` : ''}
+      ${hasLog && !holiday ? '<div class="cal-dot"></div>' : ''}
+    </div>`;
+  }).join('');
+}
+
 // ── Init ─────────────────────────────────────────────────────────────────────
 function init() {
   if (!Object.keys(loadAll()).length) saveAll(COLD_START_DATA);
   currentDate = todayStr();
   updateNavDisplay();
   loadEntryIntoForm(currentDate);
-  renderMiniChart();
+  renderPeriodCard();
   renderRewards();
   renderProfile();
 }
@@ -1829,6 +1931,109 @@ function closeTitleInfo(e) {
   // close when clicking backdrop or X button
   if (!e || e.target.id === 'titleInfoModal')
     document.getElementById('titleInfoModal').classList.remove('open');
+}
+
+// ── Period forecast card ────────────────────────────────────────────────────
+const PHASE_ICONS = { menstrual:'🩸', follicular:'🌱', ovulation:'🌸', luteal:'🌙' };
+
+function renderPeriodCard() {
+  const cycle = analyzePeriodCycle();
+  const card = document.getElementById('periodForecastCard');
+  if (!card) return;
+  if (!cycle) { card.style.display = 'none'; return; }
+  card.style.display = '';
+  const icon = cycle.currentPhase ? PHASE_ICONS[cycle.currentPhase] : '🌸';
+  const phaseLabel = cycle.currentPhase ? PHASE_LABELS[cycle.currentPhase] : '—';
+  let sub;
+  if (cycle.currentPhase === 'menstrual') {
+    sub = `经期第 ${Math.max(1, cycle.cycleDay)} 天 · 周期第 ${Math.max(1, cycle.cycleDay)} 天`;
+  } else if (cycle.daysUntilNext > 0) {
+    sub = `距下次经期还有 ${cycle.daysUntilNext} 天 · ${phaseLabel === '排卵期' ? '🌸 排卵期' : '周期第 ' + Math.max(1, cycle.cycleDay) + ' 天'}`;
+  } else if (cycle.daysUntilNext === 0) {
+    sub = '⚠️ 今天是预测经期开始日';
+  } else {
+    sub = `预测经期已逾期 ${Math.abs(cycle.daysUntilNext)} 天`;
+  }
+  document.getElementById('periodFcIcon').textContent = icon;
+  document.getElementById('periodFcPhase').textContent = phaseLabel;
+  document.getElementById('periodFcSub').textContent = sub;
+}
+
+function buildCycleHTML(cycle) {
+  const phaseTag = cycle.currentPhase
+    ? `<span class="cycle-phase-tag ${PHASE_COLORS[cycle.currentPhase]}">${PHASE_LABELS[cycle.currentPhase]}</span>` : '';
+  const avgC = cycle.avgCycle;
+  const menLen = cycle.periodLen;
+  const folLen = Math.max(1, Math.round((new Date(cycle.ovWinStart+'T00:00:00') - new Date(cycle.follicularStart+'T00:00:00')) / 864e5));
+  const ovLen  = 5;
+  const lutLen = Math.max(1, avgC - menLen - folLen - ovLen);
+  const dayInCycle = Math.min(Math.max(cycle.cycleDay, 1), avgC);
+  const markerPct  = ((dayInCycle - 1) / avgC) * 100;
+  return `
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+      <div>
+        <span style="font-size:26px;font-weight:700">第 ${Math.max(1, cycle.cycleDay)} 天</span>
+        <span style="font-size:13px;color:var(--muted);margin-left:8px">（周期 ${cycle.avgCycle} 天）</span>
+        ${phaseTag}
+      </div>
+    </div>
+    <div class="cycle-legend">
+      <div class="cycle-legend-item"><div class="cycle-legend-dot" style="background:#e06bb4"></div>月经期 ${menLen}天</div>
+      <div class="cycle-legend-item"><div class="cycle-legend-dot" style="background:#4caf87"></div>卵泡期 ${folLen}天</div>
+      <div class="cycle-legend-item"><div class="cycle-legend-dot" style="background:#e0b44a"></div>排卵期 5天</div>
+      <div class="cycle-legend-item"><div class="cycle-legend-dot" style="background:#7c6af7"></div>黄体期 ${lutLen}天</div>
+    </div>
+    <div class="cycle-timeline">
+      <div class="cycle-phase-bar menstrual" style="flex:${menLen}">${menLen > 2 ? '月经期' : ''}</div>
+      <div class="cycle-phase-bar follicular" style="flex:${folLen}">${folLen > 3 ? '卵泡期' : ''}</div>
+      <div class="cycle-phase-bar ovulation" style="flex:${ovLen}">排卵期</div>
+      <div class="cycle-phase-bar luteal" style="flex:${lutLen}">${lutLen > 3 ? '黄体期' : ''}</div>
+      <div class="cycle-today-marker" style="left:${markerPct}%"></div>
+    </div>
+    <div class="cycle-dates">
+      <div class="cycle-date-row">
+        <div class="cycle-date-label">🩸 上次例假</div>
+        <div class="cycle-date-val">${cycle.lastStart}</div>
+        <div style="font-size:11px;color:var(--muted)">持续 ${cycle.periodLen} 天</div>
+      </div>
+      <div class="cycle-date-row">
+        <div class="cycle-date-label">📅 预测下次例假</div>
+        <div class="cycle-date-val">${cycle.nextPeriod}</div>
+        <div style="font-size:11px;color:${cycle.daysUntilNext >= 0 ? 'var(--muted)' : 'var(--red)'}">
+          ${cycle.daysUntilNext > 0 ? '还有 ' + cycle.daysUntilNext + ' 天' : cycle.daysUntilNext === 0 ? '就是今天' : '已逾期 ' + Math.abs(cycle.daysUntilNext) + ' 天'}
+        </div>
+      </div>
+      <div class="cycle-date-row">
+        <div class="cycle-date-label">🌸 排卵期</div>
+        <div class="cycle-date-val" style="font-size:12px">${cycle.ovWinStart} ~ ${cycle.ovWinEnd}</div>
+        <div style="font-size:11px;color:var(--muted)">排卵日 ${cycle.ovulation}</div>
+      </div>
+      <div class="cycle-date-row">
+        <div class="cycle-date-label">🌙 黄体期</div>
+        <div class="cycle-date-val" style="font-size:12px">${cycle.lutealStart} ~ ${cycle.nextPeriod}</div>
+        <div style="font-size:11px;color:var(--muted)">约 14 天</div>
+      </div>
+    </div>
+    <div style="margin-top:14px;font-size:11px;color:var(--muted);line-height:1.6">
+      基于 ${cycle.totalPeriods} 次例假记录 · 平均周期 ${cycle.avgCycle} 天<br>仅供参考，非医疗建议
+    </div>
+  `;
+}
+
+function openPeriodDetail() {
+  const page = document.getElementById('periodDetailPage');
+  page.classList.add('open');
+  const body = document.getElementById('periodDetailBody');
+  const cycle = analyzePeriodCycle();
+  if (!cycle) {
+    body.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:20px 0">记录至少两个周期的例假数据后自动计算。</div>';
+    return;
+  }
+  body.innerHTML = buildCycleHTML(cycle);
+}
+
+function closePeriodDetail() {
+  document.getElementById('periodDetailPage').classList.remove('open');
 }
 
 // Monthly badge definitions: count-based, evaluated per calendar month
@@ -1901,6 +2106,28 @@ function switchRewardSubtab(tab) {
   if (tab === 'monthly') renderMonthly();
 }
 </script>
+
+<div id="calBackdrop" class="cal-backdrop" onclick="closeCalendar()" style="display:none"></div>
+<div id="calPopup" class="cal-popup" style="display:none">
+  <div class="cal-pop-head">
+    <button class="cal-nav-btn" onclick="calShift(-1)">‹</button>
+    <span class="cal-pop-label" id="calPopLabel"></span>
+    <button class="cal-nav-btn" onclick="calShift(1)">›</button>
+  </div>
+  <div class="cal-dow-row">
+    <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
+  </div>
+  <div class="cal-grid" id="calGrid"></div>
+</div>
+
+<div id="periodDetailPage" class="period-detail-page">
+  <div class="period-detail-header">
+    <button class="period-detail-back" onclick="closePeriodDetail()">‹ 返回</button>
+    <span class="period-detail-title">🌸 周期分析</span>
+    <span></span>
+  </div>
+  <div class="period-detail-body" id="periodDetailBody"></div>
+</div>
 </body>
 </html>
 </body></html>
