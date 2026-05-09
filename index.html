@@ -349,10 +349,10 @@
   .di-group-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.7px; color:var(--muted); margin-bottom:8px; }
   .di-btns { display:flex; gap:7px; flex-wrap:wrap; }
   .di-btn {
-    display:flex; align-items:center; gap:6px;
-    padding:9px 16px; border-radius:50px;
+    display:flex; align-items:center; gap:5px;
+    padding:7px 13px; border-radius:50px;
     border:1px solid var(--border); background:var(--surface2);
-    color:var(--muted); font-family:var(--font); font-size:13px; font-weight:600;
+    color:var(--muted); font-family:var(--font); font-size:12px; font-weight:600;
     cursor:pointer; transition:all .18s; white-space:nowrap;
   }
   .di-btn:hover { border-color:rgba(255,255,255,.18); color:var(--text); }
@@ -362,7 +362,7 @@
   .di-btn.cheatday.active { border-color:#e0b44a;        background:rgba(224,180,74,.1);    color:#e0b44a; box-shadow:0 0 12px rgba(224,180,74,.25); }
   /* Poop yes/no segmented control */
   .poop-seg { display:inline-flex; border-radius:50px; border:1px solid var(--border); overflow:hidden; }
-  .poop-seg button { padding:9px 16px; border:none; background:var(--surface2); color:var(--muted); font-family:var(--font); font-size:13px; font-weight:600; cursor:pointer; transition:all .18s; }
+  .poop-seg button { padding:7px 14px; border:none; background:var(--surface2); color:var(--muted); font-family:var(--font); font-size:12px; font-weight:600; cursor:pointer; transition:all .18s; }
   .poop-seg button:first-child { border-right:1px solid var(--border); }
   .poop-seg button:hover { color:var(--text); }
   .poop-seg button.seg-active-yes { background:rgba(255,214,10,.12); color:var(--yellow); }
@@ -558,7 +558,7 @@
       <div class="di-group-label">今日排便</div>
       <div class="poop-seg">
         <button id="btn-poop-yes" onclick="setPoopState(true)">💩 今天有</button>
-        <button id="btn-poop-no" onclick="setPoopState(false)">今天没</button>
+        <button id="btn-poop-no" onclick="setPoopState(false)">😢 今天没</button>
       </div>
       <input type="checkbox" id="isPeriod"   style="display:none">
       <input type="checkbox" id="isCheatDay" style="display:none">
@@ -579,17 +579,17 @@
     </div>
     <div class="card">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-        <div class="card-title" style="margin-bottom:0">训练</div>
+        <div style="font-size:15px;font-weight:700;color:var(--text)">训练</div>
         <button class="collapse-toggle open" id="trainToggle" onclick="toggleSection('trainBody','trainToggle')">▾</button>
       </div>
       <div class="collapsible" id="trainBody" style="max-height:300px">
         <div style="margin-bottom:14px"><label style="margin-bottom:8px">训练部位</label>
-          <div class="chips" id="splitChips">
-            <span class="chip" data-val="shoulders" onclick="toggleSplit(this)">肩</span>
-            <span class="chip" data-val="chest" onclick="toggleSplit(this)">胸</span>
-            <span class="chip" data-val="back" onclick="toggleSplit(this)">背</span>
-            <span class="chip" data-val="glutes" onclick="toggleSplit(this)">臀</span>
-            <span class="chip" data-val="legs" onclick="toggleSplit(this)">腿</span>
+          <div class="chips" id="splitChips" style="flex-wrap:nowrap;gap:6px">
+            <span class="chip" data-val="shoulders" onclick="toggleSplit(this)" style="padding:8px 10px;font-size:13px">🏋️ 肩</span>
+            <span class="chip" data-val="chest" onclick="toggleSplit(this)" style="padding:8px 10px;font-size:13px">💪 胸</span>
+            <span class="chip" data-val="back" onclick="toggleSplit(this)" style="padding:8px 10px;font-size:13px">🔙 背</span>
+            <span class="chip" data-val="glutes" onclick="toggleSplit(this)" style="padding:8px 10px;font-size:13px">🍑 臀</span>
+            <span class="chip" data-val="legs" onclick="toggleSplit(this)" style="padding:8px 10px;font-size:13px">🦵 腿</span>
           </div>
           <button class="di-btn restday" id="btn-restday" onclick="toggleDIBtn('restday')" style="margin-top:8px">🏖️ 休息日</button>
         </div>
