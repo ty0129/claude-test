@@ -264,7 +264,7 @@
   /* Achievements */
   .achievements-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:12px; }
   @media(max-width:600px){.achievements-grid{grid-template-columns:repeat(2,1fr);}}
-  .ach-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px 10px; text-align:center; transition:all .2s; opacity:.28; filter:grayscale(.85) brightness(.65); }
+  .ach-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px 10px; text-align:center; transition:all .2s; opacity:.55; filter:grayscale(.7); }
   .ach-card.earned { opacity:1; filter:none; border-color:rgba(124,106,247,.5); box-shadow:var(--glow-purple); }
   .ach-card.earned.gold  { border-color:rgba(255,214,10,.5);  box-shadow:0 0 20px rgba(255,214,10,.2); }
   .ach-card.earned.green { border-color:rgba(0,255,179,.5);   box-shadow:var(--glow-green); }
@@ -631,7 +631,7 @@
   </div>
 
   <div id="tab-chart" style="display:none">
-    <div class="stat-row" id="statsRow"></div>
+    <div class="stat-row" id="statsRow" style="display:grid;grid-template-columns:1fr 1fr;"></div>
     <div class="card">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
         <div class="card-title" style="margin-bottom:0">体重趋势</div>
