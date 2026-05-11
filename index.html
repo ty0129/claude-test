@@ -587,6 +587,7 @@
             <span class="chip" data-val="shoulders" onclick="toggleSplit(this)" style="padding:8px 10px;font-size:13px">🏋️ 肩</span>
             <span class="chip" data-val="chest" onclick="toggleSplit(this)" style="padding:8px 10px;font-size:13px">💪 胸</span>
             <span class="chip" data-val="back" onclick="toggleSplit(this)" style="padding:8px 10px;font-size:13px">🔙 背</span>
+            <span class="chip" data-val="abs" onclick="toggleSplit(this)" style="padding:8px 10px;font-size:13px">🔥 腹</span>
             <span class="chip" data-val="glutes" onclick="toggleSplit(this)" style="padding:8px 10px;font-size:13px">🍑 臀</span>
             <span class="chip" data-val="legs" onclick="toggleSplit(this)" style="padding:8px 10px;font-size:13px">🦵 腿</span>
           </div>
@@ -1067,7 +1068,7 @@ function saveEntry() {
 }
 
 // ── History ──────────────────────────────────────────────────────────────────
-const SPLIT_LABELS = { shoulders: '肩', chest: '胸', back: '背', glutes: '臀', legs: '腿', break: '休息' };
+const SPLIT_LABELS = { shoulders: '肩', chest: '胸', back: '背', abs: '腹', glutes: '臀', legs: '腿', break: '休息' };
 
 function renderHistory() {
   const all = loadAll();
@@ -1420,7 +1421,7 @@ const ACHIEVEMENTS = [
   { id:'legs10', icon:'🦵', title:'腿日勇士', desc:'完成 10 次腿日训练', color:'green', type:'legsDay', threshold:10 },
   { id:'legs20', icon:'🦾', title:'腿日英雄', desc:'完成 20 次腿日训练', color:'gold',  type:'legsDay', threshold:20 },
   // All body parts
-  { id:'all5',   icon:'🏋️', title:'全能战士', desc:'五个部位全部练过',   color:'gold',  type:'allParts', threshold:5 },
+  { id:'all5',   icon:'🏋️', title:'全能战士', desc:'六个部位全部练过',   color:'gold',  type:'allParts', threshold:6 },
   // Food logging
   { id:'food14', icon:'🥢', title:'饮食记录达人', desc:'连续记录饮食 14 天', color:'green', type:'foodLog', threshold:14 },
   { id:'food30', icon:'🍱', title:'饮食记录大师', desc:'连续记录饮食 30 天', color:'gold',  type:'foodLog', threshold:30 },
@@ -1476,7 +1477,7 @@ function calcStats() {
   const legsDays = entries.filter(e => Array.isArray(e.split) ? e.split.includes('legs') : e.split === 'legs').length;
   const allParts = new Set();
   entries.forEach(e => { if (Array.isArray(e.split)) e.split.forEach(s => allParts.add(s)); else if (e.split && e.split !== 'break') allParts.add(e.split); });
-  const allPartCount = ['shoulders','chest','back','glutes','legs'].filter(p => allParts.has(p)).length;
+  const allPartCount = ['shoulders','chest','back','abs','glutes','legs'].filter(p => allParts.has(p)).length;
   let foodLogStreak = 0, curFood = 0;
   entries.forEach(e => {
     curFood = (e.breakfast || e.lunch || e.dinner) ? curFood + 1 : 0;
