@@ -14,45 +14,125 @@
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #060610;
-    --surface: #0c0c1e;
-    --surface2: #12122a;
-    --border: #1e1e40;
-    --border-glow: rgba(124,106,247,.5);
-    --accent: #7c6af7;
-    --accent2: #e06bb4;
-    --green: #00ffb3;
-    --red: #ff4d6d;
-    --yellow: #ffd60a;
-    --text: #eeeeff;
-    --muted: #5a5a8a;
+    --base-font: 'Outfit', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
     --radius: 12px;
-    --font: 'Outfit', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
-    --glow-purple: 0 0 20px rgba(124,106,247,.4), 0 0 40px rgba(124,106,247,.2);
-    --glow-green: 0 0 20px rgba(0,255,179,.4), 0 0 40px rgba(0,255,179,.15);
-    --glow-pink: 0 0 20px rgba(224,107,180,.4), 0 0 40px rgba(224,107,180,.15);
+  }
+  /* ── Theme: 暗夜霓虹 Neon Night (default) ── */
+  body[data-theme="neon"] {
+    --color-bg: #060610;
+    --color-surface: #0c0c1e;
+    --color-surface2: #12122a;
+    --color-border: #1e1e40;
+    --color-border-glow: rgba(var(--color-primary-rgb),.5);
+    --color-primary: #7c6af7; --color-primary-rgb: 124,106,247;
+    --color-accent: #e06bb4; --color-accent-rgb: 224,107,180;
+    --green: #00ffb3; --green-rgb: 0,255,179;
+    --red: #ff4d6d; --red-rgb: 255,77,109;
+    --yellow: #ffd60a; --yellow-rgb: 255,214,10;
+    --color-text: #eeeeff;
+    --color-text-secondary: #5a5a8a;
+    --glow-primary: 0 0 20px rgba(var(--color-primary-rgb),.4), 0 0 40px rgba(var(--color-primary-rgb),.2);
+    --glow-green: 0 0 20px rgba(var(--green-rgb),.4), 0 0 40px rgba(var(--green-rgb),.15);
+    --glow-accent: 0 0 20px rgba(var(--color-accent-rgb),.4), 0 0 40px rgba(var(--color-accent-rgb),.15);
+    --font: var(--base-font);
+  }
+  /* ── Theme: Paper 纸质温暖 ── */
+  body[data-theme="paper"] {
+    --color-bg: #f9f6f0;
+    --color-surface: #ffffff;
+    --color-surface2: #f2efe8;
+    --color-border: #e5ddd0;
+    --color-border-glow: rgba(180,150,120,.5);
+    --color-primary: #8b7355; --color-primary-rgb: 139,115,85;
+    --color-accent: #c4956a; --color-accent-rgb: 196,149,106;
+    --green: #6b9b6b; --green-rgb: 107,155,107;
+    --red: #c4665a; --red-rgb: 196,102,90;
+    --yellow: #c4a050; --yellow-rgb: 196,160,80;
+    --color-text: #2c2416;
+    --color-text-secondary: #9c8b78;
+    --glow-primary: 0 0 10px rgba(139,115,85,.2), 0 0 20px rgba(139,115,85,.08);
+    --glow-green: 0 0 10px rgba(107,155,107,.2), 0 0 20px rgba(107,155,107,.08);
+    --glow-accent: 0 0 10px rgba(196,149,106,.2), 0 0 20px rgba(196,149,106,.08);
+    --font: var(--base-font);
+  }
+  /* ── Theme: Forest 自然有机 ── */
+  body[data-theme="forest"] {
+    --color-bg: #3b4d3c;
+    --color-surface: #4a5e4b;
+    --color-surface2: #3d523e;
+    --color-border: #5a7052;
+    --color-border-glow: rgba(160,190,120,.5);
+    --color-primary: #8fbc6b; --color-primary-rgb: 143,188,107;
+    --color-accent: #d4a853; --color-accent-rgb: 212,168,83;
+    --green: #8cb868; --green-rgb: 140,184,104;
+    --red: #d4856b; --red-rgb: 212,133,107;
+    --yellow: #d4b860; --yellow-rgb: 212,184,96;
+    --color-text: #e8efe0;
+    --color-text-secondary: #9aac8a;
+    --glow-primary: 0 0 14px rgba(143,188,107,.3), 0 0 28px rgba(143,188,107,.1);
+    --glow-green: 0 0 14px rgba(140,184,104,.3), 0 0 28px rgba(140,184,104,.1);
+    --glow-accent: 0 0 14px rgba(212,168,83,.3), 0 0 28px rgba(212,168,83,.1);
+    --font: var(--base-font);
+  }
+  /* ── Theme: Rose 浪漫轻奢 ── */
+  body[data-theme="rose"] {
+    --color-bg: #faf5f7;
+    --color-surface: #ffffff;
+    --color-surface2: #f7eff2;
+    --color-border: #ecd5d8;
+    --color-border-glow: rgba(200,140,150,.5);
+    --color-primary: #d4888c; --color-primary-rgb: 212,136,140;
+    --color-accent: #c9a88c; --color-accent-rgb: 201,168,140;
+    --green: #7dae8a; --green-rgb: 125,174,138;
+    --red: #d48080; --red-rgb: 212,128,128;
+    --yellow: #c9a870; --yellow-rgb: 201,168,112;
+    --color-text: #3d2c2f;
+    --color-text-secondary: #b09898;
+    --glow-primary: 0 0 10px rgba(212,136,140,.25), 0 0 20px rgba(212,136,140,.1);
+    --glow-green: 0 0 10px rgba(125,174,138,.25), 0 0 20px rgba(125,174,138,.1);
+    --glow-accent: 0 0 10px rgba(201,168,140,.25), 0 0 20px rgba(201,168,140,.1);
+    --font: var(--base-font);
+  }
+  /* ── Theme: 极简霜白 Frost Minimal (cool white base) ── */
+  body[data-theme="frost"] {
+    --color-bg: #f0f4f8;
+    --color-surface: #ffffff;
+    --color-surface2: #e8eef4;
+    --color-border: #cdd7e2;
+    --color-border-glow: rgba(99,140,220,.5);
+    --color-primary: #638cdc; --color-primary-rgb: 99,140,220;
+    --color-accent: #8b9dc3; --color-accent-rgb: 139,157,195;
+    --green: #3cb878; --green-rgb: 60,184,120;
+    --red: #e05560; --red-rgb: 224,85,96;
+    --yellow: #d4a020; --yellow-rgb: 212,160,32;
+    --color-text: #1e2736;
+    --color-text-secondary: #7d8ea8;
+    --glow-primary: 0 0 14px rgba(99,140,220,.25), 0 0 28px rgba(99,140,220,.1);
+    --glow-green: 0 0 14px rgba(60,184,120,.25), 0 0 28px rgba(60,184,120,.1);
+    --glow-accent: 0 0 14px rgba(139,157,195,.25), 0 0 28px rgba(139,157,195,.1);
+    --font: var(--base-font);
   }
   * { box-sizing:border-box; margin:0; padding:0; }
   body {
     font-family: var(--font);
-    background: var(--bg);
-    color: var(--text);
+    background: var(--color-bg);
+    color: var(--color-text);
     min-height: 100vh;
     font-size: 14px;
     -webkit-font-smoothing: antialiased;
   }
   body::before {
     content:''; position:fixed; inset:0; z-index:0; pointer-events:none;
-    background-image: linear-gradient(rgba(124,106,247,.04) 1px, transparent 1px),
-                      linear-gradient(90deg, rgba(124,106,247,.04) 1px, transparent 1px);
+    background-image: linear-gradient(rgba(var(--color-primary-rgb),.04) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(var(--color-primary-rgb),.04) 1px, transparent 1px);
     background-size: 40px 40px;
   }
   body::after {
     content:''; position:fixed; inset:0; z-index:0; pointer-events:none;
     background:
-      radial-gradient(ellipse 600px 400px at 20% 20%, rgba(124,106,247,.08) 0%, transparent 70%),
-      radial-gradient(ellipse 400px 300px at 80% 70%, rgba(224,107,180,.07) 0%, transparent 70%),
-      radial-gradient(ellipse 300px 300px at 60% 10%, rgba(0,255,179,.05)  0%, transparent 70%);
+      radial-gradient(ellipse 600px 400px at 20% 20%, rgba(var(--color-primary-rgb),.08) 0%, transparent 70%),
+      radial-gradient(ellipse 400px 300px at 80% 70%, rgba(var(--color-accent-rgb),.07) 0%, transparent 70%),
+      radial-gradient(ellipse 300px 300px at 60% 10%, rgba(var(--green-rgb),.05)  0%, transparent 70%);
   }
   .app { max-width: 960px; margin:0 auto; padding:calc(28px + env(safe-area-inset-top)) 18px 80px; position:relative; z-index:1; }
 
@@ -60,38 +140,67 @@
   .header {
     display:flex; align-items:center; justify-content:space-between;
     margin-bottom:28px; padding-bottom:18px;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid var(--color-border);
   }
   .header h1 {
     font-size:20px; font-weight:700; letter-spacing:-.4px;
-    background: linear-gradient(90deg, #fff 0%, var(--accent) 55%, var(--accent2) 100%);
+    background: linear-gradient(90deg, var(--color-text) 0%, var(--color-primary) 55%, var(--color-accent) 100%);
     -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
-    filter: drop-shadow(0 0 10px rgba(124,106,247,.4));
+    filter: drop-shadow(0 0 10px rgba(var(--color-primary-rgb),.4));
   }
-  .header-right { font-size:12px; color:var(--muted); font-weight:500; }
+  .header-right { display:flex; align-items:center; gap:14px; }
+  .skin-dropdown { position:relative; z-index:100; }
+  .skin-trigger {
+    display:flex; align-items:center; gap:5px;
+    padding:5px 11px; border-radius:50px;
+    border:1px solid var(--color-border); background:var(--color-surface2);
+    color:var(--color-text-secondary); font-family:var(--font); font-size:11px; font-weight:600;
+    cursor:pointer; transition:all .18s; white-space:nowrap;
+  }
+  .skin-trigger:hover { border-color:var(--color-primary); color:var(--color-text); box-shadow:0 0 10px rgba(var(--color-primary-rgb),.2); }
+  .skin-dot { width:8px; height:8px; border-radius:50%; background:var(--color-primary); box-shadow:0 0 6px var(--color-primary); flex-shrink:0; }
+  .skin-menu {
+    display:none; position:absolute; top:calc(100% + 6px); right:0;
+    background:var(--color-surface); border:1px solid var(--color-border);
+    border-radius:12px; min-width:180px; padding:6px;
+    box-shadow:0 12px 40px rgba(0,0,0,.5);
+  }
+  .skin-menu.open { display:block; }
+  .skin-item {
+    display:flex; align-items:center; gap:10px;
+    width:100%; padding:9px 12px; border-radius:8px;
+    border:none; background:transparent; color:var(--color-text-secondary);
+    font-family:var(--font); font-size:12px; font-weight:500;
+    cursor:pointer; transition:all .15s; text-align:left;
+  }
+  .skin-item:hover { background:var(--color-surface2); color:var(--color-text); }
+  .skin-item.active { color:var(--color-text); font-weight:700; background:rgba(var(--color-primary-rgb),.08); }
+  .skin-swatch { width:18px; height:18px; border-radius:50%; flex-shrink:0; border:2px solid transparent; }
+  .skin-item.active .skin-swatch { border-color:var(--color-primary); box-shadow:0 0 8px rgba(var(--color-primary-rgb),.5); }
+
 
   /* Tabs */
   .tabs {
     display:flex; gap:4px; margin-bottom:20px;
     padding:5px; overflow-x:auto; scrollbar-width:none;
-    background:var(--surface); border:1px solid var(--border);
+    background:var(--color-surface); border:1px solid var(--color-border);
     border-radius:var(--radius);
   }
   .tabs::-webkit-scrollbar { display:none; }
   .tab {
     display:flex; align-items:center; gap:5px;
     padding:8px 16px; border-radius:9px; border:1px solid transparent;
-    background:transparent; color:var(--muted); font-family:var(--font);
+    background:transparent; color:var(--color-text-secondary); font-family:var(--font);
     font-size:13px; font-weight:600; cursor:pointer; transition:all .18s;
     white-space:nowrap; flex-shrink:0;
   }
   .tab.active {
-    background:var(--surface2); color:#fff;
-    border-color:var(--border-glow);
-    box-shadow: var(--glow-purple), inset 0 0 20px rgba(124,106,247,.08);
-    text-shadow: 0 0 12px rgba(124,106,247,.8);
+    background:var(--color-surface2); color:#fff;
+    border-color:var(--color-border-glow);
+    box-shadow: var(--glow-primary), inset 0 0 20px rgba(var(--color-primary-rgb),.08);
+    text-shadow: 0 0 12px rgba(var(--color-primary-rgb),.8);
   }
-  .tab:hover:not(.active) { color:var(--text); background:rgba(255,255,255,.03); }
+  .tab:hover:not(.active) { color:var(--color-text); background:rgba(255,255,255,.03); }
   .tab-icon { font-size:14px; }
   .tab-label { font-size:13px; }
 
@@ -107,7 +216,7 @@
       margin-bottom: 0; gap: 0; padding: 0;
       padding-bottom: env(safe-area-inset-bottom);
       border-radius: 0; border: none;
-      border-top: 1px solid var(--border);
+      border-top: 1px solid var(--color-border);
       background: rgba(13,11,9,.94);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
@@ -128,120 +237,120 @@
     .tab-label { font-size: 10px; line-height: 1; letter-spacing: .2px; }
 
     .tab.active { background: transparent; border: none; box-shadow: none; text-shadow: none; }
-    .tab.active .tab-icon { transform: scale(1.15); filter: drop-shadow(0 0 6px var(--accent)); }
-    .tab.active .tab-label { color: var(--accent); font-weight: 700; }
+    .tab.active .tab-icon { transform: scale(1.15); filter: drop-shadow(0 0 6px var(--color-primary)); }
+    .tab.active .tab-label { color: var(--color-primary); font-weight: 700; }
 
     .tab.active::before {
       content: '';
       position: absolute; top: 0; left: 50%; transform: translateX(-50%);
       width: 28px; height: 2px; border-radius: 0 0 3px 3px;
-      background: var(--accent);
-      box-shadow: 0 0 8px var(--accent);
+      background: var(--color-primary);
+      box-shadow: 0 0 8px var(--color-primary);
     }
     .tab { position: relative; }
-    .tab:active { background: rgba(124,106,247,.08); }
+    .tab:active { background: rgba(var(--color-primary-rgb),.08); }
     .tab.active:active { background: transparent; }
   }
 
   /* Cards */
   .card {
-    background:var(--surface); border:1px solid var(--border);
+    background:var(--color-surface); border:1px solid var(--color-border);
     border-radius:var(--radius); padding:18px 20px; margin-bottom:10px;
     transition:border-color .18s, box-shadow .18s;
     position:relative; overflow:hidden;
   }
   .card::before {
     content:''; position:absolute; top:0; left:16px; right:16px; height:1px;
-    background:linear-gradient(90deg,transparent,rgba(124,106,247,.5),transparent);
+    background:linear-gradient(90deg,transparent,rgba(var(--color-primary-rgb),.5),transparent);
   }
-  .card:hover { border-color:rgba(124,106,247,.3); box-shadow:0 4px 24px rgba(124,106,247,.08); }
+  .card:hover { border-color:rgba(var(--color-primary-rgb),.3); box-shadow:0 4px 24px rgba(var(--color-primary-rgb),.08); }
   .card-title {
     font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1.8px;
-    color:var(--muted); margin-bottom:14px;
+    color:var(--color-text-secondary); margin-bottom:14px;
   }
 
   /* Form */
-  label { font-size:11px; font-weight:600; color:var(--muted); display:block; margin-bottom:5px; letter-spacing:.4px; text-transform:uppercase; }
+  label { font-size:11px; font-weight:600; color:var(--color-text-secondary); display:block; margin-bottom:5px; letter-spacing:.4px; text-transform:uppercase; }
   input[type="text"],input[type="number"],input[type="date"],select,textarea {
-    width:100%; background:var(--surface2); border:1px solid var(--border);
-    border-radius:8px; color:var(--text); padding:10px 12px; font-size:14px;
+    width:100%; background:var(--color-surface2); border:1px solid var(--color-border);
+    border-radius:8px; color:var(--color-text); padding:10px 12px; font-size:14px;
     outline:none; transition:border-color .18s, box-shadow .18s; font-family:var(--font);
   }
   input:focus,select:focus,textarea:focus {
-    border-color:var(--accent);
-    box-shadow: 0 0 0 2px rgba(124,106,247,.2), var(--glow-purple);
+    border-color:var(--color-primary);
+    box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb),.2), var(--glow-primary);
   }
   textarea { resize:vertical; min-height:52px; line-height:1.5; }
-  select option { background:var(--surface2); }
+  select option { background:var(--color-surface2); }
 
   /* Toggle */
   .toggle-row { display:flex; align-items:center; gap:9px; }
   .toggle { position:relative; width:40px; height:22px; flex-shrink:0; }
   .toggle input { opacity:0; width:0; height:0; }
-  .slider { position:absolute; inset:0; background:var(--surface2); border:1px solid var(--border); border-radius:22px; cursor:pointer; transition:.2s; }
-  .slider:before { content:''; position:absolute; width:16px; height:16px; left:2px; top:2px; background:var(--muted); border-radius:50%; transition:.2s; }
-  input:checked + .slider { background:rgba(124,106,247,.2); border-color:var(--accent); box-shadow:var(--glow-purple); }
-  input:checked + .slider:before { transform:translateX(18px); background:#fff; box-shadow:0 0 8px rgba(124,106,247,.8); }
+  .slider { position:absolute; inset:0; background:var(--color-surface2); border:1px solid var(--color-border); border-radius:22px; cursor:pointer; transition:.2s; }
+  .slider:before { content:''; position:absolute; width:16px; height:16px; left:2px; top:2px; background:var(--color-text-secondary); border-radius:50%; transition:.2s; }
+  input:checked + .slider { background:rgba(var(--color-primary-rgb),.2); border-color:var(--color-primary); box-shadow:var(--glow-primary); }
+  input:checked + .slider:before { transform:translateX(18px); background:#fff; box-shadow:0 0 8px rgba(var(--color-primary-rgb),.8); }
   .toggle-label { font-size:13px; font-weight:500; }
 
   /* Chips */
   .chips { display:flex; flex-wrap:wrap; gap:7px; }
   .chip {
-    padding:7px 15px; border-radius:50px; border:1px solid var(--border);
-    background:transparent; color:var(--muted); font-size:12px; font-weight:600;
+    padding:7px 15px; border-radius:50px; border:1px solid var(--color-border);
+    background:transparent; color:var(--color-text-secondary); font-size:12px; font-weight:600;
     cursor:pointer; transition:all .18s; user-select:none; font-family:var(--font);
   }
-  .chip:hover { border-color:var(--accent); color:var(--text); box-shadow:0 0 10px rgba(124,106,247,.2); }
+  .chip:hover { border-color:var(--color-primary); color:var(--color-text); box-shadow:0 0 10px rgba(var(--color-primary-rgb),.2); }
   .chips.disabled .chip { opacity:.35; pointer-events:none; }
-  .chip.selected { border-color:var(--accent); color:#fff; background:rgba(124,106,247,.2); box-shadow:var(--glow-purple); text-shadow:0 0 8px rgba(124,106,247,.8); }
-  .chip.green.selected { border-color:var(--green); color:#fff; background:rgba(0,255,179,.15); box-shadow:var(--glow-green); text-shadow:0 0 8px rgba(0,255,179,.8); }
-  .chip.red.selected { border-color:var(--red); color:#fff; background:rgba(255,77,109,.15); }
-  .chip.yellow.selected { border-color:var(--yellow); color:#fff; background:rgba(255,214,10,.12); }
+  .chip.selected { border-color:var(--color-primary); color:#fff; background:rgba(var(--color-primary-rgb),.2); box-shadow:var(--glow-primary); text-shadow:0 0 8px rgba(var(--color-primary-rgb),.8); }
+  .chip.green.selected { border-color:var(--green); color:#fff; background:rgba(var(--green-rgb),.15); box-shadow:var(--glow-green); text-shadow:0 0 8px rgba(var(--green-rgb),.8); }
+  .chip.red.selected { border-color:var(--red); color:#fff; background:rgba(var(--red-rgb),.15); }
+  .chip.yellow.selected { border-color:var(--yellow); color:#fff; background:rgba(var(--yellow-rgb),.12); }
 
   /* Weight change */
   .weight-change { font-size:12px; font-weight:700; padding:3px 10px; border-radius:50px; }
-  .weight-change.up   { background:rgba(255,77,109,.12); color:var(--red);   border:1px solid rgba(255,77,109,.3); box-shadow:0 0 10px rgba(255,77,109,.2); }
-  .weight-change.down { background:rgba(0,255,179,.1);   color:var(--green);  border:1px solid rgba(0,255,179,.3);  box-shadow:0 0 10px rgba(0,255,179,.2); }
-  .weight-change.flat { background:rgba(255,255,255,.04); color:var(--muted); border:1px solid var(--border); }
+  .weight-change.up   { background:rgba(var(--red-rgb),.12); color:var(--red);   border:1px solid rgba(var(--red-rgb),.3); box-shadow:0 0 10px rgba(var(--red-rgb),.2); }
+  .weight-change.down { background:rgba(var(--green-rgb),.1);   color:var(--green);  border:1px solid rgba(var(--green-rgb),.3);  box-shadow:0 0 10px rgba(var(--green-rgb),.2); }
+  .weight-change.flat { background:rgba(255,255,255,.04); color:var(--color-text-secondary); border:1px solid var(--color-border); }
 
   /* Buttons */
   .btn { padding:10px 22px; border-radius:50px; border:none; font-size:14px; font-weight:600; cursor:pointer; transition:all .18s; font-family:var(--font); letter-spacing:.2px; }
   .btn-primary {
-    background:transparent; color:#fff; border:1px solid var(--accent);
-    box-shadow:var(--glow-purple); text-shadow:0 0 10px rgba(124,106,247,.8);
+    background:transparent; color:#fff; border:1px solid var(--color-primary);
+    box-shadow:var(--glow-primary); text-shadow:0 0 10px rgba(var(--color-primary-rgb),.8);
     position:relative; overflow:hidden;
   }
   .btn-primary::before {
     content:''; position:absolute; inset:0;
-    background:linear-gradient(135deg,rgba(124,106,247,.3),rgba(224,107,180,.2));
+    background:linear-gradient(135deg,rgba(var(--color-primary-rgb),.3),rgba(var(--color-accent-rgb),.2));
     opacity:0; transition:opacity .2s;
   }
   .btn-primary:hover::before { opacity:1; }
-  .btn-primary:hover { box-shadow:0 0 30px rgba(124,106,247,.6), 0 0 60px rgba(124,106,247,.3); transform:translateY(-1px); }
+  .btn-primary:hover { box-shadow:0 0 30px rgba(var(--color-primary-rgb),.6), 0 0 60px rgba(var(--color-primary-rgb),.3); transform:translateY(-1px); }
   .btn-primary:active { transform:translateY(0); }
-  .btn-danger { background:transparent; color:var(--red); border:1px solid rgba(255,77,109,.4); border-radius:50px; }
-  .btn-danger:hover { background:rgba(255,77,109,.1); box-shadow:0 0 15px rgba(255,77,109,.3); }
+  .btn-danger { background:transparent; color:var(--red); border:1px solid rgba(var(--red-rgb),.4); border-radius:50px; }
+  .btn-danger:hover { background:rgba(var(--red-rgb),.1); box-shadow:0 0 15px rgba(var(--red-rgb),.3); }
   .btn-sm { padding:6px 14px; font-size:12px; border-radius:50px; }
-  .btn-ghost { padding:5px 12px; border-radius:50px; border:1px solid var(--border); background:transparent; color:var(--muted); font-size:11px; font-weight:600; cursor:pointer; transition:all .18s; font-family:var(--font); }
-  .btn-ghost:hover { border-color:var(--accent); color:var(--text); box-shadow:0 0 10px rgba(124,106,247,.2); }
-  .btn-ghost.del:hover { border-color:var(--red); color:var(--red); box-shadow:0 0 10px rgba(255,77,109,.2); }
+  .btn-ghost { padding:5px 12px; border-radius:50px; border:1px solid var(--color-border); background:transparent; color:var(--color-text-secondary); font-size:11px; font-weight:600; cursor:pointer; transition:all .18s; font-family:var(--font); }
+  .btn-ghost:hover { border-color:var(--color-primary); color:var(--color-text); box-shadow:0 0 10px rgba(var(--color-primary-rgb),.2); }
+  .btn-ghost.del:hover { border-color:var(--red); color:var(--red); box-shadow:0 0 10px rgba(var(--red-rgb),.2); }
 
   /* History */
-  .history-item { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:14px 16px; margin-bottom:7px; transition:all .2s; }
-  .history-item:hover { border-color:rgba(124,106,247,.5); box-shadow:var(--glow-purple); transform:translateY(-1px); }
+  .history-item { background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius); padding:14px 16px; margin-bottom:7px; transition:all .2s; }
+  .history-item:hover { border-color:rgba(var(--color-primary-rgb),.5); box-shadow:var(--glow-primary); transform:translateY(-1px); }
   .hi-top { display:flex; align-items:center; gap:10px; margin-bottom:8px; justify-content:space-between; }
-  .hi-date { font-weight:700; font-size:14px; letter-spacing:-.3px; color:var(--text); }
-  .hi-dow { font-size:10px; color:var(--muted); font-weight:600; background:var(--surface2); padding:2px 8px; border-radius:50px; border:1px solid var(--border); letter-spacing:.4px; text-transform:uppercase; }
+  .hi-date { font-weight:700; font-size:14px; letter-spacing:-.3px; color:var(--color-text); }
+  .hi-dow { font-size:10px; color:var(--color-text-secondary); font-weight:600; background:var(--color-surface2); padding:2px 8px; border-radius:50px; border:1px solid var(--color-border); letter-spacing:.4px; text-transform:uppercase; }
   .hi-tags { display:flex; gap:5px; flex-wrap:wrap; }
   .hi-meta { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
   .hi-actions { display:flex; gap:6px; flex-shrink:0; }
-  .hi-stats { display:flex; gap:14px; font-size:12px; color:var(--muted); flex-wrap:wrap; }
-  .hi-stat-val { color:var(--text); font-weight:700; margin-left:3px; }
-  .badge { font-size:10px; padding:2px 9px; border-radius:50px; font-weight:600; background:transparent; color:var(--muted); border:1px solid var(--border); }
-  .badge.work   { color:var(--accent);  border-color:rgba(124,106,247,.4); text-shadow:0 0 6px rgba(124,106,247,.6); }
+  .hi-stats { display:flex; gap:14px; font-size:12px; color:var(--color-text-secondary); flex-wrap:wrap; }
+  .hi-stat-val { color:var(--color-text); font-weight:700; margin-left:3px; }
+  .badge { font-size:10px; padding:2px 9px; border-radius:50px; font-weight:600; background:transparent; color:var(--color-text-secondary); border:1px solid var(--color-border); }
+  .badge.work   { color:var(--color-primary);  border-color:rgba(var(--color-primary-rgb),.4); text-shadow:0 0 6px rgba(var(--color-primary-rgb),.6); }
   .badge.cheat  { color:var(--yellow);  border-color:rgba(184,144,48,.35); }
-  .badge.trip   { color:var(--green);   border-color:rgba(0,255,179,.35); text-shadow:0 0 6px rgba(0,255,179,.5); }
-  .badge.period { color:var(--accent2); border-color:rgba(224,107,180,.4); text-shadow:0 0 6px rgba(224,107,180,.5); }
+  .badge.trip   { color:var(--green);   border-color:rgba(var(--green-rgb),.35); text-shadow:0 0 6px rgba(var(--green-rgb),.5); }
+  .badge.period { color:var(--color-accent); border-color:rgba(var(--color-accent-rgb),.4); text-shadow:0 0 6px rgba(var(--color-accent-rgb),.5); }
   .badge.poop   { color:#a07040;        border-color:rgba(160,112,64,.3); }
 
   /* Charts */
@@ -251,92 +360,92 @@
   #editingBanner { display:none; align-items:center; gap:8px; background:rgba(184,144,48,.07); border:1px solid rgba(184,144,48,.3); border-radius:10px; padding:10px 16px; margin-bottom:12px; font-size:13px; font-weight:600; color:var(--yellow); }
 
   /* Title card */
-  .title-card-wrap { text-align:center; padding:26px 20px 22px; border-radius:var(--radius); border:1px solid var(--border); margin-bottom:12px; background:var(--surface); position:relative; overflow:hidden; }
+  .title-card-wrap { text-align:center; padding:26px 20px 22px; border-radius:var(--radius); border:1px solid var(--color-border); margin-bottom:12px; background:var(--color-surface); position:relative; overflow:hidden; }
   .title-card-wrap::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(196,136,46,.5),rgba(184,96,78,.4),transparent); }
-  .title-card-wrap.gold  { border-color:rgba(255,214,10,.4); box-shadow:0 0 30px rgba(255,214,10,.1); }
-  .title-card-wrap.green { border-color:rgba(0,255,179,.4);  box-shadow:0 0 30px rgba(0,255,179,.1); }
-  .title-card-wrap.red   { border-color:rgba(255,77,109,.35); box-shadow:0 0 30px rgba(255,77,109,.1); }
-  .title-icon-big { font-size:54px; margin-bottom:10px; filter:drop-shadow(0 0 12px rgba(124,106,247,.5)); }
-  .title-text-big { font-size:24px; font-weight:700; letter-spacing:-.4px; margin-bottom:8px; background:linear-gradient(90deg,#fff,var(--accent),var(--accent2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
-  .title-label { font-size:10px; font-weight:700; letter-spacing:1.4px; text-transform:uppercase; color:var(--muted); margin-bottom:12px; }
+  .title-card-wrap.gold  { border-color:rgba(var(--yellow-rgb),.4); box-shadow:0 0 30px rgba(var(--yellow-rgb),.1); }
+  .title-card-wrap.green { border-color:rgba(var(--green-rgb),.4);  box-shadow:0 0 30px rgba(var(--green-rgb),.1); }
+  .title-card-wrap.red   { border-color:rgba(var(--red-rgb),.35); box-shadow:0 0 30px rgba(var(--red-rgb),.1); }
+  .title-icon-big { font-size:54px; margin-bottom:10px; filter:drop-shadow(0 0 12px rgba(var(--color-primary-rgb),.5)); }
+  .title-text-big { font-size:24px; font-weight:700; letter-spacing:-.4px; margin-bottom:8px; background:linear-gradient(90deg,var(--color-text),var(--color-primary),var(--color-accent)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+  .title-label { font-size:10px; font-weight:700; letter-spacing:1.4px; text-transform:uppercase; color:var(--color-text-secondary); margin-bottom:12px; }
   .title-desc-text { font-size:13px; color:rgba(221,212,196,.5); line-height:1.6; margin-top:10px; }
 
   /* Achievements */
   .achievements-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:12px; }
   @media(max-width:600px){.achievements-grid{grid-template-columns:repeat(2,1fr);}}
-  .ach-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px 10px; text-align:center; transition:all .2s; opacity:.55; filter:grayscale(.7); }
-  .ach-card.earned { opacity:1; filter:none; border-color:rgba(124,106,247,.5); box-shadow:var(--glow-purple); }
-  .ach-card.earned.gold  { border-color:rgba(255,214,10,.5);  box-shadow:0 0 20px rgba(255,214,10,.2); }
-  .ach-card.earned.green { border-color:rgba(0,255,179,.5);   box-shadow:var(--glow-green); }
-  .ach-card.earned.pink  { border-color:rgba(224,107,180,.5); box-shadow:var(--glow-pink); }
+  .ach-card { background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius); padding:16px 10px; text-align:center; transition:all .2s; opacity:.55; filter:grayscale(.7); }
+  .ach-card.earned { opacity:1; filter:none; border-color:rgba(var(--color-primary-rgb),.5); box-shadow:var(--glow-primary); }
+  .ach-card.earned.gold  { border-color:rgba(var(--yellow-rgb),.5);  box-shadow:0 0 20px rgba(var(--yellow-rgb),.2); }
+  .ach-card.earned.green { border-color:rgba(var(--green-rgb),.5);   box-shadow:var(--glow-green); }
+  .ach-card.earned.pink  { border-color:rgba(var(--color-accent-rgb),.5); box-shadow:var(--glow-accent); }
   .ach-icon { font-size:28px; margin-bottom:7px; }
   .ach-title { font-size:12px; font-weight:700; margin-bottom:4px; }
-  .ach-desc { font-size:10px; color:var(--muted); margin-bottom:6px; line-height:1.4; }
-  .ach-progress { height:3px; background:var(--border); border-radius:2px; overflow:hidden; margin-top:6px; }
-  .ach-progress-bar { height:100%; background:linear-gradient(90deg,var(--accent),var(--accent2)); border-radius:2px; transition:width .4s; box-shadow:0 0 6px rgba(124,106,247,.6); }
-  .ach-earned-date { font-size:10px; color:var(--muted); margin-top:5px; font-weight:600; }
+  .ach-desc { font-size:10px; color:var(--color-text-secondary); margin-bottom:6px; line-height:1.4; }
+  .ach-progress { height:3px; background:var(--color-border); border-radius:2px; overflow:hidden; margin-top:6px; }
+  .ach-progress-bar { height:100%; background:linear-gradient(90deg,var(--color-primary),var(--color-accent)); border-radius:2px; transition:width .4s; box-shadow:0 0 6px rgba(var(--color-primary-rgb),.6); }
+  .ach-earned-date { font-size:10px; color:var(--color-text-secondary); margin-top:5px; font-weight:600; }
 
   /* Cycle */
   .cycle-timeline { display:flex; border-radius:8px; overflow:hidden; height:26px; margin:10px 0; position:relative; }
   .cycle-phase-bar { display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:700; color:rgba(255,255,255,.85); overflow:hidden; white-space:nowrap; transition:flex .3s; }
-  .cycle-phase-bar.menstrual  { background:rgba(224,107,180,.7); box-shadow:inset 0 0 10px rgba(224,107,180,.3); }
-  .cycle-phase-bar.follicular { background:rgba(0,255,179,.5);   box-shadow:inset 0 0 10px rgba(0,255,179,.2); }
-  .cycle-phase-bar.ovulation  { background:rgba(255,214,10,.8);  color:rgba(0,0,0,.7); }
-  .cycle-phase-bar.luteal     { background:rgba(124,106,247,.65); box-shadow:inset 0 0 10px rgba(124,106,247,.3); }
+  .cycle-phase-bar.menstrual  { background:rgba(var(--color-accent-rgb),.7); box-shadow:inset 0 0 10px rgba(var(--color-accent-rgb),.3); }
+  .cycle-phase-bar.follicular { background:rgba(var(--green-rgb),.5);   box-shadow:inset 0 0 10px rgba(var(--green-rgb),.2); }
+  .cycle-phase-bar.ovulation  { background:rgba(var(--yellow-rgb),.8);  color:rgba(0,0,0,.7); }
+  .cycle-phase-bar.luteal     { background:rgba(var(--color-primary-rgb),.65); box-shadow:inset 0 0 10px rgba(var(--color-primary-rgb),.3); }
   .cycle-today-marker { position:absolute; top:0; bottom:0; width:2px; background:#fff; box-shadow:0 0 8px #fff, 0 0 20px rgba(255,255,255,.5); }
   .cycle-legend { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:12px; }
-  .cycle-legend-item { display:flex; align-items:center; gap:5px; font-size:11px; color:var(--muted); }
+  .cycle-legend-item { display:flex; align-items:center; gap:5px; font-size:11px; color:var(--color-text-secondary); }
   .cycle-legend-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
   .cycle-dates { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
-  .cycle-date-row { background:var(--surface2); border-radius:10px; padding:10px 12px; border:1px solid var(--border); }
-  .cycle-date-label { font-size:10px; text-transform:uppercase; letter-spacing:.6px; color:var(--muted); margin-bottom:3px; font-weight:700; }
+  .cycle-date-row { background:var(--color-surface2); border-radius:10px; padding:10px 12px; border:1px solid var(--color-border); }
+  .cycle-date-label { font-size:10px; text-transform:uppercase; letter-spacing:.6px; color:var(--color-text-secondary); margin-bottom:3px; font-weight:700; }
   .cycle-date-val { font-size:13px; font-weight:700; }
   .cycle-phase-tag { display:inline-block; font-size:10px; font-weight:600; padding:2px 9px; border-radius:50px; margin-left:6px; }
-  .phase-menstrual  { background:rgba(224,107,180,.15); color:#e06bb4; }
-  .phase-follicular { background:rgba(0,255,179,.1);   color:#00ffb3; }
-  .phase-ovulation  { background:rgba(255,214,10,.12); color:#ffd60a; }
-  .phase-luteal     { background:rgba(124,106,247,.15); color:#7c6af7; }
+  .phase-menstrual  { background:rgba(var(--color-accent-rgb),.15); color:var(--color-accent); }
+  .phase-follicular { background:rgba(var(--green-rgb),.1);   color:#00ffb3; }
+  .phase-ovulation  { background:rgba(var(--yellow-rgb),.12); color:#ffd60a; }
+  .phase-luteal     { background:rgba(var(--color-primary-rgb),.15); color:var(--color-primary); }
 
   /* Stat cards */
   .stat-row { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
-  .stat-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:14px 16px; flex:1; min-width:120px; transition:all .2s; }
+  .stat-card { background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius); padding:14px 16px; flex:1; min-width:120px; transition:all .2s; }
   .stat-card .val { font-size:20px; font-weight:700; margin-top:4px; letter-spacing:-.4px; }
-  .stat-card .lbl { font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); font-weight:700; }
+  .stat-card .lbl { font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--color-text-secondary); font-weight:700; }
 
   /* Date nav */
   .date-nav { display:flex; align-items:center; gap:8px; }
-  .date-nav button { background:var(--surface2); border:1px solid var(--border); color:var(--text); padding:7px 13px; border-radius:50px; cursor:pointer; font-size:16px; transition:all .2s; font-family:var(--font); }
-  .date-nav button:hover { border-color:var(--accent); box-shadow:0 0 12px rgba(124,106,247,.3); }
+  .date-nav button { background:var(--color-surface2); border:1px solid var(--color-border); color:var(--color-text); padding:7px 13px; border-radius:50px; cursor:pointer; font-size:16px; transition:all .2s; font-family:var(--font); }
+  .date-nav button:hover { border-color:var(--color-primary); box-shadow:0 0 12px rgba(var(--color-primary-rgb),.3); }
   .date-nav .date-display { font-weight:700; font-size:15px; min-width:0; text-align:center; letter-spacing:-.3px; white-space:nowrap; }
   .cal-pick-wrap {
     position:relative; display:flex; align-items:center;
-    background:var(--surface2); border:1px solid var(--border);
+    background:var(--color-surface2); border:1px solid var(--color-border);
     border-radius:50px; padding:7px 13px; cursor:pointer;
     transition:border-color .18s;
   }
-  .cal-pick-wrap:hover { border-color:var(--accent); box-shadow:0 0 12px rgba(124,106,247,.3); }
+  .cal-pick-wrap:hover { border-color:var(--color-primary); box-shadow:0 0 12px rgba(var(--color-primary-rgb),.3); }
   .cal-pick-icon { font-size:16px; pointer-events:none; }
   .cal-backdrop { position:fixed; inset:0; z-index:298; }
   .cal-popup {
     position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
-    background:var(--surface); border:1px solid var(--border);
+    background:var(--color-surface); border:1px solid var(--color-border);
     border-radius:14px; box-shadow:0 20px 60px rgba(0,0,0,.7);
     z-index:299; width:min(310px, 94vw); padding:14px;
   }
   .cal-pop-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
-  .cal-nav-btn { background:none; border:1px solid var(--border); color:var(--text); font-size:18px; cursor:pointer; padding:2px 11px; border-radius:7px; line-height:1.6; transition:border-color .18s; }
-  .cal-nav-btn:hover { background:var(--surface2); }
+  .cal-nav-btn { background:none; border:1px solid var(--color-border); color:var(--color-text); font-size:18px; cursor:pointer; padding:2px 11px; border-radius:7px; line-height:1.6; transition:border-color .18s; }
+  .cal-nav-btn:hover { background:var(--color-surface2); }
   .cal-pop-label { font-size:14px; font-weight:700; }
-  .cal-dow-row { display:grid; grid-template-columns:repeat(7,1fr); text-align:center; font-size:10px; font-weight:700; color:var(--muted); padding-bottom:6px; border-bottom:1px solid var(--border); margin-bottom:6px; }
+  .cal-dow-row { display:grid; grid-template-columns:repeat(7,1fr); text-align:center; font-size:10px; font-weight:700; color:var(--color-text-secondary); padding-bottom:6px; border-bottom:1px solid var(--color-border); margin-bottom:6px; }
   .cal-dow-row span:first-child { color:var(--red); }
-  .cal-dow-row span:last-child  { color:var(--accent2); }
+  .cal-dow-row span:last-child  { color:var(--color-accent); }
   .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; }
   .cal-cell { display:flex; flex-direction:column; align-items:center; padding:3px 0 2px; border-radius:7px; cursor:pointer; min-height:38px; }
-  .cal-cell:hover { background:var(--surface2); }
+  .cal-cell:hover { background:var(--color-surface2); }
   .cal-cell.other-month { opacity:.25; }
-  .cal-cell.today .cal-num { border:1.5px solid var(--accent); }
-  .cal-cell.selected .cal-num { background:var(--accent); color:#fff !important; }
-  .cal-num { font-size:12px; font-weight:600; width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--text); }
+  .cal-cell.today .cal-num { border:1.5px solid var(--color-primary); }
+  .cal-cell.selected .cal-num { background:var(--color-primary); color:#fff !important; }
+  .cal-num { font-size:12px; font-weight:600; width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--color-text); }
   .cal-holiday-name { font-size:8px; color:var(--red); line-height:1.1; text-align:center; width:100%; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; padding:0 2px; }
   .cal-cell.holiday .cal-num { color:var(--red) !important; }
   .cal-cell.selected .cal-holiday-name { color:rgba(255,255,255,.75); }
@@ -346,42 +455,42 @@
   /* Day-info pill buttons */
   .di-group { margin-bottom:10px; }
   .di-group:last-child { margin-bottom:0; }
-  .di-group-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.7px; color:var(--muted); margin-bottom:8px; }
+  .di-group-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.7px; color:var(--color-text-secondary); margin-bottom:8px; }
   .di-btns { display:flex; gap:7px; flex-wrap:wrap; }
   .di-btn {
     display:flex; align-items:center; gap:5px;
     padding:7px 13px; border-radius:50px;
-    border:1px solid var(--border); background:var(--surface2);
-    color:var(--muted); font-family:var(--font); font-size:12px; font-weight:600;
+    border:1px solid var(--color-border); background:var(--color-surface2);
+    color:var(--color-text-secondary); font-family:var(--font); font-size:12px; font-weight:600;
     cursor:pointer; transition:all .18s; white-space:nowrap;
   }
-  .di-btn:hover { border-color:rgba(255,255,255,.18); color:var(--text); }
-  .di-btn.period.active   { border-color:var(--accent2); background:rgba(224,107,180,.12); color:var(--accent2); box-shadow:0 0 12px rgba(224,107,180,.25); }
-  .di-btn.restday.active  { border-color:var(--green);   background:rgba(0,255,179,.08);   color:var(--green);  box-shadow:0 0 12px rgba(0,255,179,.2); }
-  .di-btn.poop.active     { border-color:var(--yellow);  background:rgba(255,214,10,.08);  color:var(--yellow); box-shadow:0 0 12px rgba(255,214,10,.2); }
+  .di-btn:hover { border-color:rgba(255,255,255,.18); color:var(--color-text); }
+  .di-btn.period.active   { border-color:var(--color-accent); background:rgba(var(--color-accent-rgb),.12); color:var(--color-accent); box-shadow:0 0 12px rgba(var(--color-accent-rgb),.25); }
+  .di-btn.restday.active  { border-color:var(--green);   background:rgba(var(--green-rgb),.08);   color:var(--green);  box-shadow:0 0 12px rgba(var(--green-rgb),.2); }
+  .di-btn.poop.active     { border-color:var(--yellow);  background:rgba(var(--yellow-rgb),.08);  color:var(--yellow); box-shadow:0 0 12px rgba(var(--yellow-rgb),.2); }
   .di-btn.cheatday.active { border-color:#e0b44a;        background:rgba(224,180,74,.1);    color:#e0b44a; box-shadow:0 0 12px rgba(224,180,74,.25); }
   /* Poop yes/no segmented control */
-  .poop-seg { display:inline-flex; border-radius:50px; border:1px solid var(--border); overflow:hidden; }
-  .poop-seg button { padding:7px 14px; border:none; background:var(--surface2); color:var(--muted); font-family:var(--font); font-size:12px; font-weight:600; cursor:pointer; transition:all .18s; }
-  .poop-seg button:first-child { border-right:1px solid var(--border); }
-  .poop-seg button:hover { color:var(--text); }
-  .poop-seg button.seg-active-yes { background:rgba(255,214,10,.12); color:var(--yellow); }
-  .poop-seg button.seg-active-no  { background:rgba(124,106,247,.10); color:var(--accent); }
+  .poop-seg { display:inline-flex; border-radius:50px; border:1px solid var(--color-border); overflow:hidden; }
+  .poop-seg button { padding:7px 14px; border:none; background:var(--color-surface2); color:var(--color-text-secondary); font-family:var(--font); font-size:12px; font-weight:600; cursor:pointer; transition:all .18s; }
+  .poop-seg button:first-child { border-right:1px solid var(--color-border); }
+  .poop-seg button:hover { color:var(--color-text); }
+  .poop-seg button.seg-active-yes { background:rgba(var(--yellow-rgb),.12); color:var(--yellow); }
+  .poop-seg button.seg-active-no  { background:rgba(var(--color-primary-rgb),.10); color:var(--color-primary); }
   .calorie-row { display:flex; align-items:center; gap:10px; }
   .calorie-input { width:130px !important; }
   .grid { display:grid; gap:10px; }
   .grid-2 { grid-template-columns:1fr 1fr; }
   .grid-3 { grid-template-columns:1fr 1fr 1fr; }
   .grid-4 { grid-template-columns:repeat(4,1fr); }
-  .empty { text-align:center; padding:44px 20px; color:var(--muted); }
+  .empty { text-align:center; padding:44px 20px; color:var(--color-text-secondary); }
   .empty .icon { font-size:38px; margin-bottom:12px; opacity:.35; }
   @media(max-width:600px){.grid-3{grid-template-columns:1fr 1fr;}.grid-4{grid-template-columns:1fr 1fr;}.stat-row{flex-direction:column;}}
   @media(max-width:420px){.grid-2{grid-template-columns:1fr;}}
   ::-webkit-scrollbar{width:4px;}
   ::-webkit-scrollbar-track{background:transparent;}
-  ::-webkit-scrollbar-thumb{background:rgba(124,106,247,.3);border-radius:3px;}
-  ::-webkit-scrollbar-thumb:hover{background:rgba(124,106,247,.5);}
-  code{background:var(--surface2);padding:2px 6px;border-radius:4px;font-size:12px;border:1px solid var(--border);}
+  ::-webkit-scrollbar-thumb{background:rgba(var(--color-primary-rgb),.3);border-radius:3px;}
+  ::-webkit-scrollbar-thumb:hover{background:rgba(var(--color-primary-rgb),.5);}
+  code{background:var(--color-surface2);padding:2px 6px;border-radius:4px;font-size:12px;border:1px solid var(--color-border);}
 
   /* Title info modal */
   .modal-backdrop {
@@ -392,37 +501,37 @@
   }
   .modal-backdrop.open { display:flex; }
   .modal-box {
-    background:var(--surface); border:1px solid var(--border);
+    background:var(--color-surface); border:1px solid var(--color-border);
     border-radius:var(--radius); width:100%; max-width:420px;
     max-height:80vh; overflow-y:auto;
-    box-shadow:0 0 40px rgba(124,106,247,.25);
+    box-shadow:0 0 40px rgba(var(--color-primary-rgb),.25);
   }
   .modal-head {
     display:flex; align-items:center; justify-content:space-between;
-    padding:14px 16px 12px; border-bottom:1px solid var(--border);
-    position:sticky; top:0; background:var(--surface); z-index:1;
+    padding:14px 16px 12px; border-bottom:1px solid var(--color-border);
+    position:sticky; top:0; background:var(--color-surface); z-index:1;
   }
-  .modal-head-title { font-size:14px; font-weight:700; color:var(--text); }
+  .modal-head-title { font-size:14px; font-weight:700; color:var(--color-text); }
   .modal-close {
-    width:26px; height:26px; border-radius:50%; border:1px solid var(--border);
-    background:var(--surface2); color:var(--muted); cursor:pointer;
+    width:26px; height:26px; border-radius:50%; border:1px solid var(--color-border);
+    background:var(--color-surface2); color:var(--color-text-secondary); cursor:pointer;
     font-size:13px; display:flex; align-items:center; justify-content:center;
     transition:all .18s; font-family:var(--font);
   }
-  .modal-close:hover { border-color:var(--accent); color:var(--text); }
+  .modal-close:hover { border-color:var(--color-primary); color:var(--color-text); }
   .title-table { width:100%; border-collapse:collapse; font-size:12px; }
   .title-table th {
     text-align:left; padding:8px 12px; font-size:10px; font-weight:700;
-    text-transform:uppercase; letter-spacing:.7px; color:var(--muted);
-    border-bottom:1px solid var(--border);
+    text-transform:uppercase; letter-spacing:.7px; color:var(--color-text-secondary);
+    border-bottom:1px solid var(--color-border);
   }
   .title-table td { padding:9px 12px; border-bottom:1px solid rgba(255,255,255,.03); vertical-align:top; }
   .title-table tr:last-child td { border-bottom:none; }
   .title-table tr:hover td { background:rgba(255,255,255,.025); }
   .title-table .t-icon { font-size:18px; text-align:center; width:32px; }
-  .title-table .t-name { font-weight:700; color:var(--text); white-space:nowrap; padding-right:6px; }
-  .title-table .t-cond { color:var(--muted); line-height:1.5; }
-  .title-note { font-size:11px; color:var(--muted); padding:10px 12px 14px; line-height:1.6; }
+  .title-table .t-name { font-weight:700; color:var(--color-text); white-space:nowrap; padding-right:6px; }
+  .title-table .t-cond { color:var(--color-text-secondary); line-height:1.5; }
+  .title-note { font-size:11px; color:var(--color-text-secondary); padding:10px 12px 14px; line-height:1.6; }
   .title-info-btn {
     position:absolute; top:12px; right:12px;
     width:20px; height:20px; border-radius:50%;
@@ -431,50 +540,50 @@
     cursor:pointer; display:flex; align-items:center; justify-content:center;
     transition:all .18s; font-family:var(--font); line-height:1;
   }
-  .title-info-btn:hover { border-color:var(--accent); color:var(--accent); background:rgba(124,106,247,.15); }
+  .title-info-btn:hover { border-color:var(--color-primary); color:var(--color-primary); background:rgba(var(--color-primary-rgb),.15); }
 
   /* Monthly achievements */
   .monthly-nav { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
-  .monthly-nav button { background:var(--surface2); border:1px solid var(--border); color:var(--text); padding:7px 13px; border-radius:50px; cursor:pointer; font-size:16px; transition:border-color .18s; font-family:var(--font); }
-  .monthly-nav button:hover { border-color:var(--accent); box-shadow:0 0 12px rgba(124,106,247,.3); }
+  .monthly-nav button { background:var(--color-surface2); border:1px solid var(--color-border); color:var(--color-text); padding:7px 13px; border-radius:50px; cursor:pointer; font-size:16px; transition:border-color .18s; font-family:var(--font); }
+  .monthly-nav button:hover { border-color:var(--color-primary); box-shadow:0 0 12px rgba(var(--color-primary-rgb),.3); }
   .monthly-nav-label { font-weight:700; font-size:14px; }
   .monthly-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; }
   @media(min-width:480px){.monthly-grid{grid-template-columns:repeat(4,1fr);}}
-  .mo-badge { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:14px 10px; text-align:center; transition:all .2s; opacity:.38; filter:grayscale(.8) brightness(.65); }
-  .mo-badge.earned { opacity:1; filter:none; border-color:rgba(0,255,179,.45); box-shadow:0 0 18px rgba(0,255,179,.15); }
+  .mo-badge { background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius); padding:14px 10px; text-align:center; transition:all .2s; opacity:.38; filter:grayscale(.8) brightness(.65); }
+  .mo-badge.earned { opacity:1; filter:none; border-color:rgba(var(--green-rgb),.45); box-shadow:0 0 18px rgba(var(--green-rgb),.15); }
   .mo-icon { font-size:26px; margin-bottom:6px; }
   .mo-title { font-size:12px; font-weight:700; margin-bottom:3px; }
-  .mo-desc { font-size:10px; color:var(--muted); margin-bottom:5px; line-height:1.4; }
-  .mo-stat { font-size:11px; font-weight:600; color:var(--muted); }
+  .mo-desc { font-size:10px; color:var(--color-text-secondary); margin-bottom:5px; line-height:1.4; }
+  .mo-stat { font-size:11px; font-weight:600; color:var(--color-text-secondary); }
   .mo-badge.earned .mo-stat { color:var(--green); }
 
   /* Rewards sub-tabs */
-  .reward-subtabs { display:flex; gap:4px; margin-bottom:14px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:4px; }
-  .reward-subtab { flex:1; padding:7px 12px; border-radius:9px; border:1px solid transparent; background:transparent; color:var(--muted); font-family:var(--font); font-size:13px; font-weight:600; cursor:pointer; transition:all .18s; }
-  .reward-subtab.active { background:var(--surface2); color:#fff; border-color:var(--border-glow); box-shadow:var(--glow-purple), inset 0 0 20px rgba(124,106,247,.08); }
-  .reward-subtab:hover:not(.active) { color:var(--text); }
-  .period-forecast-card { display:flex; align-items:center; gap:12px; padding:13px 15px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); margin-bottom:10px; cursor:pointer; transition:border-color .18s; }
-  .period-forecast-card:hover { border-color:var(--accent2); box-shadow:0 0 14px rgba(224,107,180,.15); }
+  .reward-subtabs { display:flex; gap:4px; margin-bottom:14px; background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius); padding:4px; }
+  .reward-subtab { flex:1; padding:7px 12px; border-radius:9px; border:1px solid transparent; background:transparent; color:var(--color-text-secondary); font-family:var(--font); font-size:13px; font-weight:600; cursor:pointer; transition:all .18s; }
+  .reward-subtab.active { background:var(--color-surface2); color:#fff; border-color:var(--color-border-glow); box-shadow:var(--glow-primary), inset 0 0 20px rgba(var(--color-primary-rgb),.08); }
+  .reward-subtab:hover:not(.active) { color:var(--color-text); }
+  .period-forecast-card { display:flex; align-items:center; gap:12px; padding:13px 15px; background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius); margin-bottom:10px; cursor:pointer; transition:border-color .18s; }
+  .period-forecast-card:hover { border-color:var(--color-accent); box-shadow:0 0 14px rgba(var(--color-accent-rgb),.15); }
   .period-fc-icon { font-size:24px; width:34px; text-align:center; flex-shrink:0; }
   .period-fc-info { flex:1; min-width:0; }
   .period-fc-phase { font-size:13px; font-weight:700; margin-bottom:3px; }
-  .period-fc-sub { font-size:11px; color:var(--muted); }
-  .period-fc-arrow { font-size:16px; color:var(--muted); flex-shrink:0; }
-  .period-detail-page { position:fixed; inset:0; background:var(--bg); z-index:200; overflow-y:auto; display:none; }
+  .period-fc-sub { font-size:11px; color:var(--color-text-secondary); }
+  .period-fc-arrow { font-size:16px; color:var(--color-text-secondary); flex-shrink:0; }
+  .period-detail-page { position:fixed; inset:0; background:var(--color-bg); z-index:200; overflow-y:auto; display:none; }
   .period-detail-page.open { display:block; }
-  .period-detail-header { display:flex; align-items:center; justify-content:space-between; padding:calc(env(safe-area-inset-top, 0px) + 14px) 16px 14px; border-bottom:1px solid var(--border); position:sticky; top:0; background:var(--bg); z-index:1; backdrop-filter:blur(12px); }
-  .period-detail-back { background:none; border:none; color:var(--accent); font-size:15px; font-weight:600; cursor:pointer; padding:4px 0; font-family:var(--font); }
+  .period-detail-header { display:flex; align-items:center; justify-content:space-between; padding:calc(env(safe-area-inset-top, 0px) + 14px) 16px 14px; border-bottom:1px solid var(--color-border); position:sticky; top:0; background:var(--color-bg); z-index:1; backdrop-filter:blur(12px); }
+  .period-detail-back { background:none; border:none; color:var(--color-primary); font-size:15px; font-weight:600; cursor:pointer; padding:4px 0; font-family:var(--font); }
   .period-detail-title { font-size:14px; font-weight:700; }
   .period-detail-body { padding:16px 16px calc(env(safe-area-inset-bottom, 0px) + 24px); }
   .period-cal-nav { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
-  .period-cal-dow-row { display:grid; grid-template-columns:repeat(7,1fr); text-align:center; font-size:10px; font-weight:700; color:var(--muted); padding-bottom:6px; border-bottom:1px solid var(--border); margin-bottom:4px; }
+  .period-cal-dow-row { display:grid; grid-template-columns:repeat(7,1fr); text-align:center; font-size:10px; font-weight:700; color:var(--color-text-secondary); padding-bottom:6px; border-bottom:1px solid var(--color-border); margin-bottom:4px; }
   .period-cal-dow-row span:first-child { color:var(--red); }
   .period-cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:3px; margin-bottom:10px; }
-  .period-cal-day { height:34px; display:flex; align-items:center; justify-content:center; font-size:13px; border-radius:8px; color:var(--muted); }
+  .period-cal-day { height:34px; display:flex; align-items:center; justify-content:center; font-size:13px; border-radius:8px; color:var(--color-text-secondary); }
   .period-cal-empty { height:34px; }
-  .period-cal-day.is-period { background:rgba(224,107,180,.18); color:#e06bb4; font-weight:700; border:1px solid rgba(224,107,180,.35); box-shadow:0 0 6px rgba(224,107,180,.15); }
-  .period-cal-day.is-today { border:1.5px solid var(--accent); color:var(--text); font-weight:700; }
-  .period-cal-day.is-period.is-today { border-color:#e06bb4; }
+  .period-cal-day.is-period { background:rgba(var(--color-accent-rgb),.18); color:var(--color-accent); font-weight:700; border:1px solid rgba(var(--color-accent-rgb),.35); box-shadow:0 0 6px rgba(var(--color-accent-rgb),.15); }
+  .period-cal-day.is-today { border:1.5px solid var(--color-primary); color:var(--color-text); font-weight:700; }
+  .period-cal-day.is-period.is-today { border-color:var(--color-accent); }
 
   /* 悬浮保存条 */
   .log-save-bar {
@@ -490,22 +599,22 @@
       padding:10px 16px;
       background:rgba(6,6,16,.96);
       backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
-      border-top:1px solid var(--border);
+      border-top:1px solid var(--color-border);
       box-shadow:0 -4px 24px rgba(0,0,0,.5);
       z-index:100; margin-top:0;
     }
     .log-save-bar .btn-primary { flex:1; text-align:center; }
     .log-tab-spacer { display:block; height:60px; }
   }
-  .period-cal-summary { text-align:center; font-size:12px; color:var(--muted); padding:8px 0 4px; border-top:1px solid var(--border); }
+  .period-cal-summary { text-align:center; font-size:12px; color:var(--color-text-secondary); padding:8px 0 4px; border-top:1px solid var(--color-border); }
   /* Quick entry card */
-  .quick-entry-card { display:flex; align-items:center; gap:10px; padding:14px 16px; background:var(--surface); border:1px solid rgba(124,106,247,.3); border-radius:var(--radius); margin-bottom:10px; box-shadow:0 2px 16px rgba(124,106,247,.08); }
-  .quick-entry-input { flex:1; background:var(--surface2); border:1px solid var(--border); border-radius:8px; color:var(--text); padding:10px 12px; font-size:18px; font-weight:700; outline:none; font-family:var(--font); transition:border-color .18s; min-width:0; }
-  .quick-entry-input:focus { border-color:var(--accent); box-shadow:0 0 0 2px rgba(124,106,247,.15); }
-  .quick-entry-label { font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; white-space:nowrap; }
-  .quick-entry-ref { font-size:10px; color:var(--muted); margin-top:2px; }
+  .quick-entry-card { display:flex; align-items:center; gap:10px; padding:14px 16px; background:var(--color-surface); border:1px solid rgba(var(--color-primary-rgb),.3); border-radius:var(--radius); margin-bottom:10px; box-shadow:0 2px 16px rgba(var(--color-primary-rgb),.08); }
+  .quick-entry-input { flex:1; background:var(--color-surface2); border:1px solid var(--color-border); border-radius:8px; color:var(--color-text); padding:10px 12px; font-size:18px; font-weight:700; outline:none; font-family:var(--font); transition:border-color .18s; min-width:0; }
+  .quick-entry-input:focus { border-color:var(--color-primary); box-shadow:0 0 0 2px rgba(var(--color-primary-rgb),.15); }
+  .quick-entry-label { font-size:11px; font-weight:700; color:var(--color-text-secondary); text-transform:uppercase; letter-spacing:.5px; white-space:nowrap; }
+  .quick-entry-ref { font-size:10px; color:var(--color-text-secondary); margin-top:2px; }
   /* Collapsible form sections */
-  .collapse-toggle { background:none; border:none; color:var(--muted); cursor:pointer; font-size:14px; padding:0; transition:transform .2s; line-height:1; }
+  .collapse-toggle { background:none; border:none; color:var(--color-text-secondary); cursor:pointer; font-size:14px; padding:0; transition:transform .2s; line-height:1; }
   .collapse-toggle.open { transform:rotate(180deg); }
   .collapsible { overflow:hidden; transition:max-height .28s ease, opacity .2s; }
   .collapsible.collapsed { max-height:0 !important; opacity:0; }
@@ -515,7 +624,16 @@
 <div class="app">
   <div class="header">
     <h1>🐱 猪咪<span>'s Tracker</span></h1>
-    <div class="header-right"><span id="todayBadge" style="font-size:12px;color:var(--muted);font-weight:500"></span></div>
+    <div class="header-right">
+      <span id="todayBadge" style="font-size:12px;color:var(--color-text-secondary);font-weight:500"></span>
+      <div class="skin-dropdown" id="skinDropdown">
+        <button class="skin-trigger" onclick="toggleSkinMenu()" aria-label="更换皮肤">
+          <span class="skin-dot"></span> 更换皮肤
+        </button>
+        <div class="skin-menu" id="skinMenu">
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="tabs">
@@ -550,7 +668,7 @@
       <div class="period-fc-arrow">›</div>
     </div>
     <div class="card">
-      <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:16px">今日记录</div>
+      <div style="font-size:15px;font-weight:700;color:var(--color-text);margin-bottom:16px">今日记录</div>
       <div class="di-group-label" style="margin-bottom:8px">状态</div>
       <div class="di-btns" style="margin-bottom:14px">
         <button class="di-btn period"   id="btn-period"   onclick="toggleDIBtn('period')">🌸 例假中</button>
@@ -574,11 +692,11 @@
           <div class="calorie-row" style="margin:0"><input type="number" id="calories" class="calorie-input" placeholder="kcal" min="0" step="50"></div>
         </div>
       </div>
-      <div style="font-size:12px;color:var(--muted)">昨日对比：<span id="weightChangeBadge" class="weight-change flat">— 暂无数据</span></div>
+      <div style="font-size:12px;color:var(--color-text-secondary)">昨日对比：<span id="weightChangeBadge" class="weight-change flat">— 暂无数据</span></div>
     </div>
     <div class="card">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-        <div style="font-size:15px;font-weight:700;color:var(--text)">训练</div>
+        <div style="font-size:15px;font-weight:700;color:var(--color-text)">训练</div>
         <button class="collapse-toggle open" id="trainToggle" onclick="toggleSection('trainBody','trainToggle')">▾</button>
       </div>
       <div class="collapsible" id="trainBody" style="max-height:300px">
@@ -624,7 +742,7 @@
   <div id="tab-history" style="display:none">
     <div style="margin-bottom:10px;display:flex;gap:10px;align-items:center">
       <input type="text" id="historySearch" placeholder="搜索记录..." oninput="renderHistory()" style="max-width:300px">
-      <span style="font-size:12px;color:var(--muted);font-weight:600" id="historyCount"></span>
+      <span style="font-size:12px;color:var(--color-text-secondary);font-weight:600" id="historyCount"></span>
     </div>
     <div id="historyMonthRow" style="display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:10px;margin-bottom:4px"></div>
     <div id="historyList"></div>
@@ -647,7 +765,7 @@
     <div class="card" style="margin-top:12px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
         <div class="card-title" style="margin-bottom:0">热量缺口</div>
-        <span style="font-size:11px;color:var(--muted)" id="deficitChartNote"></span>
+        <span style="font-size:11px;color:var(--color-text-secondary)" id="deficitChartNote"></span>
       </div>
       <div class="chart-wrap"><canvas id="calorieChart"></canvas></div>
     </div>
@@ -660,14 +778,14 @@
       <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:14px">
         <div><label>目标体重 (kg)</label><input type="number" id="goalInput" step="0.1" placeholder="例：60.0" style="max-width:130px"></div>
         <button class="btn btn-primary btn-sm" onclick="saveGoalAndRender()">保存目标</button>
-        <button class="btn btn-sm" id="clearGoalBtn" onclick="clearGoalAndRender()" style="display:none;border-color:var(--border);color:var(--muted)">清除目标</button>
+        <button class="btn btn-sm" id="clearGoalBtn" onclick="clearGoalAndRender()" style="display:none;border-color:var(--color-border);color:var(--color-text-secondary)">清除目标</button>
       </div>
       <div id="goalProgressWrap" style="display:none">
-        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:600">
-          <span id="goalStartLabel"></span><span id="goalCurLabel" style="font-weight:700;color:var(--text)"></span><span id="goalTargetLabel"></span>
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--color-text-secondary);margin-bottom:6px;font-weight:600">
+          <span id="goalStartLabel"></span><span id="goalCurLabel" style="font-weight:700;color:var(--color-text)"></span><span id="goalTargetLabel"></span>
         </div>
-        <div style="height:8px;background:var(--border);border-radius:50px;overflow:hidden">
-          <div id="goalProgressBar" style="height:100%;border-radius:50px;background:linear-gradient(90deg,var(--accent),var(--green));transition:width .5s;box-shadow:var(--glow-green)"></div>
+        <div style="height:8px;background:var(--color-border);border-radius:50px;overflow:hidden">
+          <div id="goalProgressBar" style="height:100%;border-radius:50px;background:linear-gradient(90deg,var(--color-primary),var(--green));transition:width .5s;box-shadow:var(--glow-green)"></div>
         </div>
         <div style="text-align:center;margin-top:8px;font-size:14px;font-weight:700" id="goalProgressPct"></div>
       </div>
@@ -723,7 +841,7 @@
   <div id="tab-profile" style="display:none">
     <div class="card">
       <div class="card-title">基础代谢设置</div>
-      <p style="font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.6">使用 Mifflin-St Jeor 公式计算基础代谢率（BMR）和每日总消耗（TDEE）。体重自动取最近记录值。</p>
+      <p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:16px;line-height:1.6">使用 Mifflin-St Jeor 公式计算基础代谢率（BMR）和每日总消耗（TDEE）。体重自动取最近记录值。</p>
       <div class="grid grid-2" style="margin-bottom:12px">
         <div><label>身高 (cm)</label><input type="number" id="profileHeight" placeholder="例：165" min="100" max="220"></div>
         <div><label>年龄</label><input type="number" id="profileAge" placeholder="例：25" min="10" max="100"></div>
@@ -739,19 +857,19 @@
             <option value="1.725">高强度 · 每周6-7次</option>
             <option value="1.9">极高强度 · 每天运动或体力劳动</option>
           </select>
-          <div id="trainingDesc" style="margin-top:5px;font-size:11px;color:var(--muted);line-height:1.5"></div>
+          <div id="trainingDesc" style="margin-top:5px;font-size:11px;color:var(--color-text-secondary);line-height:1.5"></div>
         </div>
       </div>
       <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
         <button class="btn btn-primary btn-sm" onclick="saveProfileAndRender()">保存档案</button>
-        <div id="bmrDisplay" style="font-size:13px;color:var(--muted)"></div>
+        <div id="bmrDisplay" style="font-size:13px;color:var(--color-text-secondary)"></div>
       </div>
     </div>
 
     <div class="card" style="margin-top:4px">
       <div class="card-title">数据管理</div>
       <div style="margin-bottom:16px">
-        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:8px">导入数据</div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--color-text-secondary);margin-bottom:8px">导入数据</div>
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
           <input type="file" id="importFile" accept=".json" style="display:none" onchange="handleImport(event)">
           <button class="btn btn-primary btn-sm" onclick="document.getElementById('importFile').click()">选择 JSON 文件</button>
@@ -760,7 +878,7 @@
         <div id="importMsg" style="margin-top:10px;font-size:13px;display:none"></div>
       </div>
       <div style="margin-bottom:16px">
-        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:8px">导出数据</div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--color-text-secondary);margin-bottom:8px">导出数据</div>
         <button class="btn btn-primary btn-sm" onclick="handleExport()">下载 JSON</button>
         <span id="exportMsg" style="margin-left:12px;font-size:13px;color:var(--green);font-weight:700;display:none">✓ 已下载！</span>
       </div>
@@ -778,6 +896,63 @@
 const STORAGE_KEY = 'healthlog_v1';
 
 const COLD_START_DATA = {"2026-02-23":{"date":"2026-02-23","dow":"Monday","isWorkday":true,"isPeriod":false,"isCheatDay":false,"isBusinessTrip":false,"hasPoop":false,"weight":70.1,"calories":null,"split":null,"cardioMins":0,"breakfast":"","lunch":"","preWorkout":"","dinner":"","supplements":"","remark":""},"2026-03-01":{"date":"2026-03-01","dow":"Sunday","isWorkday":false,"isPeriod":false,"isCheatDay":false,"isBusinessTrip":false,"hasPoop":false,"weight":68.7,"calories":null,"split":"break","cardioMins":20,"breakfast":"","lunch":"","preWorkout":"赛百味","dinner":"特大份黄焖鸡+单加肉","supplements":"","remark":""},"2026-03-02":{"date":"2026-03-02","dow":"Monday","isWorkday":true,"isPeriod":false,"isCheatDay":false,"isBusinessTrip":false,"hasPoop":false,"weight":68.4,"calories":null,"split":"break","cardioMins":40,"breakfast":"","lunch":"油梨树：招牌鸡肉+鸡腿肉","preWorkout":"赛百味","dinner":"翘脚牛肉+白灼菜心+单加一份肉+米饭","supplements":"","remark":""},"2026-03-03":{"date":"2026-03-03","dow":"Tuesday","isWorkday":true,"isPeriod":true,"isCheatDay":false,"isBusinessTrip":false,"hasPoop":false,"weight":68.15,"calories":null,"split":"chest","cardioMins":20,"breakfast":"蛋白粉","lunch":"油梨树：招牌鸡肉+鸡腿肉","preWorkout":"宝矿力水特","dinner":"翘脚牛肉+白灼菜心+单加一份肉+米饭","supplements":"","remark":""},"2026-03-04":{"date":"2026-03-04","dow":"Wednesday","isWorkday":true,"isPeriod":true,"isCheatDay":false,"isBusinessTrip":false,"hasPoop":false,"weight":67.8,"calories":null,"split":"back","cardioMins":20,"breakfast":"蛋白粉","lunch":"油梨树：招牌鸡肉+鸡腿肉","preWorkout":"赛百味","dinner":"翘脚牛肉+白灼菜心+单加一份肉+米饭","supplements":"","remark":""},"2026-03-05":{"date":"2026-03-05","dow":"Thursday","isWorkday":true,"isPeriod":true,"isCheatDay":false,"isBusinessTrip":false,"hasPoop":false,"weight":67.55,"calories":null,"split":"shoulders","cardioMins":20,"breakfast":"蛋白粉","lunch":"油梨树：招牌鸡肉+鸡腿肉","preWorkout":"赛百味","dinner":"翘脚牛肉+白灼菜心+单加一份肉+米饭","supplements":"益生菌","remark":""},"2026-03-06":{"date":"2026-03-06","dow":"Friday","isWorkday":true,"isPeriod":true,"isCheatDay":false,"isBusinessTrip":false,"hasPoop":false,"weight":67.55,"calories":null,"split":"legs","cardioMins":10,"breakfast":"蛋白粉","lunch":"油梨树：招牌鸡肉+鸡腿肉","preWorkout":"赛百味  + 一片Rachel给的面包","dinner":"翘脚牛肉+白灼菜心+单加一份肉+米饭","supplements":"益生菌","remark":""},"2026-03-07":{"date":"2026-03-07","dow":"Saturday","isWorkday":false,"isPeriod":true,"isCheatDay":false,"isBusinessTrip":false,"hasPoop":false,"weight":67.25,"calories":null,"split":"break","cardioMins":25,"breakfast":"","lunch":"青椒洋葱炒鸡丁 + 炒包菜 + 清炒生菜 + 凉拌花椒芽","preWorkout":"","dinner":"萝卜炖肉 + 炒包菜 + 香椿鸡蛋 + 白米饭","supplements":"","remark":"早空腹有氧"},"2026-03-08":{"date":"2026-03-08","dow":"Sunday","isWorkday":false,"isPeriod":true,"isCheatDay":false,"isBusinessTrip":false,"hasPoop":false,"weight":67.3,"calories":null,"split":"chest","cardioMins":20,"breakfast":"","lunch":"油梨树：招牌鸡肉+鸡腿肉","preWorkout":"赛百味","dinner":"翘脚牛肉+白灼菜心+单加一份肉+米饭","supplements":"益生菌","remark":"今天理发了 + 晚饭吃的早"},"2026-03-09":{"date":"2026-03-09","dow":"Monday","isWorkday":true,"isPeriod":false,"isCheatDay":false,"isBusinessTrip":false,"hasPoop":false,"weight":66.8,"calories":null,"split":"back","cardioMins":20,"breakfast":"","lunch":"油梨树：招牌鸡肉+鸡腿肉","preWorkout":"赛百味","dinner":"翘脚牛肉+白灼菜心+单加一份肉+米饭","supplements":"益生菌","remark":"没拉臭"},"2026-03-10":{"date":"2026-03-10","dow":"Tuesday","isWorkday":true,"isPeriod":false,"isCheatDay":false,"isBusinessTrip":false,"hasPoop":false,"weight":67.2,"calories":null,"split":"shoulders","cardioMins":20,"breakfast":"","lunch":"油梨树：招牌鸡肉+鸡腿肉","preWorkout":"赛百味","dinner":"翘脚牛肉+白灼菜心+单加一份肉+米饭","supplements":"益生菌","remark":"没拉臭"},"2026-03-11":{"date":"2026-03-11","dow":"Wednesday","isWorkday":true,"isPeriod":false,"isCheatDay":true,"isBusinessTrip":false,"hasPoop":true,"weight":67.5,"calories":null,"split":"legs","cardioMins":20,"breakfast":"","lunch":"铁板烧","preWorkout":"","dinner":"2裸麦杂粮面包，1烤冷面，1煎饼，1年糕","supplements":"益生菌","remark":"早上称完拉了，放纵日"},"2026-03-12":{"date":"2026-03-12","dow":"Thursday","isWorkday":true,"isPeriod":false,"isCheatDay":false,"isBusinessTrip":false,"hasPoop":false,"weight":67.75,"calories":null,"split":"chest","cardioMins":25,"breakfast":"益生菌","lunch":"油梨树：招牌鸡肉+鸡腿肉","preWorkout":"赛百味","dinner":"翘脚牛肉+白灼菜心+单加一份肉+米饭","supplements":"益生菌","remark":"没拉臭"},"2026-03-13":{"date":"2026-03-13","dow":"Friday","isWorkday":true,"isPeriod":false,"isCheatDay":false,"isBusinessTrip":false,"hasPoop":true,"weight":67.5,"calories":null,"split":"back","cardioMins":25,"breakfast":"益生菌","lunch":"油梨树：招牌鸡肉+鸡腿肉","preWorkout":"赛百味","dinner":"翘脚牛肉+白灼菜心+单加一份肉+米饭","supplements":"益生菌","remark":"早上称完拉了"},"2026-03-14":{"date":"2026-03-14","dow":"Saturday","isWorkday":false,"isPeriod":false,"isCheatDay":false,"isBusinessTrip":false,"hasPoop":false,"weight":67.5,"calories":null,"split":"shoulders","cardioMins":25,"breakfast":"益生菌","lunch":"油梨树：招牌鸡肉+鸡腿肉","preWorkout":"赛百味","dinner":"翘脚牛肉+白灼菜心+单加一份肉+米饭","supplements":"益生菌","remark":"没拉臭"},"2026-03-15":{"date":"2026-03-15","dow":"Sunday","isWorkday":false,"isPeriod":false,"isCheatDay":false,"isBusinessTrip":false,"hasPoop":true,"weight":67.4,"calories":null,"split":"legs","cardioMins":25,"breakfast":"益生菌","lunch":"油梨树：招牌鸡肉+鸡腿肉","preWorkout":"赛百味","dinner":"翘脚牛肉+白灼菜心+单加一份肉+米饭","supplements":"益生菌","remark":"称完拉了一点"},"2026-03-16":{"date":"2026-03-16","dow":"Monday","isWorkday":true,"isPeriod":false,"isCheatDay":false,"isBusinessTrip":false,"hasPoop":false,"weight":67.3,"calories":null,"split":"shoulders","cardioMins":0,"breakfast":"益生菌","lunch":"油梨树：招牌鸡肉+鸡腿肉","preWorkout":"赛百味","dinner":"翘脚牛肉+白灼菜心+米饭","supplements":"益生菌，鱼油","remark":"非常累，停有氧"},"2026-03-17":{"date":"2026-03-17","dow":"Tuesday","isWorkday":true,"isPeriod":false,"isCheatDay":false,"isBusinessTrip":false,"hasPoop":true,"weight":67.3,"calories":null,"split":"back","cardioMins":0,"breakfast":"益生菌","lunch":"油梨树：招牌鸡肉+鸡腿肉","preWorkout":"赛百味","dinner":"翘脚牛肉+白灼菜心+米饭","supplements":"益生菌，鱼油","remark":"中午拉了一些，非常累，停有氧"},"2026-03-18":{"date":"2026-03-18","dow":"Wednesday","isWorkday":true,"isPeriod":false,"isCheatDay":false,"isBusinessTrip":false,"hasPoop":true,"weight":67.45,"calories":null,"split":"break","cardioMins":0,"breakfast":"益生菌","lunch":"油梨树：招牌鸡肉+鸡腿肉","preWorkout":"","dinner":"油梨树：招牌牛肉+牛肉","supplements":"益生菌，鱼油","remark":"称完拉了一丢丢，非常累，停有氧"},"2026-03-19":{"date":"2026-03-19","dow":"Thursday","isWorkday":true,"isPeriod":false,"isCheatDay":false,"isBusinessTrip":false,"hasPoop":true,"weight":67.55,"calories":null,"split":"chest","cardioMins":20,"breakfast":"益生菌","lunch":"油梨树：招牌鸡肉+鸡腿肉","preWorkout":"赛百味","dinner":"翘脚牛肉+白灼菜心+单加一份肉+米饭","supplements":"益生菌，鱼油","remark":"中午拉了，身体比较累"},"2026-03-20":{"date":"2026-03-20","dow":"Friday","isWorkday":true,"isPeriod":false,"isCheatDay":false,"isBusinessTrip":false,"hasPoop":false,"weight":67.05,"calories":null,"split":"legs","cardioMins":15,"breakfast":"益生菌","lunch":"潮汕牛肉火锅：吊龙+匙仁+匙柄+一碗米饭+一颗熟牛筋丸","preWorkout":"赛百味","dinner":"翘脚牛肉+白灼菜心+单加一份肉+米饭","supplements":"益生菌，鱼油","remark":"没拉"},"2026-03-21":{"date":"2026-03-21","dow":"Saturday","isWorkday":false,"isPeriod":false,"isCheatDay":false,"isBusinessTrip":false,"hasPoop":false,"weight":67.45,"calories":null,"split":"back","cardioMins":15,"breakfast":"益生菌","lunch":"油梨树：招牌鸡肉+鸡腿肉","preWorkout":"赛百味","dinner":"翘脚牛肉+白灼菜心*2+单加一份肉+米饭","supplements":"益生菌，鱼油","remark":""},"2026-03-22":{"date":"2026-03-22","dow":"Sunday","isWorkday":false,"isPeriod":false,"isCheatDay":true,"isBusinessTrip":false,"hasPoop":false,"weight":66.6,"calories":null,"split":"shoulders","cardioMins":0,"breakfast":"益生菌","lunch":"2裸麦杂粮面包，1雷神面包，1烤冷面，1煎饼，1油梨树","preWorkout":"","dinner":"菜煎饼，炒鸡","supplements":"益生菌，鱼油","remark":"散步8,000步；过敏打喷嚏"},"2026-03-23":{"date":"2026-03-23","dow":"Monday","isWorkday":true,"isPeriod":false,"isCheatDay":false,"isBusinessTrip":false,"hasPoop":false,"weight":67.55,"calories":null,"split":"chest","cardioMins":45,"breakfast":"益生菌","lunch":"油梨树：招牌鸡肉+鸡腿肉","preWorkout":"赛百味","dinner":"翘脚牛肉+白灼菜心*2+单加一份肉+米饭","supplements":"益生菌，鱼油，南非醉茄，镁","remark":"几乎没拉，精神不错，便秘明显，水重开始回落"},"2026-03-24":{"date":"2026-03-24","dow":"Tuesday","isWorkday":true,"isPeriod":false,"isCheatDay":false,"isBusinessTrip":false,"hasPoop":false,"weight":66.7,"calories":null,"split":"legs","cardioMins":15,"breakfast":"益生菌","lunch":"油梨树：招牌鸡肉+鸡腿肉","preWorkout":"赛百味","dinner":"翘脚牛肉+白灼菜心*2+单加一份肉+米饭","supplements":"益生菌，鱼油，南非醉茄，镁","remark":"几乎没拉，精神不错，便秘明显"},"2026-03-25":{"date":"2026-03-25","dow":"Wednesday","isWorkday":true,"isPeriod":false,"isCheatDay":false,"isBusinessTrip":false,"hasPoop":true,"weight":66.6,"calories":null,"split":"back","cardioMins":0,"breakfast":"益生菌","lunch":"油梨树：招牌鸡肉+鸡腿肉; 食堂两块蒸南瓜","preWorkout":"","dinner":"","supplements":"益生菌，鱼油，南非醉茄，镁","remark":"中午顺利拉臭"},"2026-03-26":{"date":"2026-03-26","dow":"Thursday","isWorkday":true,"isPeriod":false,"isCheatDay":false,"isBusinessTrip":false,"hasPoop":false,"weight":66.85,"calories":null,"split":"break","cardioMins":0,"breakfast":"益生菌","lunch":"麦当劳双层吉士汉堡（免酱+免芝士）","preWorkout":"赛百味","dinner":"翘脚牛肉+白灼菜心+1/2米饭","supplements":"益生菌，鱼油，南非醉茄，镁","remark":"早上没拉臭，加班，没练成，直接回家"},"2026-03-27":{"date":"2026-03-27","dow":"Friday","isWorkday":true,"isPeriod":false,"isCheatDay":false,"isBusinessTrip":false,"hasPoop":false,"weight":66.35,"calories":null,"split":"shoulders","cardioMins":20,"breakfast":"益生菌","lunch":"油梨树：招牌鸡肉+鸡腿肉","preWorkout":"赛百味","dinner":"翘脚牛肉+白灼菜心*2+单加一份肉+3/4米饭","supplements":"益生菌，鱼油，南非醉茄，镁","remark":"没拉臭"},"2026-03-28":{"date":"2026-03-28","dow":"Saturday","isWorkday":false,"isPeriod":false,"isCheatDay":false,"isBusinessTrip":false,"hasPoop":true,"weight":66.55,"calories":null,"split":"chest","cardioMins":20,"breakfast":"益生菌","lunch":"油梨树：招牌鸡肉+鸡腿肉","preWorkout":"","dinner":"翘脚牛肉+白灼菜心*2+单加一份肉+米饭","supplements":"益生菌，南非醉茄，镁","remark":"早上拉臭量适中，午饭，下午训练，足疗，晚饭"},"2026-03-29":{"date":"2026-03-29","dow":"Sunday","isWorkday":false,"isPeriod":false,"isCheatDay":false,"isBusinessTrip":false,"hasPoop":false,"weight":66.0,"calories":null,"split":"legs","cardioMins":20,"breakfast":"益生菌","lunch":"油梨树：招牌鸡肉+鸡腿肉","preWorkout":"赛百味","dinner":"翘脚牛肉+白灼菜心*2+单加一份肉+米饭","supplements":"益生菌，南非醉茄，镁","remark":"理发→洗浴中心搓澡 + 汗蒸"},"2026-03-30":{"date":"2026-03-30","dow":"Monday","isWorkday":true,"isPeriod":false,"isCheatDay":false,"isBusinessTrip":false,"hasPoop":false,"weight":65.9,"calories":null,"split":"back","cardioMins":20,"breakfast":"益生菌","lunch":"油梨树：招牌鸡肉+鸡腿肉","preWorkout":"赛百味","dinner":"翘脚牛肉+白灼菜心*2+2/3米饭","supplements":"益生菌，鱼油，南非醉茄，镁","remark":"整体疲惫，练不动，10点吃完的饭"},"2026-03-31":{"date":"2026-03-31","dow":"Tuesday","isWorkday":true,"isPeriod":true,"isCheatDay":false,"isBusinessTrip":false,"hasPoop":true,"weight":66.15,"calories":null,"split":"shoulders","cardioMins":20,"breakfast":"益生菌","lunch":"油梨树：招牌鸡肉+鸡腿肉","preWorkout":"赛百味","dinner":"翘脚牛肉+白灼菜心*2+2/3米饭","supplements":"益生菌，鱼油，南非醉茄，镁","remark":"今早未拉臭66.4，喝温水+益生菌排便，66.15"},"2026-04-01":{"date":"2026-04-01","dow":"Wednesday","isWorkday":true,"isPeriod":true,"isCheatDay":false,"isBusinessTrip":true,"hasPoop":false,"weight":66.45,"calories":null,"split":"chest","cardioMins":20,"breakfast":"益生菌","lunch":"油梨树：招牌鸡肉+鸡腿肉","preWorkout":"赛百味","dinner":"超级碗鸡胸肉+鸡胸肉+溏心蛋","supplements":"益生菌，南非醉茄，镁","remark":"下午出差上海，肚疼"},"2026-04-02":{"date":"2026-04-02","dow":"Thursday","isWorkday":true,"isPeriod":true,"isCheatDay":false,"isBusinessTrip":true,"hasPoop":false,"weight":null,"calories":null,"split":"break","cardioMins":20,"breakfast":"益生菌","lunch":"赛百味","preWorkout":"","dinner":"超级碗鸡胸肉+鸡胸肉+溏心蛋+西兰花+烤南瓜","supplements":"益生菌，南非醉茄，镁","remark":"出差，AI CAMP颁奖，整体血量较大"},"2026-04-03":{"date":"2026-04-03","dow":"Friday","isWorkday":true,"isPeriod":true,"isCheatDay":false,"isBusinessTrip":true,"hasPoop":true,"weight":null,"calories":null,"split":"back","cardioMins":20,"breakfast":"益生菌","lunch":"赛百味","preWorkout":"赛百味","dinner":"翘脚牛肉+白灼菜心*2+单加一份肉+米饭","supplements":"益生菌，南非醉茄，镁","remark":"早上拉臭，量适中，下午返回北京"},"2026-04-04":{"date":"2026-04-04","dow":"Saturday","isWorkday":false,"isPeriod":true,"isCheatDay":true,"isBusinessTrip":false,"hasPoop":false,"weight":66.0,"calories":null,"split":"chest","cardioMins":20,"breakfast":"益生菌","lunch":"脆肉脘鱼火锅：鱼腩+鱼丸+鱼肉面+一碗焗饭","preWorkout":"","dinner":"1裸麦杂粮面包，1雷神面包，1烤冷面，1煎饼","supplements":"益生菌，南非醉茄，镁","remark":"早上空腹练的胸肩+20分钟有氧，开启放纵日，没拉臭"},"2026-04-05":{"date":"2026-04-05","dow":"Sunday","isWorkday":false,"isPeriod":false,"isCheatDay":false,"isBusinessTrip":false,"hasPoop":false,"weight":66.86,"calories":null,"split":"shoulders","cardioMins":0,"breakfast":"益生菌","lunch":"萝卜炖肉 + 炒青菜 + 香椿鸡蛋 +凉拌黄瓜+1碗白米饭","preWorkout":"","dinner":"青椒洋葱炒鸡丁 + 炒包菜 + 炒青菜 + 西芹炒肉丝+1碗米饭","supplements":"益生菌，南非醉茄，镁","remark":"例假结束，没拉臭，非常非常疲惫一直在睡觉"},"2026-04-06":{"date":"2026-04-06","dow":"Monday","isWorkday":true,"isPeriod":false,"isCheatDay":false,"isBusinessTrip":false,"hasPoop":false,"weight":65.75,"calories":null,"split":"legs","cardioMins":20,"breakfast":"益生菌","lunch":"油梨树：羽衣甘蓝鸡肉碗 + 额外鸡肉+溏心蛋","preWorkout":"","dinner":"翘脚牛肉+白灼菜心*2+单加一份肉+米饭","supplements":"益生菌，南非醉茄，镁","remark":"没拉臭，微微疲惫，午睡1H"},"2026-04-07":{"date":"2026-04-07","dow":"Tuesday","isWorkday":true,"isPeriod":false,"isCheatDay":false,"isBusinessTrip":true,"hasPoop":true,"weight":65.85,"calories":null,"split":"break","cardioMins":25,"breakfast":"益生菌","lunch":"油梨树：招牌鸡肉+鸡腿肉","preWorkout":"","dinner":"油梨树：羽衣甘蓝鸡肉碗 + 额外鸡肉","supplements":"无糖电解质粉，姜黄素，益生菌，南非醉茄，镁","remark":"早上称完体重拉臭，量适中，下午1点出差上海。高铁出差，20:30 到酒店爬坡 30min，步数 4826。00:00-01:00 睡。"},"2026-04-08":{"date":"2026-04-08","dow":"Wednesday","isWorkday":true,"isPeriod":false,"isCheatDay":false,"isBusinessTrip":true,"hasPoop":false,"weight":null,"calories":null,"split":"break","cardioMins":55,"breakfast":"蛋白粉","lunch":"啫啫鸡腿肉小半碗，蒸鲈鱼 4 勺，芦笋木耳/青菜约 3 碗","preWorkout":"","dinner":"油梨树：羽衣甘蓝鸡肉碗 + 额外鸡肉","supplements":"无糖电解质粉，姜黄素，益生菌，南非醉茄，镁","remark":"7 点起空腹爬坡 30min，21:30 爬坡 25min，步数 6136。无排便。00:00-01:00 睡。"},"2026-04-09":{"date":"2026-04-09","dow":"Thursday","isWorkday":true,"isPeriod":false,"isCheatDay":false,"isBusinessTrip":true,"hasPoop":false,"weight":null,"calories":null,"split":"break","cardioMins":0,"breakfast":"蛋白粉","lunch":"酱牛肉 8 片，烤牛肉 2 块，螺片 5 片，蔬菜半盘","preWorkout":"","dinner":"油梨树：羽衣甘蓝鸡肉碗 + 额外鸡肉","supplements":"无糖电解质粉，姜黄素，益生菌，南非醉茄，镁","remark":"6 点起，无额外运动，步数 4837。无排便。00:00-01:00 睡。"},"2026-04-10":{"date":"2026-04-10","dow":"Friday","isWorkday":true,"isPeriod":false,"isCheatDay":false,"isBusinessTrip":true,"hasPoop":true,"weight":null,"calories":null,"split":"break","cardioMins":0,"breakfast":"蛋白粉","lunch":"油梨树：羽衣甘蓝鸡肉碗 + 额外鸡肉","preWorkout":"","dinner":"油梨树：羽衣甘蓝鸡肉碗 + 额外鸡肉","supplements":"无糖电解质粉，姜黄素，益生菌，南非醉茄，镁","remark":"6 点起，无额外运动，步数 5008。凌晨排便，量偏少。00:00-01:00 睡。"},"2026-04-11":{"date":"2026-04-11","dow":"Saturday","isWorkday":false,"isPeriod":false,"isCheatDay":false,"isBusinessTrip":true,"hasPoop":false,"weight":null,"calories":null,"split":"break","cardioMins":0,"breakfast":"蛋白粉","lunch":"油梨树：羽衣甘蓝鸡肉碗 + 额外鸡肉","preWorkout":"赛百味","dinner":"翘脚牛肉+白灼菜心*2+单加一份肉+1/2米饭","supplements":"无糖电解质粉，姜黄素，益生菌，南非醉茄，镁","remark":"6 点起，高铁回京，步数 7219。睡前服用半片佐匹克隆。无排便。00:00-01:00 睡。"},"2026-04-12":{"date":"2026-04-12","dow":"Sunday","isWorkday":false,"isPeriod":false,"isCheatDay":false,"isBusinessTrip":false,"hasPoop":false,"weight":65.35,"calories":null,"split":"back","cardioMins":0,"breakfast":"蛋白粉","lunch":"油梨树：羽衣甘蓝鸡肉碗 + 额外鸡肉","preWorkout":"250g 土豆","dinner":"翘脚牛肉+白灼菜心*2+单加一份肉+1/2米饭","supplements":"无糖电解质粉，姜黄素，益生菌，南非醉茄，镁","remark":"6点自然醒..出差停练后首次恢复训练，小重量控制，感到疲惫，练后泰式精油按摩。"},"2026-04-13":{"date":"2026-04-13","dow":"Monday","isWorkday":true,"isPeriod":false,"isCheatDay":true,"isBusinessTrip":false,"hasPoop":false,"weight":64.4,"calories":null,"split":"chest","cardioMins":30,"breakfast":"益生菌","lunch":"阳坊涮肉巨肉桶捞捞杯 + 虎头军杂粮煎饼 + 麦库裸麦杂粮面包 + 红豆碱水面包 +  列巴 + 1刀切馒头 + 250g 土豆 + 1盒蓝莓","preWorkout":"","dinner":"","supplements":"无糖电解质粉，姜黄素，益生菌，南非醉茄，镁","remark":"空腹爬坡 25 分钟，安定医院取药，步行回家 6900 步，中午放纵，楼上电钻声中强制午睡约 2 小时, 全天摄入估算约4000kcal。睡前胃撑、出汗 很难受"},"2026-04-14":{"date":"2026-04-14","dow":"Tuesday","isWorkday":true,"isPeriod":false,"isCheatDay":false,"isBusinessTrip":false,"hasPoop":false,"weight":65.6,"calories":null,"split":"shoulders","cardioMins":30,"breakfast":"益生菌","lunch":"油梨树：羽衣甘蓝鸡肉碗 + 额外鸡肉","preWorkout":"200g土豆+1keep 去皮鸡腿","dinner":"","supplements":"无糖电解质粉，姜黄素，益生菌，南非醉茄，镁，鱼油","remark":"Phase 2 启动，练前服用土豆"},"2026-04-15":{"date":"2026-04-15","dow":"Wednesday","isWorkday":true,"isPeriod":false,"isCheatDay":false,"isBusinessTrip":false,"hasPoop":true,"weight":66.3,"calories":null,"split":"legs","cardioMins":25,"breakfast":"益生菌","lunch":"油梨树：羽衣甘蓝鸡肉碗 + 额外鸡肉","preWorkout":"200g土豆+1keep 去皮鸡腿","dinner":"翘脚牛肉+白灼菜心*2+单加一份肉+1/2米饭","supplements":"无糖电解质粉，姜黄素，益生菌，南非醉茄，镁，鱼油","remark":"下午2点多排便，量偏少，晚上按摩"},"2026-04-16":{"date":"2026-04-16","dow":"Thursday","isWorkday":true,"isPeriod":false,"isCheatDay":false,"isBusinessTrip":false,"hasPoop":false,"weight":66.25,"calories":null,"split":"back","cardioMins":0,"breakfast":"益生菌","lunch":"油梨树：羽衣甘蓝鸡肉碗 + 额外鸡肉","preWorkout":"200g土豆+1keep 去皮鸡腿","dinner":"翘脚牛肉+白灼菜心*2+单加一份肉+米饭","supplements":"无糖电解质粉，姜黄素，益生菌，南非醉茄，镁，鱼油","remark":"没拉臭"},"2026-04-17":{"date":"2026-04-17","dow":"Friday","isWorkday":true,"isPeriod":false,"isCheatDay":false,"isBusinessTrip":false,"hasPoop":true,"weight":66.15,"calories":null,"split":"chest","cardioMins":25,"breakfast":"益生菌","lunch":"油梨树：羽衣甘蓝鸡肉碗 + 额外鸡肉","preWorkout":"200g土豆+1keep 去皮鸡腿","dinner":"翘脚牛肉+白灼菜心*2+单加一份肉+米饭","supplements":"无糖电解质粉，姜黄素，益生菌，南非醉茄，镁，鱼油","remark":"没拉臭，水肿，中午把马桶拉肚了，晚上加了一份白萝卜..难吃"},"2026-04-18":{"date":"2026-04-18","dow":"Saturday","isWorkday":false,"isPeriod":false,"isCheatDay":false,"isBusinessTrip":false,"hasPoop":false,"weight":65.55,"calories":null,"split":"shoulders","cardioMins":50,"breakfast":"益生菌","lunch":"油梨树：羽衣甘蓝鸡肉碗 + 额外鸡肉","preWorkout":"200g 土豆","dinner":"翘脚牛肉+白灼菜心*2+单加一份肉+米饭","supplements":"无糖电解质粉，姜黄素，益生菌，南非醉茄，镁，鱼油","remark":"没啦臭 爬坡散步50m，下午足疗"},"2026-04-19":{"date":"2026-04-19","dow":"Sunday","isWorkday":false,"isPeriod":false,"isCheatDay":false,"isBusinessTrip":false,"hasPoop":false,"weight":65.35,"calories":null,"split":"legs","cardioMins":15,"breakfast":"益生菌","lunch":"油梨树：羽衣甘蓝鸡肉碗 + 额外鸡肉","preWorkout":"200g 土豆","dinner":"翘脚牛肉+白灼菜心*2+单加一份肉+米饭","supplements":"无糖电解质粉，姜黄素，益生菌，南非醉茄，镁，鱼油","remark":"没拉臭，练腿，轻度爬坡15m，快睡着了"},"2026-04-20":{"date":"2026-04-20","dow":"Monday","isWorkday":true,"isPeriod":false,"isCheatDay":false,"isBusinessTrip":false,"hasPoop":true,"weight":64.95,"calories":null,"split":"back","cardioMins":25,"breakfast":"益生菌","lunch":"油梨树：羽衣甘蓝鸡肉碗 + 额外鸡肉","preWorkout":"200g土豆+1keep 去皮鸡腿","dinner":"翘脚牛肉+白灼菜心*2+单加一份肉+米饭","supplements":"无糖电解质粉，姜黄素，益生菌，南非醉茄，镁，鱼油","remark":"没啦臭；吃了晚饭排便，量偏少"},"2026-04-21":{"date":"2026-04-21","dow":"Tuesday","isWorkday":true,"isPeriod":false,"isCheatDay":false,"isBusinessTrip":false,"hasPoop":false,"weight":65.3,"calories":null,"split":"chest","cardioMins":25,"breakfast":"益生菌","lunch":"油梨树：羽衣甘蓝鸡肉碗 + 额外鸡肉","preWorkout":"200g 土豆","dinner":"翘脚牛肉+白灼菜心*2+单加一份肉+米饭","supplements":"无糖电解质粉，姜黄素，益生菌，南非醉茄，镁，鱼油","remark":"晚上按摩，没啦臭"},"2026-04-22":{"date":"2026-04-22","dow":"Wednesday","isWorkday":true,"isPeriod":false,"isCheatDay":false,"isBusinessTrip":false,"hasPoop":false,"weight":65.2,"calories":null,"split":"shoulders","cardioMins":0,"breakfast":"益生菌","lunch":"油梨树：羽衣甘蓝鸡肉碗 + 额外鸡肉","preWorkout":"1黄桃","dinner":"油梨树：羽衣甘蓝鸡肉碗 + 额外鸡肉","supplements":"无糖电解质粉，姜黄素，益生菌，南非醉茄，镁，鱼油","remark":"没啦臭"},"2026-04-23":{"date":"2026-04-23","dow":"Thursday","isWorkday":true,"isPeriod":false,"isCheatDay":false,"isBusinessTrip":false,"hasPoop":true,"weight":64.8,"calories":null,"split":"legs","cardioMins":25,"breakfast":"益生菌","lunch":"油梨树：羽衣甘蓝鸡肉碗 + 额外鸡肉+溏心蛋","preWorkout":"200g 土豆","dinner":"翘脚牛肉+白灼菜心*2+单加一份肉+米饭","supplements":"无糖电解质粉，姜黄素，益生菌，南非醉茄，镁，鱼油","remark":"早上没啦臭；中午拉了，量偏少"}};
+
+// ── Theme system ─────────────────────────────────────────────────────────────
+const THEME_KEY = 'healthlog_theme_v1';
+const THEMES = [
+  { id:'neon',   name:'暗夜霓虹', desc:'赛博紫黑 · 霓虹光效',   swatch:'#7c6af7' },
+  { id:'paper',  name:'纸质温暖', desc:'米白奶油 · 棕褐墨水',   swatch:'#8b7355' },
+  { id:'forest', name:'自然有机', desc:'深绿橄榄 · 大地气息',   swatch:'#8fbc6b' },
+  { id:'rose',   name:'浪漫轻奢', desc:'粉白香槟 · 玫瑰金调',   swatch:'#d4888c' },
+  { id:'frost',  name:'极简霜白', desc:'冷白冰蓝 · 干净利落',   swatch:'#638cdc' },
+];
+function getTheme() { return document.body.getAttribute('data-theme') || 'neon'; }
+function setTheme(id) {
+  document.body.setAttribute('data-theme', id);
+  localStorage.setItem(THEME_KEY, id);
+  renderSkinMenu();
+  // Re-render charts with new colors if visible
+  if (currentTab === 'chart') renderCharts();
+  if (currentTab === 'log') renderMiniChart();
+}
+
+function getCSSVar(name) {
+  return getComputedStyle(document.body).getPropertyValue('--'+name).trim();
+}
+
+function toggleSkinMenu() {
+  document.getElementById('skinMenu').classList.toggle('open');
+}
+function closeSkinMenu(e) {
+  const menu = document.getElementById('skinMenu');
+  const dd = document.getElementById('skinDropdown');
+  if (menu.classList.contains('open') && !dd.contains(e.target)) {
+    menu.classList.remove('open');
+  }
+}
+document.addEventListener('click', closeSkinMenu);
+
+function renderSkinMenu() {
+  const current = getTheme();
+  const menu = document.getElementById('skinMenu');
+  menu.innerHTML = THEMES.map(t => `
+    <button class="skin-item${t.id === current ? ' active' : ''}" onclick="setTheme('${t.id}')">
+      <span class="skin-swatch" style="background:${t.swatch}"></span>
+      <span style="flex:1;text-align:left">${t.name}</span>
+      <span style="font-size:10px;opacity:.55">${t.desc}</span>
+    </button>
+  `).join('');
+}
+// Init theme from localStorage
+(function(){
+  const saved = localStorage.getItem(THEME_KEY);
+  if (saved && THEMES.some(t => t.id === saved)) {
+    document.body.setAttribute('data-theme', saved);
+  } else {
+    document.body.setAttribute('data-theme', 'neon');
+  }
+  renderSkinMenu();
+})();
 
 function loadAll() {
   try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); }
@@ -1136,7 +1311,7 @@ function renderHistory() {
         <span>🔥<span class="hi-stat-val">${cStr}</span></span>
         ${tStr ? `<span>💪<span class="hi-stat-val">${tStr}</span></span>` : ''}
         ${cardio ? `<span>🏃<span class="hi-stat-val">${cardio}</span></span>` : ''}
-        ${e.remark ? `<span style="color:var(--muted);font-size:12px;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${e.remark.slice(0,80)}</span>` : ''}
+        ${e.remark ? `<span style="color:var(--color-text-secondary);font-size:12px;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${e.remark.slice(0,80)}</span>` : ''}
       </div>
     </div>`;
   }).join('');
@@ -1216,13 +1391,13 @@ function renderCharts() {
       `<span style="color:${v <= 0 ? 'var(--green)' : 'var(--red)'}">${v > 0 ? '+' : ''}${v.toFixed(1)}%</span>`;
 
     document.getElementById('statsRow').innerHTML = `
-      <div class="stat-card"><div class="lbl">最新体重</div><div class="val">${latest} <span style="font-size:13px;font-weight:500;color:var(--muted)">kg</span></div><div style="font-size:10px;color:var(--muted);margin-top:3px">${latestDate}</div></div>
-      <div class="stat-card"><div class="lbl">总减重</div><div class="val">${fmtDiff(-totalLoss)}</div><div style="font-size:10px;color:var(--muted);margin-top:3px">${firstEver} → ${latest} kg</div></div>
-      <div class="stat-card"><div class="lbl">7日均值</div><div class="val">${avg7.toFixed(1)} <span style="font-size:13px;font-weight:500;color:var(--muted)">kg</span></div><div style="font-size:10px;color:var(--muted);margin-top:3px">vs 上周均值 ${weekDiff != null ? (weekDiff > 0 ? '+' : '') + weekDiff.toFixed(2) + ' kg' : '—'}</div></div>
-      <div class="stat-card"><div class="lbl">相对变化</div><div style="display:flex;align-items:baseline;gap:4px;margin-top:4px"><span style="font-size:18px;font-weight:700;letter-spacing:-.4px">${fmtPct(pctFromFirst)}</span><span style="font-size:9px;color:var(--muted);font-weight:600;white-space:nowrap">vs 起点</span></div><div style="display:flex;align-items:baseline;gap:4px;margin-top:5px"><span style="font-size:14px;font-weight:700">${fmtPct(pctFromMonth)}</span><span style="font-size:9px;color:var(--muted);font-weight:600;white-space:nowrap">vs 月初</span></div></div>
+      <div class="stat-card"><div class="lbl">最新体重</div><div class="val">${latest} <span style="font-size:13px;font-weight:500;color:var(--color-text-secondary)">kg</span></div><div style="font-size:10px;color:var(--color-text-secondary);margin-top:3px">${latestDate}</div></div>
+      <div class="stat-card"><div class="lbl">总减重</div><div class="val">${fmtDiff(-totalLoss)}</div><div style="font-size:10px;color:var(--color-text-secondary);margin-top:3px">${firstEver} → ${latest} kg</div></div>
+      <div class="stat-card"><div class="lbl">7日均值</div><div class="val">${avg7.toFixed(1)} <span style="font-size:13px;font-weight:500;color:var(--color-text-secondary)">kg</span></div><div style="font-size:10px;color:var(--color-text-secondary);margin-top:3px">vs 上周均值 ${weekDiff != null ? (weekDiff > 0 ? '+' : '') + weekDiff.toFixed(2) + ' kg' : '—'}</div></div>
+      <div class="stat-card"><div class="lbl">相对变化</div><div style="display:flex;align-items:baseline;gap:4px;margin-top:4px"><span style="font-size:18px;font-weight:700;letter-spacing:-.4px">${fmtPct(pctFromFirst)}</span><span style="font-size:9px;color:var(--color-text-secondary);font-weight:600;white-space:nowrap">vs 起点</span></div><div style="display:flex;align-items:baseline;gap:4px;margin-top:5px"><span style="font-size:14px;font-weight:700">${fmtPct(pctFromMonth)}</span><span style="font-size:9px;color:var(--color-text-secondary);font-weight:600;white-space:nowrap">vs 月初</span></div></div>
     `;
   } else {
-    document.getElementById('statsRow').innerHTML = '<div style="color:var(--muted);font-size:13px">数据不足，继续记录吧</div>';
+    document.getElementById('statsRow').innerHTML = '<div style="color:var(--color-text-secondary);font-size:13px">数据不足，继续记录吧</div>';
   }
 
   const chartDefaults = {
@@ -1230,11 +1405,11 @@ function renderCharts() {
     interaction: { mode: 'index', intersect: false },
     plugins: {
       legend: { display: false },
-      tooltip: { backgroundColor: '#1a1a22', borderColor: '#2e2e3e', borderWidth: 1, titleColor: '#e8e8f0', bodyColor: '#7a7a90' }
+      tooltip: { backgroundColor: getCSSVar('color-surface'), borderColor: getCSSVar('color-border'), borderWidth: 1, titleColor: getCSSVar('color-text'), bodyColor: getCSSVar('color-text-secondary') }
     },
     scales: {
-      x: { grid: { color: '#1e1e28' }, ticks: { color: '#7a7a90', maxTicksLimit: 12 } },
-      y: { grid: { color: '#1e1e28' }, ticks: { color: '#7a7a90' } }
+      x: { grid: { color: getCSSVar('color-border') }, ticks: { color: getCSSVar('color-text-secondary'), maxTicksLimit: 12 } },
+      y: { grid: { color: getCSSVar('color-border') }, ticks: { color: getCSSVar('color-text-secondary') } }
     }
   };
 
@@ -1242,8 +1417,8 @@ function renderCharts() {
   if (weightChartInst) weightChartInst.destroy();
   const ctx1 = document.getElementById('weightChart').getContext('2d');
   const grad1 = ctx1.createLinearGradient(0,0,0,280);
-  grad1.addColorStop(0, 'rgba(124,106,247,.25)');
-  grad1.addColorStop(1, 'rgba(124,106,247,0)');
+  grad1.addColorStop(0, 'rgba(var(--color-primary-rgb),.25)');
+  grad1.addColorStop(1, 'rgba(var(--color-primary-rgb),0)');
 
   // Add trend line
   const validIdxs = weights.map((w,i) => w !== null ? i : -1).filter(i => i>=0);
@@ -1261,7 +1436,8 @@ function renderCharts() {
   }
 
   // Cheat/period markers
-  const pointBgColors = data.map(d => d.isCheatDay ? '#e0b44a' : d.isPeriod ? '#e06bb4' : '#7c6af7');
+  const accent = getCSSVar('color-primary'), accent2 = getCSSVar('color-accent'), yellow = getCSSVar('yellow');
+  const pointBgColors = data.map(d => d.isCheatDay ? yellow : d.isPeriod ? accent2 : accent);
 
   weightChartInst = new Chart(ctx1, {
     type: 'line',
@@ -1271,7 +1447,7 @@ function renderCharts() {
         {
           label: '体重 (kg)',
           data: weights,
-          borderColor: '#7c6af7',
+          borderColor: accent,
           backgroundColor: grad1,
           fill: true,
           tension: 0.35,
@@ -1286,7 +1462,7 @@ function renderCharts() {
         {
           label: '趋势',
           data: trendData,
-          borderColor: 'rgba(224,107,180,0.5)',
+          borderColor: 'rgba(var(--color-accent-rgb),0.5)',
           borderDash: [5,4],
           pointRadius: 0,
           pointHoverRadius: 0,
@@ -1300,7 +1476,7 @@ function renderCharts() {
       ...chartDefaults,
       plugins: {
         ...chartDefaults.plugins,
-        legend: { display: true, labels: { color: '#7a7a90', boxWidth: 14, font: { size: 11 } } },
+        legend: { display: true, labels: { color: getCSSVar('color-text-secondary'), boxWidth: 14, font: { size: 11 } } },
         tooltip: {
           ...chartDefaults.plugins.tooltip,
           filter: (item) => item.datasetIndex === 0,
@@ -1351,8 +1527,8 @@ function renderCharts() {
       datasets: [{
         label: '热量缺口 (kcal)',
         data: deficits,
-        backgroundColor: deficits.map(v => v == null ? 'transparent' : v >= 0 ? 'rgba(76,175,135,.6)' : 'rgba(224,92,92,.6)'),
-        borderColor: deficits.map(v => v == null ? 'transparent' : v >= 0 ? '#4caf87' : '#e05c5c'),
+        backgroundColor: deficits.map(v => v == null ? 'transparent' : v >= 0 ? 'rgba(var(--green-rgb),.6)' : 'rgba(var(--red-rgb),.6)'),
+        borderColor: deficits.map(v => v == null ? 'transparent' : v >= 0 ? getCSSVar('green') : getCSSVar('red')),
         borderWidth: 1,
         borderRadius: 4,
       }]
@@ -1374,12 +1550,12 @@ function renderCharts() {
         }
       },
       scales: {
-        x: { grid: { color: '#1e1e28' }, ticks: { color: '#7a7a90', maxTicksLimit: 12 } },
+        x: { grid: { color: getCSSVar('color-border') }, ticks: { color: getCSSVar('color-text-secondary'), maxTicksLimit: 12 } },
         y: {
           grid: {
-            color: ctx => ctx.tick.value === 0 ? 'rgba(255,255,255,0.25)' : '#1e1e28'
+            color: ctx => ctx.tick.value === 0 ? getCSSVar('color-primary') : getCSSVar('color-border')
           },
-          ticks: { color: '#7a7a90' }
+          ticks: { color: getCSSVar('color-text-secondary') }
         }
       }
     }
@@ -1633,8 +1809,8 @@ function renderProfile() {
     const rT = curWeight ? calcBMR(curWeight, profile.height, profile.age, profile.gender, tf2) : null;
     const rR = curWeight ? calcBMR(curWeight, profile.height, profile.age, profile.gender, 1.2) : null;
     if (rT && rR) {
-      bmrEl.innerHTML = `<div style="margin-bottom:4px"><span style="color:var(--text);font-weight:700">BMR ${rT.bmr} kcal</span> &nbsp;·&nbsp; <span style="color:var(--muted);font-size:11px">体重 ${curWeight} kg</span></div>`
-        + `<div><span style="color:var(--accent);font-weight:700">训练日 TDEE ${rT.tdee} kcal</span> &nbsp;·&nbsp; <span style="color:var(--green);font-weight:700">休息日 TDEE ${rR.tdee} kcal</span></div>`;
+      bmrEl.innerHTML = `<div style="margin-bottom:4px"><span style="color:var(--color-text);font-weight:700">BMR ${rT.bmr} kcal</span> &nbsp;·&nbsp; <span style="color:var(--color-text-secondary);font-size:11px">体重 ${curWeight} kg</span></div>`
+        + `<div><span style="color:var(--color-primary);font-weight:700">训练日 TDEE ${rT.tdee} kcal</span> &nbsp;·&nbsp; <span style="color:var(--green);font-weight:700">休息日 TDEE ${rR.tdee} kcal</span></div>`;
     } else {
       bmrEl.textContent = '请先记录体重数据以计算 BMR';
     }
@@ -1737,10 +1913,10 @@ function renderRewards() {
       document.getElementById('goalProgressPct').textContent = `▲ 倒退 ${Math.abs(pct)}%`;
       document.getElementById('goalProgressPct').style.color = 'var(--red)';
     } else {
-      const barColor = pct >= 100 ? 'var(--accent)' : pct >= 75 ? 'var(--yellow)' : 'var(--green)';
+      const barColor = pct >= 100 ? 'var(--color-primary)' : pct >= 75 ? 'var(--yellow)' : 'var(--green)';
       document.getElementById('goalProgressBar').style.cssText = `height:100%;border-radius:6px;background:${barColor};width:${pct}%;transition:width .5s`;
       document.getElementById('goalProgressPct').textContent = `${pct}% 完成`;
-      document.getElementById('goalProgressPct').style.color = pct >= 100 ? 'var(--green)' : 'var(--text)';
+      document.getElementById('goalProgressPct').style.color = pct >= 100 ? 'var(--green)' : 'var(--color-text)';
     }
   } else {
     clearBtn.style.display = 'none';
@@ -1784,7 +1960,7 @@ function renderRewards() {
         ? `<div class="ach-earned-date" style="color:var(--green)">✓ 已获得</div>`
         : `<div class="ach-progress"><div class="ach-progress-bar" style="width:${pct}%"></div></div>
            <div class="ach-earned-date">${val.toFixed(a.type==='weight'?1:0)} / ${a.threshold}${a.type==='goal'?'%':''}</div>
-           ${hintText ? `<div style="font-size:9px;color:var(--accent);margin-top:3px;font-weight:600">${hintText}</div>` : ''}`
+           ${hintText ? `<div style="font-size:9px;color:var(--color-primary);margin-top:3px;font-weight:600">${hintText}</div>` : ''}`
       }
     </div>`;
   }).join('');
@@ -1795,6 +1971,7 @@ function renderMiniChart() {
   const today = todayStr();
   const labels = data.map(d => d.date.slice(5));
   const weights = data.map(d => d.weight ?? null);
+  const accent = getCSSVar('color-primary'), accent2 = getCSSVar('color-accent'), yellow = getCSSVar('yellow');
 
   const validIdxs = weights.map((w,i) => w !== null ? i : -1).filter(i => i >= 0);
   let trendData = Array(labels.length).fill(null);
@@ -1810,14 +1987,14 @@ function renderMiniChart() {
   }
 
   const pointColors = data.map(d =>
-    d.date === today ? '#fff' : d.isCheatDay ? '#e0b44a' : d.isPeriod ? '#e06bb4' : '#7c6af7');
+    d.date === today ? '#fff' : d.isCheatDay ? yellow : d.isPeriod ? accent2 : accent);
   const pointSizes = data.map(d => d.date === today ? 6 : 3);
 
   if (miniWeightChartInst) miniWeightChartInst.destroy();
   const ctx = document.getElementById('miniWeightChart').getContext('2d');
   const grad = ctx.createLinearGradient(0,0,0,160);
-  grad.addColorStop(0, 'rgba(124,106,247,.2)');
-  grad.addColorStop(1, 'rgba(124,106,247,0)');
+  grad.addColorStop(0, 'rgba(var(--color-primary-rgb),.2)');
+  grad.addColorStop(1, 'rgba(var(--color-primary-rgb),0)');
 
   miniWeightChartInst = new Chart(ctx, {
     type: 'line',
@@ -1826,7 +2003,7 @@ function renderMiniChart() {
       datasets: [
         {
           data: weights,
-          borderColor: '#7c6af7',
+          borderColor: accent,
           backgroundColor: grad,
           fill: true,
           tension: 0.35,
@@ -1840,7 +2017,7 @@ function renderMiniChart() {
         },
         {
           data: trendData,
-          borderColor: 'rgba(224,107,180,0.5)',
+          borderColor: 'rgba(var(--color-accent-rgb),0.5)',
           borderDash: [4,3],
           pointRadius: 0,
           pointHoverRadius: 0,
@@ -1856,15 +2033,15 @@ function renderMiniChart() {
       plugins: {
         legend: { display: false },
         tooltip: {
-          backgroundColor: '#1a1a22', borderColor: '#2e2e3e', borderWidth: 1,
-          titleColor: '#e8e8f0', bodyColor: '#7a7a90',
+          backgroundColor: getCSSVar('color-surface'), borderColor: getCSSVar('color-border'), borderWidth: 1,
+          titleColor: getCSSVar('color-text'), bodyColor: getCSSVar('color-text-secondary'),
           filter: (item) => item.datasetIndex === 0,
           callbacks: { label: ctx => ctx.parsed.y != null ? ctx.parsed.y + ' kg' : '' }
         }
       },
       scales: {
-        x: { grid: { color: '#1a1a22' }, ticks: { color: '#7a7a90', maxTicksLimit: 8, font: { size: 10 } } },
-        y: { grid: { color: '#1a1a22' }, ticks: { color: '#7a7a90', font: { size: 10 } } }
+        x: { grid: { color: getCSSVar('color-border') }, ticks: { color: getCSSVar('color-text-secondary'), maxTicksLimit: 8, font: { size: 10 } } },
+        y: { grid: { color: getCSSVar('color-border') }, ticks: { color: getCSSVar('color-text-secondary'), font: { size: 10 } } }
       }
     }
   });
@@ -2113,6 +2290,7 @@ function buildCycleHTML(cycle) {
     ? `<span class="cycle-phase-tag ${PHASE_COLORS[cycle.currentPhase]}">${PHASE_LABELS[cycle.currentPhase]}</span>` : '';
   const avgC = cycle.avgCycle;
   const menLen = cycle.periodLen;
+  const A = getCSSVar('color-accent'), B = getCSSVar('green'), C = getCSSVar('yellow'), D = getCSSVar('color-primary');
   const folLen = Math.max(1, Math.round((new Date(cycle.ovWinStart+'T00:00:00') - new Date(cycle.follicularStart+'T00:00:00')) / 864e5));
   const ovLen  = 5;
   const lutLen = Math.max(1, avgC - menLen - folLen - ovLen);
@@ -2122,15 +2300,15 @@ function buildCycleHTML(cycle) {
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
       <div>
         <span style="font-size:26px;font-weight:700">第 ${Math.max(1, cycle.cycleDay)} 天</span>
-        <span style="font-size:13px;color:var(--muted);margin-left:8px">（周期 ${cycle.avgCycle} 天）</span>
+        <span style="font-size:13px;color:var(--color-text-secondary);margin-left:8px">（周期 ${cycle.avgCycle} 天）</span>
         ${phaseTag}
       </div>
     </div>
     <div class="cycle-legend">
-      <div class="cycle-legend-item"><div class="cycle-legend-dot" style="background:#e06bb4"></div>月经期 ${menLen}天</div>
-      <div class="cycle-legend-item"><div class="cycle-legend-dot" style="background:#4caf87"></div>卵泡期 ${folLen}天</div>
-      <div class="cycle-legend-item"><div class="cycle-legend-dot" style="background:#e0b44a"></div>排卵期 5天</div>
-      <div class="cycle-legend-item"><div class="cycle-legend-dot" style="background:#7c6af7"></div>黄体期 ${lutLen}天</div>
+      <div class="cycle-legend-item"><div class="cycle-legend-dot" style="background:${A}"></div>月经期 ${menLen}天</div>
+      <div class="cycle-legend-item"><div class="cycle-legend-dot" style="background:${B}"></div>卵泡期 ${folLen}天</div>
+      <div class="cycle-legend-item"><div class="cycle-legend-dot" style="background:${C}"></div>排卵期 5天</div>
+      <div class="cycle-legend-item"><div class="cycle-legend-dot" style="background:${D}"></div>黄体期 ${lutLen}天</div>
     </div>
     <div class="cycle-timeline">
       <div class="cycle-phase-bar menstrual" style="flex:${menLen}">${menLen > 2 ? '月经期' : ''}</div>
@@ -2143,27 +2321,27 @@ function buildCycleHTML(cycle) {
       <div class="cycle-date-row">
         <div class="cycle-date-label">🩸 上次例假</div>
         <div class="cycle-date-val">${cycle.lastStart}</div>
-        <div style="font-size:11px;color:var(--muted)">持续 ${cycle.periodLen} 天</div>
+        <div style="font-size:11px;color:var(--color-text-secondary)">持续 ${cycle.periodLen} 天</div>
       </div>
       <div class="cycle-date-row">
         <div class="cycle-date-label">📅 预测下次例假</div>
         <div class="cycle-date-val">${cycle.nextPeriod}</div>
-        <div style="font-size:11px;color:${cycle.daysUntilNext >= 0 ? 'var(--muted)' : 'var(--red)'}">
+        <div style="font-size:11px;color:${cycle.daysUntilNext >= 0 ? 'var(--color-text-secondary)' : 'var(--red)'}">
           ${cycle.daysUntilNext > 0 ? '还有 ' + cycle.daysUntilNext + ' 天' : cycle.daysUntilNext === 0 ? '就是今天' : '已逾期 ' + Math.abs(cycle.daysUntilNext) + ' 天'}
         </div>
       </div>
       <div class="cycle-date-row">
         <div class="cycle-date-label">🌸 排卵期</div>
         <div class="cycle-date-val" style="font-size:12px">${cycle.ovWinStart} ~ ${cycle.ovWinEnd}</div>
-        <div style="font-size:11px;color:var(--muted)">排卵日 ${cycle.ovulation}</div>
+        <div style="font-size:11px;color:var(--color-text-secondary)">排卵日 ${cycle.ovulation}</div>
       </div>
       <div class="cycle-date-row">
         <div class="cycle-date-label">🌙 黄体期</div>
         <div class="cycle-date-val" style="font-size:12px">${cycle.lutealStart} ~ ${cycle.nextPeriod}</div>
-        <div style="font-size:11px;color:var(--muted)">约 14 天</div>
+        <div style="font-size:11px;color:var(--color-text-secondary)">约 14 天</div>
       </div>
     </div>
-    <div style="margin-top:14px;font-size:11px;color:var(--muted);line-height:1.6">
+    <div style="margin-top:14px;font-size:11px;color:var(--color-text-secondary);line-height:1.6">
       基于 ${cycle.totalPeriods} 次例假记录 · 平均周期 ${cycle.avgCycle} 天 ·
       <span style="color:${cycle.totalPeriods >= 5 ? 'var(--green)' : cycle.totalPeriods >= 3 ? 'var(--yellow)' : 'var(--red)'}">
         ${cycle.totalPeriods >= 5 ? '高置信度' : cycle.totalPeriods >= 3 ? '中等置信度' : '低置信度（积累更多数据后更准确）'}
@@ -2191,11 +2369,11 @@ function openPeriodDetail() {
     html += `<div style="text-align:center;padding:24px 0 20px">
       <div style="font-size:44px;margin-bottom:12px">🌸</div>
       <div style="font-size:15px;font-weight:700;margin-bottom:8px">暂无周期预测</div>
-      <div style="font-size:12px;color:var(--muted);line-height:1.8">在打卡页勾选「🌸 例假中」记录经期日期<br>积累 2 个完整周期后自动分析预测</div>
+      <div style="font-size:12px;color:var(--color-text-secondary);line-height:1.8">在打卡页勾选「🌸 例假中」记录经期日期<br>积累 2 个完整周期后自动分析预测</div>
     </div>`;
   }
 
-  html += `<div class="section-label" style="margin:18px 0 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted)">🩸 经期记录</div>
+  html += `<div class="section-label" style="margin:18px 0 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--color-text-secondary)">🩸 经期记录</div>
   <div class="period-cal-nav">
     <button class="cal-nav-btn" onclick="shiftPeriodMonth(-1)">‹</button>
     <span class="cal-pop-label" id="periodCalLabel"></span>
@@ -2292,7 +2470,7 @@ function renderMonthly() {
   const nextBtn = document.getElementById('monthNext');
   const label   = document.getElementById('monthPageLabel');
   if (!months.length) {
-    card.innerHTML = '<div style="color:var(--muted);font-size:13px;text-align:center;padding:20px">暂无数据</div>';
+    card.innerHTML = '<div style="color:var(--color-text-secondary);font-size:13px;text-align:center;padding:20px">暂无数据</div>';
     label.textContent = '无记录';
     prevBtn.disabled = nextBtn.disabled = true;
     return;
