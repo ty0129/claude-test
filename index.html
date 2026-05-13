@@ -19,7 +19,7 @@
   }
   /* ── Theme: 暗夜霓虹 Neon Night (default) ── */
   body[data-theme="neon"] {
-    --color-bg: #060610;
+    --color-bg: #060610; --color-bg-rgb: 6,6,16;
     --color-surface: #0c0c1e;
     --color-surface2: #12122a;
     --color-border: #1e1e40;
@@ -38,7 +38,7 @@
   }
   /* ── Theme: Paper 纸质温暖 ── */
   body[data-theme="paper"] {
-    --color-bg: #f9f6f0;
+    --color-bg: #f9f6f0; --color-bg-rgb: 249,246,240;
     --color-surface: #ffffff;
     --color-surface2: #f2efe8;
     --color-border: #e5ddd0;
@@ -57,7 +57,7 @@
   }
   /* ── Theme: Forest 自然有机 ── */
   body[data-theme="forest"] {
-    --color-bg: #3b4d3c;
+    --color-bg: #3b4d3c; --color-bg-rgb: 59,77,60;
     --color-surface: #4a5e4b;
     --color-surface2: #3d523e;
     --color-border: #5a7052;
@@ -76,7 +76,7 @@
   }
   /* ── Theme: Rose 浪漫轻奢 ── */
   body[data-theme="rose"] {
-    --color-bg: #faf5f7;
+    --color-bg: #faf5f7; --color-bg-rgb: 250,245,247;
     --color-surface: #ffffff;
     --color-surface2: #f7eff2;
     --color-border: #ecd5d8;
@@ -95,7 +95,7 @@
   }
   /* ── Theme: 极简霜白 Frost Minimal (cool white base) ── */
   body[data-theme="frost"] {
-    --color-bg: #f0f4f8;
+    --color-bg: #f0f4f8; --color-bg-rgb: 240,244,248;
     --color-surface: #ffffff;
     --color-surface2: #e8eef4;
     --color-border: #cdd7e2;
@@ -599,7 +599,7 @@
       bottom:calc(56px + env(safe-area-inset-bottom));
       left:0; right:0;
       padding:10px 16px;
-      background:rgba(6,6,16,.96);
+      background:rgba(var(--color-bg-rgb),.96);
       backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
       border-top:1px solid var(--color-border);
       box-shadow:0 -4px 24px rgba(0,0,0,.5);
