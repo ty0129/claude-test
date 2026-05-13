@@ -404,8 +404,8 @@
   .cycle-date-val { font-size:13px; font-weight:700; }
   .cycle-phase-tag { display:inline-block; font-size:10px; font-weight:600; padding:2px 9px; border-radius:50px; margin-left:6px; }
   .phase-menstrual  { background:rgba(var(--color-accent-rgb),.15); color:var(--color-accent); }
-  .phase-follicular { background:rgba(var(--green-rgb),.1);   color:#00ffb3; }
-  .phase-ovulation  { background:rgba(var(--yellow-rgb),.12); color:#ffd60a; }
+  .phase-follicular { background:rgba(var(--green-rgb),.1);   color:var(--green); }
+  .phase-ovulation  { background:rgba(var(--yellow-rgb),.12); color:var(--yellow); }
   .phase-luteal     { background:rgba(var(--color-primary-rgb),.15); color:var(--color-primary); }
 
   /* Stat cards */
@@ -470,7 +470,7 @@
   .di-btn.period.active   { border-color:var(--color-accent); background:rgba(var(--color-accent-rgb),.12); color:var(--color-accent); box-shadow:0 0 12px rgba(var(--color-accent-rgb),.25); }
   .di-btn.restday.active  { border-color:var(--green);   background:rgba(var(--green-rgb),.08);   color:var(--green);  box-shadow:0 0 12px rgba(var(--green-rgb),.2); }
   .di-btn.poop.active     { border-color:var(--yellow);  background:rgba(var(--yellow-rgb),.08);  color:var(--yellow); box-shadow:0 0 12px rgba(var(--yellow-rgb),.2); }
-  .di-btn.cheatday.active { border-color:#e0b44a;        background:rgba(224,180,74,.1);    color:#e0b44a; box-shadow:0 0 12px rgba(224,180,74,.25); }
+  .di-btn.cheatday.active { border-color:var(--yellow);  background:rgba(var(--yellow-rgb),.1);  color:var(--yellow); box-shadow:0 0 12px rgba(var(--yellow-rgb),.25); }
   /* Poop yes/no segmented control */
   .poop-seg { display:inline-flex; border-radius:50px; border:1px solid var(--color-border); overflow:hidden; }
   .poop-seg button { padding:7px 14px; border:none; background:var(--color-surface2); color:var(--color-text-secondary); font-family:var(--font); font-size:12px; font-weight:600; cursor:pointer; transition:all .18s; }
@@ -1420,9 +1420,10 @@ function renderCharts() {
   // Weight chart
   if (weightChartInst) weightChartInst.destroy();
   const ctx1 = document.getElementById('weightChart').getContext('2d');
+  const primaryRgb = getCSSVar('color-primary-rgb'), accentRgb = getCSSVar('color-accent-rgb');
   const grad1 = ctx1.createLinearGradient(0,0,0,280);
-  grad1.addColorStop(0, 'rgba(var(--color-primary-rgb),.25)');
-  grad1.addColorStop(1, 'rgba(var(--color-primary-rgb),0)');
+  grad1.addColorStop(0, `rgba(${primaryRgb},.25)`);
+  grad1.addColorStop(1, `rgba(${primaryRgb},0)`);
 
   // Add trend line
   const validIdxs = weights.map((w,i) => w !== null ? i : -1).filter(i => i>=0);
@@ -1466,7 +1467,7 @@ function renderCharts() {
         {
           label: '趋势',
           data: trendData,
-          borderColor: 'rgba(var(--color-accent-rgb),0.5)',
+          borderColor: `rgba(${accentRgb},0.5)`,
           borderDash: [5,4],
           pointRadius: 0,
           pointHoverRadius: 0,
@@ -1531,7 +1532,7 @@ function renderCharts() {
       datasets: [{
         label: '热量缺口 (kcal)',
         data: deficits,
-        backgroundColor: deficits.map(v => v == null ? 'transparent' : v >= 0 ? 'rgba(var(--green-rgb),.6)' : 'rgba(var(--red-rgb),.6)'),
+        backgroundColor: deficits.map(v => v == null ? 'transparent' : v >= 0 ? `rgba(${getCSSVar('green-rgb')},.6)` : `rgba(${getCSSVar('red-rgb')},.6)`),
         borderColor: deficits.map(v => v == null ? 'transparent' : v >= 0 ? getCSSVar('green') : getCSSVar('red')),
         borderWidth: 1,
         borderRadius: 4,
@@ -1996,9 +1997,10 @@ function renderMiniChart() {
 
   if (miniWeightChartInst) miniWeightChartInst.destroy();
   const ctx = document.getElementById('miniWeightChart').getContext('2d');
+  const primaryRgb = getCSSVar('color-primary-rgb'), accentRgb = getCSSVar('color-accent-rgb');
   const grad = ctx.createLinearGradient(0,0,0,160);
-  grad.addColorStop(0, 'rgba(var(--color-primary-rgb),.2)');
-  grad.addColorStop(1, 'rgba(var(--color-primary-rgb),0)');
+  grad.addColorStop(0, `rgba(${primaryRgb},.2)`);
+  grad.addColorStop(1, `rgba(${primaryRgb},0)`);
 
   miniWeightChartInst = new Chart(ctx, {
     type: 'line',
@@ -2021,7 +2023,7 @@ function renderMiniChart() {
         },
         {
           data: trendData,
-          borderColor: 'rgba(var(--color-accent-rgb),0.5)',
+          borderColor: `rgba(${accentRgb},0.5)`,
           borderDash: [4,3],
           pointRadius: 0,
           pointHoverRadius: 0,
