@@ -451,6 +451,7 @@
   .cal-holiday-name { font-size:8px; color:var(--red); line-height:1.1; text-align:center; width:100%; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; padding:0 2px; }
   .cal-cell.holiday .cal-num { color:var(--red) !important; }
   .cal-cell.selected .cal-holiday-name { color:rgba(255,255,255,.75); }
+  .cal-period-dot { width:5px; height:5px; border-radius:50%; background:#ff6b9d; margin-top:2px; flex-shrink:0; }
 
   .section-gap { margin-top:6px; }
 
@@ -2225,6 +2226,7 @@ function renderCalendar() {
   document.getElementById('calGrid').innerHTML = cells.map(({ day, dateStr, other }) => {
     const dow = new Date(dateStr + 'T00:00:00').getDay();
     const holiday = CN_HOLIDAYS[dateStr];
+    const isPeriod = !!(all[dateStr] && all[dateStr].isPeriod);
     let cls = 'cal-cell';
     if (other) cls += ' other-month';
     if (dateStr === today) cls += ' today';
@@ -2234,6 +2236,7 @@ function renderCalendar() {
     return `<div class="${cls}" onclick="calPickDay('${dateStr}')">
       <div class="cal-num">${day}</div>
       ${holiday ? `<div class="cal-holiday-name">${holiday}</div>` : ''}
+      ${isPeriod ? '<div class="cal-period-dot"></div>' : ''}
     </div>`;
   }).join('');
 }
