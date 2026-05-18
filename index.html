@@ -390,10 +390,10 @@
   /* Cycle */
   .cycle-timeline { display:flex; border-radius:8px; overflow:hidden; height:26px; margin:10px 0; position:relative; }
   .cycle-phase-bar { display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:700; color:rgba(255,255,255,.85); overflow:hidden; white-space:nowrap; transition:flex .3s; }
-  .cycle-phase-bar.menstrual  { background:rgba(var(--color-accent-rgb),.7); box-shadow:inset 0 0 10px rgba(var(--color-accent-rgb),.3); }
-  .cycle-phase-bar.follicular { background:rgba(var(--green-rgb),.5);   box-shadow:inset 0 0 10px rgba(var(--green-rgb),.2); }
-  .cycle-phase-bar.ovulation  { background:rgba(var(--yellow-rgb),.8);  color:rgba(0,0,0,.7); }
-  .cycle-phase-bar.luteal     { background:rgba(var(--color-primary-rgb),.65); box-shadow:inset 0 0 10px rgba(var(--color-primary-rgb),.3); }
+  .cycle-phase-bar.menstrual  { background:rgba(224,107,180,.7); box-shadow:inset 0 0 10px rgba(224,107,180,.3); }
+  .cycle-phase-bar.follicular { background:rgba(0,255,179,.5);   box-shadow:inset 0 0 10px rgba(0,255,179,.2); }
+  .cycle-phase-bar.ovulation  { background:rgba(255,214,10,.8);  color:rgba(0,0,0,.7); }
+  .cycle-phase-bar.luteal     { background:rgba(124,106,247,.65); box-shadow:inset 0 0 10px rgba(124,106,247,.3); }
   .cycle-today-marker { position:absolute; top:0; bottom:0; width:2px; background:#fff; box-shadow:0 0 8px #fff, 0 0 20px rgba(255,255,255,.5); }
   .cycle-legend { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:12px; }
   .cycle-legend-item { display:flex; align-items:center; gap:5px; font-size:11px; color:var(--color-text-secondary); }
@@ -587,6 +587,10 @@
   .period-cal-day.is-period { background:rgba(var(--color-accent-rgb),.18); color:var(--color-accent); font-weight:700; border:1px solid rgba(var(--color-accent-rgb),.35); box-shadow:0 0 6px rgba(var(--color-accent-rgb),.15); }
   .period-cal-day.is-today { border:1.5px solid var(--color-primary); color:var(--color-text); font-weight:700; }
   .period-cal-day.is-period.is-today { border-color:var(--color-accent); }
+.period-cal-day.cal-phase-menstrual { background:rgba(var(--color-accent-rgb),.18); color:var(--color-accent); font-weight:700; border:1px solid rgba(var(--color-accent-rgb),.35); box-shadow:0 0 6px rgba(var(--color-accent-rgb),.15); }
+.period-cal-day.cal-phase-follicular { background:rgba(var(--green-rgb),.12); color:var(--green); font-weight:600; border:1px solid rgba(var(--green-rgb),.25); }
+.period-cal-day.cal-phase-ovulation { background:rgba(var(--yellow-rgb),.15); color:var(--yellow); font-weight:700; border:1px solid rgba(var(--yellow-rgb),.35); box-shadow:0 0 6px rgba(var(--yellow-rgb),.15); }
+.period-cal-day.cal-phase-luteal { background:rgba(var(--color-primary-rgb),.15); color:var(--color-primary); font-weight:600; border:1px solid rgba(var(--color-primary-rgb),.3); box-shadow:0 0 6px rgba(var(--color-primary-rgb),.12); }
 
   /* 悬浮保存条 */
   .log-save-bar {
@@ -2321,9 +2325,9 @@ function buildCycleHTML(cycle) {
     </div>
     <div class="cycle-timeline">
       <div class="cycle-phase-bar menstrual" style="flex:${menLen}">${menLen > 2 ? '月经期' : ''}</div>
-      <div class="cycle-phase-bar follicular" style="flex:${folLen}">${folLen > 3 ? '卵泡期' : ''}</div>
+      <div class="cycle-phase-bar follicular" style="flex:${folLen}">${folLen > 2 ? '卵泡期' : ''}</div>
       <div class="cycle-phase-bar ovulation" style="flex:${ovLen}">排卵期</div>
-      <div class="cycle-phase-bar luteal" style="flex:${lutLen}">${lutLen > 3 ? '黄体期' : ''}</div>
+      <div class="cycle-phase-bar luteal" style="flex:${lutLen}">${lutLen > 2 ? '黄体期' : ''}</div>
       <div class="cycle-today-marker" style="left:${markerPct}%"></div>
     </div>
     <div class="cycle-dates">
@@ -2415,18 +2419,33 @@ function renderPeriodDetailCalendar() {
   const firstDow = new Date(y, m - 1, 1).getDay();
   const daysInMonth = new Date(y, m, 0).getDate();
 
+  const cycle = analyzePeriodCycle();
+  const getPhase = (dateStr) => {
+    if (!cycle) return null;
+    const { lastStart, lastEnd, ovWinStart, ovWinEnd, nextPeriod } = cycle;
+    if (dateStr >= lastStart && dateStr <= lastEnd) return 'menstrual';
+    if (dateStr > lastEnd && dateStr < ovWinStart) return 'follicular';
+    if (dateStr >= ovWinStart && dateStr <= ovWinEnd) return 'ovulation';
+    if (dateStr > ovWinEnd && dateStr < nextPeriod) return 'luteal';
+    if (dateStr >= nextPeriod) return 'menstrual';
+    return null;
+  };
+
   const cells = [];
   for (let i = 0; i < firstDow; i++) cells.push(null);
   for (let d = 1; d <= daysInMonth; d++) {
     const dateStr = `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const entry = all[dateStr];
-    cells.push({ day: d, dateStr, isPeriod: !!(entry && entry.isPeriod), isToday: dateStr === today });
+    const isPeriod = !!(entry && entry.isPeriod);
+    const phase = isPeriod ? 'menstrual' : getPhase(dateStr);
+    cells.push({ day: d, dateStr, isPeriod, isToday: dateStr === today, phase });
   }
 
   const periodDays = cells.filter(c => c && c.isPeriod).length;
   document.getElementById('periodCalGrid').innerHTML = cells.map(cell => {
     if (!cell) return '<div class="period-cal-empty"></div>';
     let cls = 'period-cal-day';
+    if (cell.phase) cls += ' cal-phase-' + cell.phase;
     if (cell.isPeriod) cls += ' is-period';
     if (cell.isToday) cls += ' is-today';
     return `<div class="${cls}">${cell.day}</div>`;
