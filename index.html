@@ -1443,7 +1443,7 @@ function renderCharts() {
 
   // Cheat/period markers
   const accent = getCSSVar('color-primary'), accent2 = getCSSVar('color-accent'), yellow = getCSSVar('yellow');
-  const pointBgColors = data.map(d => d.isCheatDay ? yellow : d.isPeriod ? accent2 : accent);
+  const pointBgColors = data.map(d => d.isCheatDay ? '#ffe840' : d.isPeriod ? '#ff6b9d' : accent);
 
   weightChartInst = new Chart(ctx1, {
     type: 'line',
@@ -1993,7 +1993,7 @@ function renderMiniChart() {
   }
 
   const pointColors = data.map(d =>
-    d.date === today ? '#fff' : d.isCheatDay ? yellow : d.isPeriod ? accent2 : accent);
+    d.date === today ? '#fff' : d.isCheatDay ? '#ffe840' : d.isPeriod ? '#ff6b9d' : accent);
   const pointSizes = data.map(d => d.date === today ? 6 : 3);
 
   if (miniWeightChartInst) miniWeightChartInst.destroy();
