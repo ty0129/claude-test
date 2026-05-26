@@ -772,6 +772,9 @@
   </div>
 
   <div id="tab-chart" style="display:none">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:10px">
+      <button class="chip" onclick="runWeightAnalysis()" style="background:linear-gradient(135deg,var(--color-primary),var(--color-accent));color:#fff;border:none;font-weight:700">🧠 体重分析</button>
+    </div>
     <div class="stat-row" id="statsRow" style="display:grid;grid-template-columns:1fr 1fr;"></div>
     <div class="card">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
@@ -781,7 +784,6 @@
           <button class="chip selected" id="range30" onclick="setRange(30)">30天</button>
           <button class="chip" id="range90" onclick="setRange(90)">90天</button>
           <button class="chip" id="rangeAll" onclick="setRange(0)">全部</button>
-          <button class="chip" onclick="runWeightAnalysis()" style="background:linear-gradient(135deg,var(--color-primary),var(--color-accent));color:#fff;border:none;font-weight:700">🧠 体重分析</button>
         </div>
       </div>
       <div class="chart-wrap"><canvas id="weightChart"></canvas></div>
@@ -2547,6 +2549,18 @@ function switchRewardSubtab(tab) {
 }
 
 // ── AI Weight Analysis ──────────────────────────────────────────────────────
+function hashStr(s) {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) { h = ((h << 5) - h + s.charCodeAt(i)) | 0; }
+  return String(h);
+}
+
+function prevDateStr(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  d.setDate(d.getDate() - 1);
+  return d.toISOString().slice(0, 10);
+}
+
 function getPhaseForDate(dateStr, cycle) {
   if (!cycle) return null;
   const { lastStart, lastEnd, ovWinStart, ovWinEnd, nextPeriod } = cycle;
@@ -2559,12 +2573,15 @@ function getPhaseForDate(dateStr, cycle) {
 }
 
 function buildAnalysisPayload(entries, cycle, goal) {
+  const allData = loadAll();
   const n = entries.length;
   const weights = entries.map(e => e.weight);
   const dates = entries.map(e => e.date);
   const firstW = weights[0], curW = weights[n - 1], minW = Math.min(...weights), maxW = Math.max(...weights);
 
-  // Phase stats
+  const isTraining = e => Array.isArray(e.split) ? e.split.length > 0 : (e.split && e.split !== 'break');
+
+  // Phase stats (same-day phase → same-day weight)
   const phaseData = { menstrual:{weights:[],diffs:[]}, follicular:{weights:[],diffs:[]}, ovulation:{weights:[],diffs:[]}, luteal:{weights:[],diffs:[]} };
   for (let i = 0; i < n; i++) {
     const phase = getPhaseForDate(dates[i], cycle);
@@ -2583,39 +2600,47 @@ function buildAnalysisPayload(entries, cycle, goal) {
     phases[p] = { days: d.weights.length, avgWeight: +avg.toFixed(2), stdDev: +Math.sqrt(s2).toFixed(2), avgDailyChange: avgDiff != null ? +avgDiff.toFixed(3) : null };
   }
 
-  // Training stats
-  const isTraining = e => Array.isArray(e.split) ? e.split.length > 0 : (e.split && e.split !== 'break');
-  const trainEntries = entries.filter(isTraining);
-  const restEntries = entries.filter(e => !isTraining(e));
-  const trainWeights = trainEntries.map(e => e.weight);
-  const restWeights = restEntries.map(e => e.weight);
-  const trainAvgW = trainWeights.length > 0 ? +(trainWeights.reduce((a, b) => a + b, 0) / trainWeights.length).toFixed(2) : null;
-  const restAvgW = restWeights.length > 0 ? +(restWeights.reduce((a, b) => a + b, 0) / restWeights.length).toFixed(2) : null;
+  // Training stats — weight reflects PREVIOUS day's training
+  const trainWeights = [], restWeights = [];
+  const partWeights = { chest:[], back:[], shoulders:[], legs:[], abs:[], glutes:[] };
+  const cardioW = [], noCardioW = [];
+  const trainDiffs = [], restDiffs = [];
 
-  // By body part
-  const PARTS = ['chest', 'back', 'shoulders', 'legs', 'abs', 'glutes'];
-  const byPart = {};
-  for (const part of PARTS) {
-    const partEntries = entries.filter(e => {
-      const s = e.split;
-      return Array.isArray(s) ? s.includes(part) : s === part;
-    });
-    if (partEntries.length < 3) { byPart[part] = null; continue; }
-    const pw = partEntries.map(e => e.weight);
-    byPart[part] = { days: partEntries.length, avgWeight: +(pw.reduce((a, b) => a + b, 0) / pw.length).toFixed(2) };
+  for (let i = 0; i < n; i++) {
+    const prevDay = allData[prevDateStr(dates[i])];
+    if (!prevDay) continue;
+    const w = weights[i];
+
+    if (isTraining(prevDay)) {
+      trainWeights.push(w);
+      if (i > 0) trainDiffs.push(w - weights[i - 1]);
+    } else {
+      restWeights.push(w);
+      if (i > 0) restDiffs.push(w - weights[i - 1]);
+    }
+
+    const s = prevDay.split;
+    for (const part of Object.keys(partWeights)) {
+      if (Array.isArray(s) ? s.includes(part) : s === part) {
+        partWeights[part].push(w);
+      }
+    }
+
+    if (prevDay.cardioMins > 0) cardioW.push(w);
+    else noCardioW.push(w);
   }
 
-  // Cardio stats
-  const cardioEntries = entries.filter(e => e.cardioMins > 0);
-  const noCardioEntries = entries.filter(e => !e.cardioMins);
-  const getAvgChange = (arr) => {
-    if (arr.length < 2) return null;
-    const diffs = [];
-    for (let i = 1; i < arr.length; i++) diffs.push(arr[i].weight - arr[i - 1].weight);
-    return +(diffs.reduce((a, b) => a + b, 0) / diffs.length).toFixed(3);
-  };
+  const avgArr = arr => arr.length > 0 ? +(arr.reduce((a, b) => a + b, 0) / arr.length).toFixed(2) : null;
+  const avgDiffArr = arr => arr.length > 0 ? +(arr.reduce((a, b) => a + b, 0) / arr.length).toFixed(3) : null;
 
-  // Trend (OLS)
+  const trainAvg = avgArr(trainWeights), restAvg = avgArr(restWeights);
+  const byPart = {};
+  for (const [part, ws] of Object.entries(partWeights)) {
+    if (ws.length < 3) { byPart[part] = null; continue; }
+    byPart[part] = { days: ws.length, avgWeight: avgArr(ws) };
+  }
+
+  // Trend (OLS) on all weights
   const xs = entries.map((_, i) => i);
   const ys = weights;
   const xMean = xs.reduce((a, b) => a + b, 0) / n;
@@ -2661,17 +2686,18 @@ function buildAnalysisPayload(entries, cycle, goal) {
     summary: {
       totalDaysWithWeight: n,
       dateRange: { from: dates[0], to: dates[n - 1] },
-      weight: { first: firstW, current: curW, min: minW, max: maxW, totalLoss: +(firstW - curW).toFixed(2) }
+      weight: { first: firstW, current: curW, min: minW, max: maxW, totalLoss: +(firstW - curW).toFixed(2) },
+      note: '训练/有氧统计基于前一日活动（体重为晨起空腹测量，反映前日训练效果）'
     },
     phases,
     training: {
-      trainingDays: { count: trainEntries.length, avgWeight: trainAvgW, avgDailyChange: getAvgChange(trainEntries) },
-      restDays: { count: restEntries.length, avgWeight: restAvgW, avgDailyChange: getAvgChange(restEntries) },
+      trainingDays: { count: trainWeights.length, avgWeight: trainAvg, avgDailyChange: avgDiffArr(trainDiffs) },
+      restDays: { count: restWeights.length, avgWeight: restAvg, avgDailyChange: avgDiffArr(restDiffs) },
       byPart
     },
     cardio: {
-      withCardio: { count: cardioEntries.length, avgDailyChange: getAvgChange(cardioEntries) },
-      withoutCardio: { count: noCardioEntries.length, avgDailyChange: getAvgChange(noCardioEntries) }
+      withCardio: { count: cardioW.length },
+      withoutCardio: { count: noCardioW.length }
     },
     trend: { slope: +slope.toFixed(4), r2, dailyRate: +dailyRate.toFixed(4), weeklyRate, direction: slope < 0 ? '下降' : '上升', goalProjection },
     cheatDays: cheatStats,
@@ -2702,7 +2728,6 @@ async function runWeightAnalysis() {
   const body = document.getElementById('analysisBody');
   const footer = document.getElementById('analysisFooter');
   overlay.style.display = 'flex';
-  body.innerHTML = '<div class="analysis-loading"><div class="analysis-spinner"></div><div style="color:var(--color-text-secondary)">正在分析数据...</div></div>';
   footer.style.display = 'none';
 
   if (entries.length < 7) {
@@ -2710,9 +2735,26 @@ async function runWeightAnalysis() {
     return;
   }
 
+  // Cache check
+  const dataHash = hashStr(JSON.stringify(all));
+  const cacheKey = 'healthlog_analysis_cache';
+  let cache = null;
+  try { cache = JSON.parse(localStorage.getItem(cacheKey) || 'null'); } catch { cache = null; }
+  if (cache && cache.hash === dataHash) {
+    body.innerHTML = cache.resultHtml;
+    footer.style.display = '';
+    footer.innerHTML = cache.footerHtml + ' · 缓存';
+    return;
+  }
+
+  body.innerHTML = '<div class="analysis-loading"><div class="analysis-spinner"></div><div id="analysisStreamHint" style="color:var(--color-text-secondary)">正在分析数据...</div></div>';
+
   const cycle = analyzePeriodCycle();
   const goal = loadGoal();
   const payload = buildAnalysisPayload(entries, cycle, goal);
+
+  let fullContent = '';
+  body.innerHTML = '<div id="analysisStreamContent" style="white-space:pre-wrap"></div><div class="analysis-spinner" id="analysisMiniSpinner" style="width:18px;height:18px;border-width:2px;margin:8px 0 0 0"></div>';
 
   try {
     const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
@@ -2720,12 +2762,13 @@ async function runWeightAnalysis() {
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer sk-18ffb221cb3342a893657d2ed4194601' },
       body: JSON.stringify({
         model: 'deepseek-v4-pro',
+        stream: true,
         messages: [{
           role: 'system',
-          content: '你是一位专业的健康数据分析师，精通体重管理、运动生理学和女性生理周期。请基于用户提供的聚合数据，分析体重变化规律。使用中文。用 Markdown 格式输出，包含适当的小标题（##）和要点列表（- ）。不要重复数据，直接给出分析结论和建议。控制在 500 字以内。'
+          content: '你是一位专业的健康数据分析师，精通体重管理、运动生理学和女性生理周期。请基于用户提供的聚合数据，分析体重变化规律。使用中文。用 Markdown 格式输出，包含适当的小标题（##）和要点列表（- ）。注意：训练数据已按前一天活动关联（体重为晨起空腹称量，反映前一天训练效果）。不要重复罗列数据，直接给出分析结论和建议。控制在 500 字以内。'
         }, {
           role: 'user',
-          content: '以下是一位用户的历史体重记录聚合数据（JSON格式）。请从以下几个维度进行分析：\n\n1. **月经四阶段体重波动规律** — 哪个阶段容易水肿/体重偏高，哪个阶段掉秤最快\n2. **训练日 vs 休息日的体重表现** — 训练对体重变化的影响，不同训练部位的差异\n3. **整体减重趋势预估** — 当前减重速率、趋势稳定性、预计何时达成目标\n4. **其他值得关注的规律或建议**\n\n聚合数据：\n' + JSON.stringify(payload, null, 2)
+          content: '以下是一位用户的历史体重记录聚合数据（JSON格式）。请从以下几个维度进行分析：\n\n1. **月经四阶段体重波动规律** — 哪个阶段容易水肿/体重偏高，哪个阶段掉秤最快\n2. **训练日 vs 休息日的体重表现** — 训练对次日晨起体重的影响，不同训练部位的差异\n3. **整体减重趋势预估** — 当前减重速率、趋势稳定性、预计何时达成目标\n4. **其他值得关注的规律或建议**\n\n聚合数据：\n' + JSON.stringify(payload, null, 2)
         }],
         temperature: 0.7,
         max_tokens: 2000
@@ -2737,11 +2780,39 @@ async function runWeightAnalysis() {
       throw new Error('API 返回错误 ' + response.status + ': ' + errText.slice(0, 200));
     }
 
-    const data = await response.json();
-    const content = data.choices?.[0]?.message?.content || '(API 返回为空)';
-    body.innerHTML = simpleMarkdown(content);
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop() || '';
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const data = line.slice(6).trim();
+        if (data === '[DONE]') continue;
+        try {
+          const json = JSON.parse(data);
+          const delta = json.choices?.[0]?.delta?.content;
+          if (delta) {
+            fullContent += delta;
+            document.getElementById('analysisStreamContent').innerHTML = simpleMarkdown(fullContent);
+          }
+        } catch {}
+      }
+    }
+
+    document.getElementById('analysisMiniSpinner').style.display = 'none';
+    const resultHtml = simpleMarkdown(fullContent);
+    const footerHtml = '分析基于 ' + payload.summary.totalDaysWithWeight + ' 天数据 · 体重范围 ' + payload.summary.weight.min + '–' + payload.summary.weight.max + ' kg';
     footer.style.display = '';
-    footer.innerHTML = '分析基于 ' + payload.summary.totalDaysWithWeight + ' 天数据 · 体重范围 ' + payload.summary.weight.min + '–' + payload.summary.weight.max + ' kg';
+    footer.innerHTML = footerHtml;
+
+    // Save cache
+    localStorage.setItem(cacheKey, JSON.stringify({ hash: dataHash, resultHtml, footerHtml }));
   } catch (err) {
     body.innerHTML = '<div style="text-align:center;padding:24px 0;color:var(--red)">分析失败</div><div style="font-size:12px;color:var(--color-text-secondary);text-align:center">' + err.message + '</div>';
   }
