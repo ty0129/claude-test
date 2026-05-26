@@ -395,7 +395,23 @@
   .cycle-phase-bar.ovulation  { background:rgba(255,214,10,.8);  color:rgba(0,0,0,.7); }
   .cycle-phase-bar.luteal     { background:rgba(124,106,247,.65); box-shadow:inset 0 0 10px rgba(124,106,247,.3); }
   .cycle-today-marker { position:absolute; top:0; bottom:0; width:2px; background:#fff; box-shadow:0 0 8px #fff, 0 0 20px rgba(255,255,255,.5); }
-  .cycle-legend { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:12px; }
+  /* Analysis modal */
+.analysis-overlay { position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:300; display:flex; align-items:center; justify-content:center; padding:16px; backdrop-filter:blur(4px); }
+.analysis-modal { background:var(--color-surface); border:1px solid var(--color-border); border-radius:16px; max-width:560px; width:100%; max-height:85vh; display:flex; flex-direction:column; box-shadow:0 0 40px rgba(0,0,0,.5); }
+.analysis-header { display:flex; align-items:center; justify-content:space-between; padding:16px 18px 12px; border-bottom:1px solid var(--color-border); flex-shrink:0; }
+.analysis-body { padding:16px 18px; font-size:13px; line-height:1.8; color:var(--color-text); overflow-y:auto; }
+.analysis-body h3 { font-size:15px; margin:16px 0 8px; color:var(--color-primary); }
+.analysis-body h4 { font-size:13px; margin:12px 0 6px; }
+.analysis-body ul, .analysis-body ol { padding-left:18px; margin:4px 0; }
+.analysis-body li { margin:3px 0; }
+.analysis-body strong { color:var(--color-accent); }
+.analysis-body code { background:var(--color-border); padding:1px 6px; border-radius:4px; font-size:12px; }
+.analysis-loading { text-align:center; padding:40px 0; }
+.analysis-spinner { width:36px; height:36px; border:3px solid var(--color-border); border-top-color:var(--color-primary); border-radius:50%; animation:spin .8s linear infinite; margin:0 auto 16px; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.analysis-footer { padding:10px 18px 14px; border-top:1px solid var(--color-border); text-align:center; font-size:11px; color:var(--color-text-secondary); }
+
+.cycle-legend { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:12px; }
   .cycle-legend-item { display:flex; align-items:center; gap:5px; font-size:11px; color:var(--color-text-secondary); }
   .cycle-legend-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
   .cycle-dates { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
@@ -765,6 +781,7 @@
           <button class="chip selected" id="range30" onclick="setRange(30)">30天</button>
           <button class="chip" id="range90" onclick="setRange(90)">90天</button>
           <button class="chip" id="rangeAll" onclick="setRange(0)">全部</button>
+          <button class="chip" onclick="runWeightAnalysis()" style="background:linear-gradient(135deg,var(--color-primary),var(--color-accent));color:#fff;border:none;font-weight:700">🧠 体重分析</button>
         </div>
       </div>
       <div class="chart-wrap"><canvas id="weightChart"></canvas></div>
@@ -2528,6 +2545,211 @@ function switchRewardSubtab(tab) {
   document.getElementById('rst-monthly').classList.toggle('active',   tab === 'monthly');
   if (tab === 'monthly') renderMonthly();
 }
+
+// ── AI Weight Analysis ──────────────────────────────────────────────────────
+function getPhaseForDate(dateStr, cycle) {
+  if (!cycle) return null;
+  const { lastStart, lastEnd, ovWinStart, ovWinEnd, nextPeriod } = cycle;
+  if (dateStr >= lastStart && dateStr <= lastEnd) return 'menstrual';
+  if (dateStr > lastEnd && dateStr < ovWinStart) return 'follicular';
+  if (dateStr >= ovWinStart && dateStr <= ovWinEnd) return 'ovulation';
+  if (dateStr > ovWinEnd && dateStr < nextPeriod) return 'luteal';
+  if (dateStr >= nextPeriod) return 'menstrual';
+  return null;
+}
+
+function buildAnalysisPayload(entries, cycle, goal) {
+  const n = entries.length;
+  const weights = entries.map(e => e.weight);
+  const dates = entries.map(e => e.date);
+  const firstW = weights[0], curW = weights[n - 1], minW = Math.min(...weights), maxW = Math.max(...weights);
+
+  // Phase stats
+  const phaseData = { menstrual:{weights:[],diffs:[]}, follicular:{weights:[],diffs:[]}, ovulation:{weights:[],diffs:[]}, luteal:{weights:[],diffs:[]} };
+  for (let i = 0; i < n; i++) {
+    const phase = getPhaseForDate(dates[i], cycle);
+    if (!phase) continue;
+    phaseData[phase].weights.push(weights[i]);
+    if (i > 0 && getPhaseForDate(dates[i - 1], cycle) === phase) {
+      phaseData[phase].diffs.push(weights[i] - weights[i - 1]);
+    }
+  }
+  const phases = {};
+  for (const [p, d] of Object.entries(phaseData)) {
+    if (d.weights.length === 0) { phases[p] = null; continue; }
+    const avg = d.weights.reduce((a, b) => a + b, 0) / d.weights.length;
+    const s2 = d.weights.length > 1 ? d.weights.reduce((s, w) => s + (w - avg) ** 2, 0) / (d.weights.length - 1) : 0;
+    const avgDiff = d.diffs.length > 0 ? d.diffs.reduce((a, b) => a + b, 0) / d.diffs.length : null;
+    phases[p] = { days: d.weights.length, avgWeight: +avg.toFixed(2), stdDev: +Math.sqrt(s2).toFixed(2), avgDailyChange: avgDiff != null ? +avgDiff.toFixed(3) : null };
+  }
+
+  // Training stats
+  const isTraining = e => Array.isArray(e.split) ? e.split.length > 0 : (e.split && e.split !== 'break');
+  const trainEntries = entries.filter(isTraining);
+  const restEntries = entries.filter(e => !isTraining(e));
+  const trainWeights = trainEntries.map(e => e.weight);
+  const restWeights = restEntries.map(e => e.weight);
+  const trainAvgW = trainWeights.length > 0 ? +(trainWeights.reduce((a, b) => a + b, 0) / trainWeights.length).toFixed(2) : null;
+  const restAvgW = restWeights.length > 0 ? +(restWeights.reduce((a, b) => a + b, 0) / restWeights.length).toFixed(2) : null;
+
+  // By body part
+  const PARTS = ['chest', 'back', 'shoulders', 'legs', 'abs', 'glutes'];
+  const byPart = {};
+  for (const part of PARTS) {
+    const partEntries = entries.filter(e => {
+      const s = e.split;
+      return Array.isArray(s) ? s.includes(part) : s === part;
+    });
+    if (partEntries.length < 3) { byPart[part] = null; continue; }
+    const pw = partEntries.map(e => e.weight);
+    byPart[part] = { days: partEntries.length, avgWeight: +(pw.reduce((a, b) => a + b, 0) / pw.length).toFixed(2) };
+  }
+
+  // Cardio stats
+  const cardioEntries = entries.filter(e => e.cardioMins > 0);
+  const noCardioEntries = entries.filter(e => !e.cardioMins);
+  const getAvgChange = (arr) => {
+    if (arr.length < 2) return null;
+    const diffs = [];
+    for (let i = 1; i < arr.length; i++) diffs.push(arr[i].weight - arr[i - 1].weight);
+    return +(diffs.reduce((a, b) => a + b, 0) / diffs.length).toFixed(3);
+  };
+
+  // Trend (OLS)
+  const xs = entries.map((_, i) => i);
+  const ys = weights;
+  const xMean = xs.reduce((a, b) => a + b, 0) / n;
+  const yMean = ys.reduce((a, b) => a + b, 0) / n;
+  const ssXY = xs.reduce((s, x, i) => s + (x - xMean) * (ys[i] - yMean), 0);
+  const ssXX = xs.reduce((s, x) => s + (x - xMean) ** 2, 0);
+  const slope = ssXY / ssXX;
+  const intercept = yMean - slope * xMean;
+  const ssYY = ys.reduce((s, y) => s + (y - yMean) ** 2, 0);
+  const ssRes = ys.reduce((s, y, i) => s + (y - (slope * xs[i] + intercept)) ** 2, 0);
+  const r2 = ssYY > 0 ? +(1 - ssRes / ssYY).toFixed(3) : 0;
+  const dailyRate = Math.abs(slope);
+  const weeklyRate = +(dailyRate * 7).toFixed(3);
+
+  let goalProjection = null;
+  if (goal && slope < 0 && curW > goal.targetWeight) {
+    const remaining = curW - goal.targetWeight;
+    const estDays = Math.round(remaining / dailyRate);
+    const estDate = new Date();
+    estDate.setDate(estDate.getDate() + estDays);
+    goalProjection = {
+      remainingKg: +remaining.toFixed(1),
+      estDays,
+      estDate: `${estDate.getFullYear()}-${String(estDate.getMonth() + 1).padStart(2, '0')}-${String(estDate.getDate()).padStart(2, '0')}`
+    };
+  }
+
+  // Cheat day impact
+  const cheatEntries = entries.filter(e => e.isCheatDay);
+  const cheatGains = [];
+  for (const ce of cheatEntries) {
+    const idx = entries.findIndex(e => e.date === ce.date);
+    if (idx >= 0 && idx < n - 1 && entries[idx + 1].weight != null) {
+      cheatGains.push(entries[idx + 1].weight - ce.weight);
+    }
+  }
+  const cheatStats = cheatEntries.length > 0 ? {
+    count: cheatEntries.length,
+    avgNextDayGain: cheatGains.length > 0 ? +(+cheatGains.reduce((a, b) => a + b, 0) / cheatGains.length).toFixed(2) : null
+  } : null;
+
+  return {
+    summary: {
+      totalDaysWithWeight: n,
+      dateRange: { from: dates[0], to: dates[n - 1] },
+      weight: { first: firstW, current: curW, min: minW, max: maxW, totalLoss: +(firstW - curW).toFixed(2) }
+    },
+    phases,
+    training: {
+      trainingDays: { count: trainEntries.length, avgWeight: trainAvgW, avgDailyChange: getAvgChange(trainEntries) },
+      restDays: { count: restEntries.length, avgWeight: restAvgW, avgDailyChange: getAvgChange(restEntries) },
+      byPart
+    },
+    cardio: {
+      withCardio: { count: cardioEntries.length, avgDailyChange: getAvgChange(cardioEntries) },
+      withoutCardio: { count: noCardioEntries.length, avgDailyChange: getAvgChange(noCardioEntries) }
+    },
+    trend: { slope: +slope.toFixed(4), r2, dailyRate: +dailyRate.toFixed(4), weeklyRate, direction: slope < 0 ? '下降' : '上升', goalProjection },
+    cheatDays: cheatStats,
+    recent: {
+      last7Avg: n >= 7 ? +(weights.slice(-7).reduce((a, b) => a + b, 0) / 7).toFixed(2) : null,
+      last30Avg: n >= 30 ? +(weights.slice(-30).reduce((a, b) => a + b, 0) / 30).toFixed(2) : null
+    }
+  };
+}
+
+function simpleMarkdown(text) {
+  return text
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/^### (.+)$/gm, '<h4>$1</h4>')
+    .replace(/^## (.+)$/gm, '<h3>$1</h3>')
+    .replace(/^# (.+)$/gm, '<h3>$1</h3>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/^- (.+)$/gm, '<li>$1</li>')
+    .replace(/(<li>.*<\/li>\s*)+/g, '<ul>$&</ul>')
+    .replace(/\n/g, '<br>');
+}
+
+async function runWeightAnalysis() {
+  const all = loadAll();
+  const entries = Object.values(all).filter(e => e.weight != null).sort((a, b) => a.date.localeCompare(b.date));
+  const overlay = document.getElementById('analysisOverlay');
+  const body = document.getElementById('analysisBody');
+  const footer = document.getElementById('analysisFooter');
+  overlay.style.display = 'flex';
+  body.innerHTML = '<div class="analysis-loading"><div class="analysis-spinner"></div><div style="color:var(--color-text-secondary)">正在分析数据...</div></div>';
+  footer.style.display = 'none';
+
+  if (entries.length < 7) {
+    body.innerHTML = '<div style="text-align:center;padding:24px 0;color:var(--color-text-secondary)">至少需要 7 天体重记录才能分析<br>当前仅有 ' + entries.length + ' 天数据</div>';
+    return;
+  }
+
+  const cycle = analyzePeriodCycle();
+  const goal = loadGoal();
+  const payload = buildAnalysisPayload(entries, cycle, goal);
+
+  try {
+    const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer sk-18ffb221cb3342a893657d2ed4194601' },
+      body: JSON.stringify({
+        model: 'deepseek-v4-pro',
+        messages: [{
+          role: 'system',
+          content: '你是一位专业的健康数据分析师，精通体重管理、运动生理学和女性生理周期。请基于用户提供的聚合数据，分析体重变化规律。使用中文。用 Markdown 格式输出，包含适当的小标题（##）和要点列表（- ）。不要重复数据，直接给出分析结论和建议。控制在 500 字以内。'
+        }, {
+          role: 'user',
+          content: '以下是一位用户的历史体重记录聚合数据（JSON格式）。请从以下几个维度进行分析：\n\n1. **月经四阶段体重波动规律** — 哪个阶段容易水肿/体重偏高，哪个阶段掉秤最快\n2. **训练日 vs 休息日的体重表现** — 训练对体重变化的影响，不同训练部位的差异\n3. **整体减重趋势预估** — 当前减重速率、趋势稳定性、预计何时达成目标\n4. **其他值得关注的规律或建议**\n\n聚合数据：\n' + JSON.stringify(payload, null, 2)
+        }],
+        temperature: 0.7,
+        max_tokens: 2000
+      })
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      throw new Error('API 返回错误 ' + response.status + ': ' + errText.slice(0, 200));
+    }
+
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content || '(API 返回为空)';
+    body.innerHTML = simpleMarkdown(content);
+    footer.style.display = '';
+    footer.innerHTML = '分析基于 ' + payload.summary.totalDaysWithWeight + ' 天数据 · 体重范围 ' + payload.summary.weight.min + '–' + payload.summary.weight.max + ' kg';
+  } catch (err) {
+    body.innerHTML = '<div style="text-align:center;padding:24px 0;color:var(--red)">分析失败</div><div style="font-size:12px;color:var(--color-text-secondary);text-align:center">' + err.message + '</div>';
+  }
+}
+
+function closeAnalysis() {
+  document.getElementById('analysisOverlay').style.display = 'none';
+}
 </script>
 
 <div id="calBackdrop" class="cal-backdrop" onclick="closeCalendar()" style="display:none"></div>
@@ -2550,6 +2772,16 @@ function switchRewardSubtab(tab) {
   </div>
   <div class="period-detail-body" id="periodDetailBody"></div>
 </div>
+<!-- 体重分析模态框 -->
+<div class="analysis-overlay" id="analysisOverlay" style="display:none" onclick="if(event.target===this)closeAnalysis()">
+  <div class="analysis-modal">
+    <div class="analysis-header">
+      <span style="font-size:16px;font-weight:700">🧠 猪咪体重分析</span>
+      <button onclick="closeAnalysis()" style="background:none;border:none;color:var(--color-text-secondary);font-size:20px;cursor:pointer;line-height:1">&times;</button>
+    </div>
+    <div class="analysis-body" id="analysisBody"></div>
+    <div class="analysis-footer" id="analysisFooter" style="display:none"></div>
+  </div>
+</div>
 </body>
 </html>
-</body></html>
