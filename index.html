@@ -2682,6 +2682,46 @@ function buildAnalysisPayload(entries, cycle, goal) {
     avgNextDayGain: cheatGains.length > 0 ? +(+cheatGains.reduce((a, b) => a + b, 0) / cheatGains.length).toFixed(2) : null
   } : null;
 
+  // Volatility analysis — daily changes and large swings
+  const dailyChanges = [];
+  for (let i = 1; i < n; i++) {
+    dailyChanges.push({ date: dates[i], change: +(weights[i] - weights[i - 1]).toFixed(2), prevDate: dates[i - 1] });
+  }
+  const absChanges = dailyChanges.map(d => Math.abs(d.change));
+  const stdAll = dailyChanges.length > 1 ? +Math.sqrt(absChanges.reduce((s, v) => s + v * v, 0) / dailyChanges.length).toFixed(3) : 0;
+  const recent14 = dailyChanges.slice(-14);
+  const recent7 = dailyChanges.slice(-7);
+  const std14 = recent14.length > 1 ? +Math.sqrt(recent14.reduce((s, d) => s + d.change * d.change, 0) / recent14.length).toFixed(3) : 0;
+  const std7 = recent7.length > 1 ? +Math.sqrt(recent7.reduce((s, d) => s + d.change * d.change, 0) / recent7.length).toFixed(3) : 0;
+
+  // Large swings (> 0.5 kg), with context
+  const largeSwings = dailyChanges.filter(d => Math.abs(d.change) >= 0.5).map(d => {
+    const entry = entries.find(e => e.date === d.date);
+    const prevEntry = entries.find(e => e.date === d.prevDate);
+    const reasons = [];
+    if (prevEntry && prevEntry.isCheatDay) reasons.push('放纵日次日');
+    if (entry && entry.isCheatDay) reasons.push('当天放纵日');
+    if (prevEntry && isTraining(prevEntry)) reasons.push('前日训练');
+    if (entry && entry.isBusinessTrip) reasons.push('出差');
+    if (prevEntry && prevEntry.isBusinessTrip) reasons.push('出差期间');
+    const prevPhase = getPhaseForDate(d.prevDate, cycle);
+    const curPhase = getPhaseForDate(d.date, cycle);
+    if (prevPhase && curPhase && prevPhase !== curPhase) reasons.push('阶段转换(' + (PHASE_LABELS[prevPhase] || prevPhase) + '→' + (PHASE_LABELS[curPhase] || curPhase) + ')');
+    if (entry && entry.isPeriod && !prevEntry?.isPeriod) reasons.push('月经开始');
+    return { date: d.date, change: d.change, reasons: reasons.length > 0 ? reasons : ['无明显诱因'] };
+  });
+  const volatility = {
+    overallStdDev: stdAll,
+    recent14StdDev: std14,
+    recent7StdDev: std7,
+    isRecentMoreVolatile: std7 > stdAll * 1.3,
+    largeSwingCount14: recent14.filter(d => Math.abs(d.change) >= 0.5).length,
+    largeSwingCountAll: largeSwings.length,
+    maxGain: dailyChanges.length > 0 ? dailyChanges.reduce((a, b) => a.change > b.change ? a : b) : null,
+    maxDrop: dailyChanges.length > 0 ? dailyChanges.reduce((a, b) => a.change < b.change ? a : b) : null,
+    recentLargeSwings: largeSwings.slice(-8)
+  };
+
   return {
     summary: {
       totalDaysWithWeight: n,
@@ -2701,6 +2741,7 @@ function buildAnalysisPayload(entries, cycle, goal) {
     },
     trend: { slope: +slope.toFixed(4), r2, dailyRate: +dailyRate.toFixed(4), weeklyRate, direction: slope < 0 ? '下降' : '上升', goalProjection },
     cheatDays: cheatStats,
+    volatility,
     recent: {
       last7Avg: n >= 7 ? +(weights.slice(-7).reduce((a, b) => a + b, 0) / 7).toFixed(2) : null,
       last30Avg: n >= 30 ? +(weights.slice(-30).reduce((a, b) => a + b, 0) / 30).toFixed(2) : null
@@ -2765,10 +2806,10 @@ async function runWeightAnalysis() {
         stream: true,
         messages: [{
           role: 'system',
-          content: '你是一位专业的健康数据分析师，精通体重管理、运动生理学和女性生理周期。请基于用户提供的聚合数据，分析体重变化规律。使用中文。用 Markdown 格式输出，包含适当的小标题（##）和要点列表（- ）。注意：训练数据已按前一天活动关联（体重为晨起空腹称量，反映前一天训练效果）。不要重复罗列数据，直接给出分析结论和建议。控制在 500 字以内。'
+          content: '你是一位专业的健康数据分析师，精通体重管理、运动生理学和女性生理周期。请基于用户提供的聚合数据，分析体重变化规律。使用中文。用 Markdown 格式输出，包含适当的小标题（##）和要点列表（- ）。注意：训练数据已按前一天活动关联（体重为晨起空腹称量，反映前一天训练效果）; volatility 数据中的 recentLargeSwings 列出了近期的剧烈波动及其可能诱因。不要重复罗列数据，直接给出分析结论和建议。控制在 500 字以内。'
         }, {
           role: 'user',
-          content: '以下是一位用户的历史体重记录聚合数据（JSON格式）。请从以下几个维度进行分析：\n\n1. **月经四阶段体重波动规律** — 哪个阶段容易水肿/体重偏高，哪个阶段掉秤最快\n2. **训练日 vs 休息日的体重表现** — 训练对次日晨起体重的影响，不同训练部位的差异\n3. **整体减重趋势预估** — 当前减重速率、趋势稳定性、预计何时达成目标\n4. **其他值得关注的规律或建议**\n\n聚合数据：\n' + JSON.stringify(payload, null, 2)
+          content: '以下是一位用户的历史体重记录聚合数据（JSON格式）。请从以下几个维度进行分析：\n\n1. **月经四阶段体重波动规律** — 哪个阶段容易水肿/体重偏高，哪个阶段掉秤最快\n2. **训练日 vs 休息日的体重表现** — 训练对次日晨起体重的影响，不同训练部位的差异\n3. **近期体重波动分析** — 最近是否有异常的大幅波动？结合 largeSwing 的诱因（放纵日、阶段转换、训练等），解释波动背后可能的原因\n4. **整体减重趋势预估** — 当前减重速率、趋势稳定性、预计何时达成目标\n5. **其他值得关注的规律或建议**\n\n聚合数据：\n' + JSON.stringify(payload, null, 2)
         }],
         temperature: 0.7,
         max_tokens: 2000
